@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "225530079151",
+    "project_id": "slagalica-tim21",
+    "storage_bucket": "slagalica-tim21.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225530079151:android:1e692ec1436b13b573f15a",
+        "android_client_info": {
+          "package_name": "com.elfak.slagalica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4oNZrTo8m3D-r97DRnGIHbhHw7Ztx7yU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
