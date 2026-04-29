@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- Zaglavlje sa bodovima i tajmerom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tvBodovi"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bodovi: 0"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvTajmer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⏱ 70s"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="end"/>
+
+    </LinearLayout>
+
+    <!-- Naslov igre -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak po korak"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Koraci 1-7 -->
+    <TextView
+        android:id="@+id/tvKorak1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 1: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 2: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 3: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 4: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 5: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 6: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvKorak7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Korak 7: ???"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <!-- Polje za unos odgovora -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Unesite odgovor"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etOdgovor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Dugme Odgovori -->
+    <Button
+        android:id="@+id/btnOdgovori"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Odgovori"/>
+
+</LinearLayout>
