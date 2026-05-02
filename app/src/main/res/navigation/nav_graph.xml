@@ -27,6 +27,12 @@
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+    
+    <fragment
+        android:id="@+id/korakPoKorakFragment"
+        android:name="com.elfak.slagalica.fragments.games.KorakPoKorakFragment"
+        android:label="Korak po korak"
+        tools:layout="@layout/fragment_korak_po_korak"/>
 
     <fragment
         android:id="@+id/homeFragment"
@@ -39,6 +45,9 @@
         <action
             android:id="@+id/action_homeFragment_to_resetLozinkeFragment"
             app:destination="@id/resetLozinkeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_korakPoKorakFragment"
+            app:destination="@id/korakPoKorakFragment"/>
     </fragment>
 
     <fragment

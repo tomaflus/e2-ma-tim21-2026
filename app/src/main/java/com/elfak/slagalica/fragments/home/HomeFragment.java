@@ -50,6 +50,11 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_resetLozinkeFragment);
         });
+
+        binding.btnKorakPoKorak.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
+        });
     }
 
     @Override
