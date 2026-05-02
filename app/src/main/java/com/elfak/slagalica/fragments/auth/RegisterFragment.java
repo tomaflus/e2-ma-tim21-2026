@@ -63,11 +63,13 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
+            binding.progressBar.setVisibility(View.VISIBLE);
             // Onemogući dugme tokom registracije
             binding.btnRegistracija.setEnabled(false);
 
             authRepository.registracija(email, lozinka, korisnickoIme, region,
                     () -> {
+                        binding.progressBar.setVisibility(View.GONE);
                         // Uspješna registracija
                         binding.btnRegistracija.setEnabled(true);
                         Toast.makeText(getContext(),
@@ -79,6 +81,7 @@ public class RegisterFragment extends Fragment {
                                 .navigate(R.id.action_registerFragment_to_loginFragment);
                     },
                     poruka -> {
+                        binding.progressBar.setVisibility(View.GONE);
                         // Greška
                         binding.btnRegistracija.setEnabled(true);
                         Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();

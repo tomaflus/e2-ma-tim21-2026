@@ -52,11 +52,13 @@ public class LoginFragment extends Fragment {
             }
 
             // Onemogući dugme tokom logovanja
+            binding.progressBar.setVisibility(View.VISIBLE);
             binding.btnPrijava.setEnabled(false);
 
             authRepository.logovanje(email, lozinka,
                     () -> {
                         // Uspješno logovanje
+                        binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(),
                                 "Uspješno ste se prijavili!", Toast.LENGTH_SHORT).show();
@@ -64,6 +66,7 @@ public class LoginFragment extends Fragment {
                     },
                     poruka -> {
                         // Greška
+                        binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
                     });
