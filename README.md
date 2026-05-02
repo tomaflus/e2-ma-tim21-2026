@@ -76,6 +76,40 @@ Nakon što dobijete pristup, preuzmite `google-services.json`:
    - Odaberite kreirani emulator iz dropdown liste
    - Kliknite zelenu strelicu Run
 
+## Poznati problemi i rješenja
+
+### Gradle / AGP kompatibilnost
+
+Projekat koristi sljedeće verzije:
+
+| Komponenta | Verzija |
+|------------|---------|
+| Gradle | 8.11.1 |
+| AGP (Android Gradle Plugin) | 8.7.3 |
+
+**Problem:** Greška `Unable to load class 'org.gradle.platform.base.Platform'` ili `Could not install Gradle distribution` nastaje zbog neusklađenosti Gradle i AGP verzija.
+
+**Rješenje:**
+
+1. U `gradle/libs.versions.toml` provjeri da piše:
+   ```toml
+   agp = "8.7.3"
+   ```
+
+2. U `gradle/wrapper/gradle-wrapper.properties` provjeri da piše:
+   ```properties
+   distributionUrl=https\://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+   ```
+
+3. U `gradle.properties` mora postojati:
+   ```properties
+   android.useAndroidX=true
+   ```
+
+4. Uradi **File → Sync Project with Gradle Files**
+
+> **Napomena:** Ako Gradle ne može da se preuzme automatski (problem sa internetom), preuzmi `gradle-8.11.1-bin.zip` ručno sa [services.gradle.org](https://services.gradle.org/distributions/) i kopiraj u `C:\Users\<ime>\.gradle\wrapper\dists\`
+
 ## Git workflow
 
 Svaki student radi na svojoj grani i spaja na `main` nakon svake kontrolne tačke.
