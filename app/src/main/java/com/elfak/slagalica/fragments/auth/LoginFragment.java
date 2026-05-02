@@ -36,8 +36,8 @@ public class LoginFragment extends Fragment {
         authRepository = new AuthRepository();
 
         if (authRepository.jeUlogovan()) {
-            // TODO: navigacija na glavni ekran dolazi u KO
-            Toast.makeText(getContext(), "Već ste ulogovani!", Toast.LENGTH_SHORT).show();
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_loginFragment_to_homeFragment);
         }
 
         // Klik na dugme Prijavi se
@@ -62,7 +62,8 @@ public class LoginFragment extends Fragment {
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(),
                                 "Uspješno ste se prijavili!", Toast.LENGTH_SHORT).show();
-                        // TODO: navigacija na glavni ekran dolazi u KO
+                        Navigation.findNavController(view)
+                                .navigate(R.id.action_loginFragment_to_homeFragment);
                     },
                     poruka -> {
                         // Greška
