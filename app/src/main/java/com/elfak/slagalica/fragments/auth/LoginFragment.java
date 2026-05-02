@@ -56,7 +56,7 @@ public class LoginFragment extends Fragment {
             binding.btnPrijava.setEnabled(false);
 
             authRepository.logovanje(email, lozinka,
-                    () -> {
+                    () -> requireActivity().runOnUiThread(() -> {
                         // Uspješno logovanje
                         binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
@@ -64,13 +64,13 @@ public class LoginFragment extends Fragment {
                                 "Uspješno ste se prijavili!", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(view)
                                 .navigate(R.id.action_loginFragment_to_homeFragment);
-                    },
-                    poruka -> {
+                    }),
+                    poruka -> requireActivity().runOnUiThread(() -> {
                         // Greška
                         binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
-                    });
+                    }));
             });
 
         // Klik na "Zaboravili ste lozinku?"
