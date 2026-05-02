@@ -13,10 +13,12 @@ import androidx.navigation.Navigation;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentRegisterBinding;
+import com.elfak.slagalica.repository.AuthRepository;
 
 public class RegisterFragment extends Fragment {
 
     private FragmentRegisterBinding binding;
+    private AuthRepository authRepository;
 
     @Nullable
     @Override
@@ -30,6 +32,8 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        authRepository = new AuthRepository();
 
         // Klik na dugme Registruj se
         binding.btnRegistracija.setOnClickListener(v -> {
@@ -59,8 +63,26 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
-            // TODO: Firebase registracija dolazi u KT2
-            Toast.makeText(getContext(), "Registracija...", Toast.LENGTH_SHORT).show();
+            // Onemogući dugme tokom registracije
+            binding.btnRegistracija.setEnabled(false);
+
+            authRepository.registracija(email, lozinka, korisnickoIme, region,
+                    () -> {
+                        // Uspješna registracija
+                        binding.btnRegistracija.setEnabled(true);
+                        Toast.makeText(getContext(),
+                                "Registracija uspješna! Provjerite email za verifikaciju.",
+                                Toast.LENGTH_LONG).show();
+
+                        // Vrati na Login ekran
+                        Navigation.findNavController(view)
+                                .navigate(R.id.action_registerFragment_to_loginFragment);
+                    },
+                    poruka -> {
+                        // Greška
+                        binding.btnRegistracija.setEnabled(true);
+                        Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+                    });
         });
 
         // Klik na "Već imate nalog? Prijavite se"

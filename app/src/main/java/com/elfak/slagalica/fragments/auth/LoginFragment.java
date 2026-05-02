@@ -13,10 +13,12 @@ import androidx.navigation.Navigation;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentLoginBinding;
+import com.elfak.slagalica.repository.AuthRepository;
 
 public class LoginFragment extends Fragment {
 
     private FragmentLoginBinding binding;
+    private AuthRepository authRepository;
 
     @Nullable
     @Override
@@ -31,6 +33,13 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        authRepository = new AuthRepository();
+
+        if (authRepository.jeUlogovan()) {
+            // TODO: navigacija na glavni ekran dolazi u KO
+            Toast.makeText(getContext(), "Već ste ulogovani!", Toast.LENGTH_SHORT).show();
+        }
+
         // Klik na dugme Prijavi se
         binding.btnPrijava.setOnClickListener(v -> {
             String email = binding.etEmail.getText().toString().trim();
@@ -42,9 +51,23 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            // TODO: Firebase login logika dolazi u KT2
-            Toast.makeText(getContext(), "Prijava...", Toast.LENGTH_SHORT).show();
-        });
+            // Onemogući dugme tokom logovanja
+            binding.btnPrijava.setEnabled(false);
+
+            authRepository.logovanje(email, lozinka,
+                    () -> {
+                        // Uspješno logovanje
+                        binding.btnPrijava.setEnabled(true);
+                        Toast.makeText(getContext(),
+                                "Uspješno ste se prijavili!", Toast.LENGTH_SHORT).show();
+                        // TODO: navigacija na glavni ekran dolazi u KO
+                    },
+                    poruka -> {
+                        // Greška
+                        binding.btnPrijava.setEnabled(true);
+                        Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+                    });
+            });
 
         // Klik na "Nemate nalog? Registrujte se"
         binding.tvRegistracija.setOnClickListener(v -> {
