@@ -39,14 +39,37 @@ public class AuthRepository {
     }
 
     // Logovanje
-    public void logovanje(String email, String lozinka,
+    public void logovanje(String emailIliKorisnickoIme, String lozinka,
                           OnSuccessListener onSuccess, OnErrorListener onError) {
+
+        // Provjeri da li je email ili korisničko ime
+        if (emailIliKorisnickoIme.contains("@")) {
+            // Logovanje sa emailom
+            loginSaEmailom(emailIliKorisnickoIme, lozinka, onSuccess, onError);
+        } else {
+            // Logovanje sa korisničkim imenom — pronađi email u Firestore
+            db.collection("users")
+                    .whereEqualTo("korisnickoIme", emailIliKorisnickoIme)
+                    .get()
+                    .addOnSuccessListener(query -> {
+                        if (query.isEmpty()) {
+                            onError.onError("Korisničko ime nije pronađeno!");
+                            return;
+                        }
+                        String email = query.getDocuments().get(0).getString("email");
+                        loginSaEmailom(email, lozinka, onSuccess, onError);
+                    })
+                    .addOnFailureListener(e -> onError.onError(e.getMessage()));
+        }
+    }
+
+    private void loginSaEmailom(String email, String lozinka,
+                                OnSuccessListener onSuccess, OnErrorListener onError) {
         auth.signInWithEmailAndPassword(email, lozinka)
                 .addOnSuccessListener(result -> {
                     FirebaseUser firebaseUser = result.getUser();
                     if (firebaseUser == null) return;
 
-                    // Provjeri da li je email verifikovan
                     if (!firebaseUser.isEmailVerified()) {
                         onError.onError("Email nije verifikovan! Provjerite inbox.");
                         auth.signOut();
