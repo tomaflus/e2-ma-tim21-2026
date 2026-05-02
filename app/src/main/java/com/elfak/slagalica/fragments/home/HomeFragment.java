@@ -45,6 +45,11 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_loginFragment);
         });
+        // Klik na Promijeni lozinku
+        binding.btnPromjeniLozinku.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_resetLozinkeFragment);
+        });
     }
 
     @Override

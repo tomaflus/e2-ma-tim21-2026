@@ -36,6 +36,14 @@
         <action
             android:id="@+id/action_homeFragment_to_loginFragment"
             app:destination="@id/loginFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_resetLozinkeFragment"
+            app:destination="@id/resetLozinkeFragment"/>
     </fragment>
 
+    <fragment
+        android:id="@+id/resetLozinkeFragment"
+        android:name="com.elfak.slagalica.fragments.auth.ResetLozinkeFragment"
+        android:label="Promjena lozinke"
+        tools:layout="@layout/fragment_reset_lozinke"/>
 </navigation>
