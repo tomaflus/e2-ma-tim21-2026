@@ -72,6 +72,31 @@ public class LoginFragment extends Fragment {
                     });
             });
 
+        // Klik na "Zaboravili ste lozinku?"
+        binding.tvZaboravljenaLozinka.setOnClickListener(v -> {
+            String email = binding.etEmail.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(getContext(),
+                        "Unesite email za reset lozinke!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            binding.progressBar.setVisibility(View.VISIBLE);
+
+            authRepository.resetLozinke(email,
+                    () -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getContext(),
+                                "Email za reset lozinke je poslan!",
+                                Toast.LENGTH_LONG).show();
+                    },
+                    poruka -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+                    });
+        });
+
         // Klik na "Nemate nalog? Registrujte se"
         binding.tvRegistracija.setOnClickListener(v -> {
             Navigation.findNavController(view)

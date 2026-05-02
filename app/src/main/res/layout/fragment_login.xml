@@ -65,6 +65,15 @@
             android:text="Prijavi se"
             android:layout_marginBottom="16dp"/>
 
+        <TextView
+            android:id="@+id/tvZaboravljenaLozinka"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zaboravili ste lozinku?"
+            android:textColor="@color/black"
+            android:padding="8dp"
+            android:layout_marginBottom="8dp"/>
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"

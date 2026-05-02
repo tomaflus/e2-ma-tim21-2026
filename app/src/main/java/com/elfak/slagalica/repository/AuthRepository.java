@@ -74,6 +74,13 @@ public class AuthRepository {
         return auth.getCurrentUser();
     }
 
+    // Reset lozinke
+    public void resetLozinke(String email, OnSuccessListener onSuccess, OnErrorListener onError) {
+        auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused -> onSuccess.onSuccess())
+                .addOnFailureListener(e -> onError.onError(e.getMessage()));
+    }
+
     // Interfejsi za callbacks
     public interface OnSuccessListener {
         void onSuccess();
