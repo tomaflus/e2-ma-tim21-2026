@@ -1,5 +1,7 @@
 package com.elfak.slagalica.model;
 
+import java.util.List;
+
 public class Partija {
     private String id;
     private String igrac1Id;
@@ -20,6 +22,18 @@ public class Partija {
     private boolean igrac1PogodioKorak;
     private boolean igrac2PogodioKorak;
     private String pitanjeKorakPoKorakId;
+
+    private String statusMojBroj;
+    private int bodovi1MojBroj;
+    private int bodovi2MojBroj;
+    private int ciljniBrojRunda1;
+    private int ciljniBrojRunda2;
+    private List<Integer> dostupniBrojeviRunda1;
+    private List<Integer> dostupniBrojeviRunda2;
+    private int rezultat1Runda1;
+    private int rezultat2Runda1;
+    private int rezultat1Runda2;
+    private int rezultat2Runda2;
 
     public Partija() {}
 
@@ -88,4 +102,37 @@ public class Partija {
 
     public String getPitanjeKorakPoKorakId() { return pitanjeKorakPoKorakId; }
     public void setPitanjeKorakPoKorakId(String s) { this.pitanjeKorakPoKorakId = s; }
+
+    public String getStatusMojBroj() { return statusMojBroj; }
+    public void setStatusMojBroj(String s) { this.statusMojBroj = s; }
+
+    public int getBodovi1MojBroj() { return bodovi1MojBroj; }
+    public void setBodovi1MojBroj(int b) { this.bodovi1MojBroj = b; }
+
+    public int getBodovi2MojBroj() { return bodovi2MojBroj; }
+    public void setBodovi2MojBroj(int b) { this.bodovi2MojBroj = b; }
+
+    public int getCiljniBrojRunda1() { return ciljniBrojRunda1; }
+    public void setCiljniBrojRunda1(int c) { this.ciljniBrojRunda1 = c; }
+
+    public int getCiljniBrojRunda2() { return ciljniBrojRunda2; }
+    public void setCiljniBrojRunda2(int c) { this.ciljniBrojRunda2 = c; }
+
+    public List<Integer> getDostupniBrojeviRunda1() { return dostupniBrojeviRunda1; }
+    public void setDostupniBrojeviRunda1(List<Integer> d) { this.dostupniBrojeviRunda1 = d; }
+
+    public List<Integer> getDostupniBrojeviRunda2() { return dostupniBrojeviRunda2; }
+    public void setDostupniBrojeviRunda2(List<Integer> d) { this.dostupniBrojeviRunda2 = d; }
+
+    public int getRezultat1Runda1() { return rezultat1Runda1; }
+    public void setRezultat1Runda1(int r) { this.rezultat1Runda1 = r; }
+
+    public int getRezultat2Runda1() { return rezultat2Runda1; }
+    public void setRezultat2Runda1(int r) { this.rezultat2Runda1 = r; }
+
+    public int getRezultat1Runda2() { return rezultat1Runda2; }
+    public void setRezultat1Runda2(int r) { this.rezultat1Runda2 = r; }
+
+    public int getRezultat2Runda2() { return rezultat2Runda2; }
+    public void setRezultat2Runda2(int r) { this.rezultat2Runda2 = r; }
 }

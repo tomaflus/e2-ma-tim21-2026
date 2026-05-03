@@ -17,39 +17,59 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.elfak.slagalica.databinding.FragmentMojBrojBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MojBrojFragment extends Fragment implements SensorEventListener {
 
     private FragmentMojBrojBinding binding;
     private SensorManager sensorManager;
     private Sensor akcelerometar;
+    private ListenerRegistration listenerRegistration;
 
+    // Parametri partije
+    private String partijaId;
+    private boolean jeIgrac1;
+
+    // Brojevi
     private int ciljniBroj = 0;
     private int[] dostupniBrojevi = new int[6];
     private boolean ciljniOtkriven = false;
     private boolean brojeviOtkriveni = false;
     private boolean igraZavrsena = false;
     private int bodovi = 0;
+    private int mojRezultat = 0;
 
+    // Tajmeri
     private CountDownTimer tajmerCiljni;
     private CountDownTimer tajmerGlavni;
 
-    // Stack za pracenje tokena i korištenih dugmadi
+    // Stack za token brisanje
     private Stack<String> tokeniIzraza = new Stack<>();
     private Stack<Button> koristenaDugmad = new Stack<>();
 
+    // Shake
     private float zadnjaX, zadnjaY, zadnjaZ;
     private boolean prvaPromjena = true;
     private static final float SHAKE_LIMIT = 80;
     private static final int TRAJANJE_IGRE = 60000;
     private static final int TRAJANJE_STOP = 5000;
+
+    // Statusi
+    private static final String IGRAC1_IGRA = "IGRAC1_IGRA";
+    private static final String IGRAC2_IGRA = "IGRAC2_IGRA";
+    private static final String OBA_IGRAJU = "OBA_IGRAJU";
+    private static final String RACUNANJE_BODOVA = "RACUNANJE_BODOVA";
+    private static final String ZAVRSENA = "ZAVRSENA";
+
+    private String trenutniStatus = "";
+    private boolean mojaTurnaZavrsena = false;
 
     @Nullable
     @Override
@@ -68,15 +88,17 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                 .getSystemService(android.content.Context.SENSOR_SERVICE);
         akcelerometar = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        if (getArguments() != null) {
+            partijaId = getArguments().getString("partijaId");
+            jeIgrac1 = getArguments().getBoolean("jeIgrac1", true);
+        }
 
-
-        generisiBrojeve();
-        pokrniTajmere();
+        inicijalizujIgru();
+        slušajStatus();
 
         binding.btnStopCiljni.setOnClickListener(v -> otkrijCiljniBroj());
         binding.btnStopBrojevi.setOnClickListener(v -> otkrijBrojeve());
 
-        // Operandi — dodaju token bez dugmeta
         binding.btnSaberi.setOnClickListener(v -> dodajToken(" + ", null));
         binding.btnOduzmi.setOnClickListener(v -> dodajToken(" - ", null));
         binding.btnPomnozi.setOnClickListener(v -> dodajToken(" * ", null));
@@ -84,7 +106,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         binding.btnZagraOtvori.setOnClickListener(v -> dodajToken("(", null));
         binding.btnZagraZatvori.setOnClickListener(v -> dodajToken(")", null));
 
-        // Brojevi — dodaju token sa dugmetom
         binding.btnBroj1.setOnClickListener(v -> klikniNaBroj(binding.btnBroj1));
         binding.btnBroj2.setOnClickListener(v -> klikniNaBroj(binding.btnBroj2));
         binding.btnBroj3.setOnClickListener(v -> klikniNaBroj(binding.btnBroj3));
@@ -92,20 +113,14 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         binding.btnBroj5.setOnClickListener(v -> klikniNaBroj(binding.btnBroj5));
         binding.btnBroj6.setOnClickListener(v -> klikniNaBroj(binding.btnBroj6));
 
-        // Obrisi cijeli zadnji token
         binding.btnObrisi.setOnClickListener(v -> {
             if (tokeniIzraza.isEmpty()) return;
-
             String zadnjiToken = tokeniIzraza.pop();
             Button dugme = koristenaDugmad.pop();
-
-            // Vrati dugme ako je broj
             if (dugme != null) {
                 dugme.setEnabled(true);
                 dugme.setAlpha(1.0f);
             }
-
-            // Obriši token iz izraza
             String trenutni = binding.etIzraz.getText().toString();
             if (trenutni.endsWith(zadnjiToken)) {
                 binding.etIzraz.setText(
@@ -115,43 +130,197 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         });
 
         binding.btnPotvrdi.setOnClickListener(v -> {
-            if (igraZavrsena) return;
+            if (igraZavrsena || mojaTurnaZavrsena) return;
             String izraz = binding.etIzraz.getText().toString().trim();
             if (izraz.isEmpty()) {
                 Toast.makeText(getContext(), "Unesite izraz!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            evaluirajIzraz(izraz);
+            potvrdiRezultat(izraz);
         });
     }
 
-    private void dodajToken(String token, Button dugme) {
-        // Dodaj token u izraz
-        String trenutni = binding.etIzraz.getText().toString();
-        binding.etIzraz.setText(trenutni + token);
-        binding.etIzraz.setSelection(binding.etIzraz.getText().length());
+    private void inicijalizujIgru() {
+        if (jeIgrac1) {
+            // Igrac 1 generise brojeve i cuva u Firebase
+            generisiBrojeve();
 
-        // Sačuvaj token i dugme u stack
-        tokeniIzraza.push(token);
-        koristenaDugmad.push(dugme);
+            List<Integer> lista = new ArrayList<>();
+            for (int b : dostupniBrojevi) lista.add(b);
+
+            FirebaseFirestore.getInstance()
+                    .collection("partije").document(partijaId)
+                    .update(
+                            "statusMojBroj", OBA_IGRAJU,
+                            "ciljniBrojRunda1", ciljniBroj,
+                            "dostupniBrojeviRunda1", lista,
+                            "bodovi1MojBroj", 0,
+                            "bodovi2MojBroj", 0,
+                            "rezultat1Runda1", -1,
+                            "rezultat2Runda1", -1
+                    );
+        }
+        // Igrac 2 ucitava brojeve iz Firebase u slušajStatus()
+
+        pokrniTajmere();
     }
 
-    private void klikniNaBroj(Button dugme) {
-        if (!brojeviOtkriveni) {
-            Toast.makeText(getContext(),
-                    "Prvo otkrijte brojeve!", Toast.LENGTH_SHORT).show();
-            return;
+    private void slušajStatus() {
+        listenerRegistration = FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (e != null || snapshot == null || !snapshot.exists()) return;
+
+                    String status = snapshot.getString("statusMojBroj");
+                    if (status == null) return;
+
+                    // Igrac 2 ucitava brojeve kad su dostupni
+                    if (!jeIgrac1 && !brojeviOtkriveni && !ciljniOtkriven) {
+                        Long ciljni = snapshot.getLong("ciljniBrojRunda1");
+                        List<Long> dostupni = (List<Long>) snapshot.get("dostupniBrojeviRunda1");
+                        if (ciljni != null && dostupni != null) {
+                            ciljniBroj = ciljni.intValue();
+                            for (int i = 0; i < dostupni.size() && i < 6; i++) {
+                                dostupniBrojevi[i] = dostupni.get(i).intValue();
+                            }
+                        }
+                    }
+
+                    if (status.equals(trenutniStatus)) return;
+                    trenutniStatus = status;
+
+                    switch (status) {
+                        case RACUNANJE_BODOVA:
+                            // Oba igraca su zavrsili — racunaj bodove
+                            izracunajBodove(snapshot);
+                            break;
+
+                        case ZAVRSENA:
+                            Long b1 = snapshot.getLong("bodovi1MojBroj");
+                            Long b2 = snapshot.getLong("bodovi2MojBroj");
+                            int mojiB = jeIgrac1 ?
+                                    (b1 != null ? b1.intValue() : 0) :
+                                    (b2 != null ? b2.intValue() : 0);
+
+                            zaustaviTajmere();
+                            igraZavrsena = true;
+                            binding.btnPotvrdi.setEnabled(false);
+
+                            Toast.makeText(getContext(),
+                                    "Igra zavrsena! Bodovi: " + mojiB,
+                                    Toast.LENGTH_LONG).show();
+
+                            Bundle result = new Bundle();
+                            result.putInt("bodovi", mojiB);
+                            if (getParentFragmentManager() != null) {
+                                getParentFragmentManager()
+                                        .setFragmentResult("mojBrojZavrsen", result);
+                            }
+                            break;
+                    }
+                });
+    }
+
+    private void izracunajBodove(com.google.firebase.firestore.DocumentSnapshot snapshot) {
+        if (!jeIgrac1) return; // Samo Igrac 1 racuna bodove
+
+        Long r1 = snapshot.getLong("rezultat1Runda1");
+        Long r2 = snapshot.getLong("rezultat2Runda1");
+        Long ciljni = snapshot.getLong("ciljniBrojRunda1");
+
+        if (r1 == null || r2 == null || ciljni == null) return;
+
+        int rez1 = r1.intValue();
+        int rez2 = r2.intValue();
+        int cilj = ciljni.intValue();
+        int bod1 = 0, bod2 = 0;
+
+        if (rez1 == cilj && rez2 != cilj) {
+            // Igrac 1 pogodio, Igrac 2 nije
+            bod1 = 10;
+        } else if (rez2 == cilj && rez1 != cilj) {
+            // Igrac 2 pogodio, Igrac 1 nije
+            bod2 = 10;
+        } else if (rez1 == cilj && rez2 == cilj) {
+            // Oba pogodila
+            bod1 = 10;
+            bod2 = 10;
+        } else if (rez1 == 0 && rez2 == 0) {
+            // Nijedan nije unio nista
+            bod1 = 0;
+            bod2 = 0;
+        } else if (rez1 == 0) {
+            // Igrac 1 nije unio nista
+            bod2 = 5;
+        } else if (rez2 == 0) {
+            // Igrac 2 nije unio nista
+            bod1 = 5;
+        } else if (rez1 == rez2) {
+            // Isti netacni rezultat — bodove dobija Igrac 1 (cija je runda)
+            bod1 = 5;
+        } else {
+            // Ko je blizi
+            int razl1 = Math.abs(cilj - rez1);
+            int razl2 = Math.abs(cilj - rez2);
+            if (razl1 < razl2) bod1 = 5;
+            else if (razl2 < razl1) bod2 = 5;
         }
 
-        String broj = dugme.getText().toString();
-        dodajToken(broj, dugme);
+        int finalBod1 = bod1;
+        int finalBod2 = bod2;
 
-        // Onemogući dugme
-        dugme.setEnabled(false);
-        dugme.setAlpha(0.4f);
+        FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .update(
+                        "bodovi1MojBroj", finalBod1,
+                        "bodovi2MojBroj", finalBod2,
+                        "statusMojBroj", ZAVRSENA
+                );
+    }
+
+    private void potvrdiRezultat(String izraz) {
+        try {
+            double rezultat = new ExprParser(izraz.replaceAll("\\s+", "")).parse();
+            mojRezultat = (int) rezultat;
+        } catch (Exception ex) {
+            mojRezultat = 0;
+        }
+
+        mojaTurnaZavrsena = true;
+        zaustaviTajmere();
+        binding.btnPotvrdi.setEnabled(false);
+
+        String poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+
+        Toast.makeText(getContext(),
+                "Rezultat: " + mojRezultat + " (ciljni: " + ciljniBroj + ")",
+                Toast.LENGTH_SHORT).show();
+
+        FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .update(poljeR, mojRezultat)
+                .addOnSuccessListener(unused -> provjeriDaLiObaZavrsili());
+    }
+
+    private void provjeriDaLiObaZavrsili() {
+        FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    Long r1 = snapshot.getLong("rezultat1Runda1");
+                    Long r2 = snapshot.getLong("rezultat2Runda1");
+
+                    // Ako oba igraca imaju rezultat (nije -1) — racunaj bodove
+                    if (r1 != null && r2 != null && r1 != -1 && r2 != -1) {
+                        FirebaseFirestore.getInstance()
+                                .collection("partije").document(partijaId)
+                                .update("statusMojBroj", RACUNANJE_BODOVA);
+                    }
+                });
     }
 
     private void pokrniTajmere() {
+        // Tajmer 5s za auto-otkrivanje ciljnog broja
         tajmerCiljni = new CountDownTimer(TRAJANJE_STOP, 1000) {
             @Override public void onTick(long ms) {}
             @Override public void onFinish() {
@@ -163,6 +332,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
             }
         }.start();
 
+        // Glavni tajmer 60s
         tajmerGlavni = new CountDownTimer(TRAJANJE_IGRE, 1000) {
             @Override
             public void onTick(long ms) {
@@ -170,13 +340,26 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
             }
             @Override
             public void onFinish() {
-                igraZavrsena = true;
-                binding.btnPotvrdi.setEnabled(false);
+                if (!mojaTurnaZavrsena) {
+                    // Igrac nije unio nista — postavi 0
+                    mojaTurnaZavrsena = true;
+                    binding.btnPotvrdi.setEnabled(false);
+                    mojRezultat = 0;
+
+                    String poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+                    FirebaseFirestore.getInstance()
+                            .collection("partije").document(partijaId)
+                            .update(poljeR, 0)
+                            .addOnSuccessListener(unused -> provjeriDaLiObaZavrsili());
+                }
                 binding.tvTajmer.setText("0s");
-                Toast.makeText(getContext(),
-                        "Isteklo vrijeme! Bodovi: " + bodovi, Toast.LENGTH_LONG).show();
             }
         }.start();
+    }
+
+    private void zaustaviTajmere() {
+        if (tajmerGlavni != null) tajmerGlavni.cancel();
+        if (tajmerCiljni != null) tajmerCiljni.cancel();
     }
 
     private void otkrijCiljniBroj() {
@@ -200,36 +383,37 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         }
     }
 
-    private void evaluirajIzraz(String izraz) {
+    private void klikniNaBroj(Button dugme) {
         if (!brojeviOtkriveni) {
             Toast.makeText(getContext(),
-                    "Prvo otkrijte dostupne brojeve!", Toast.LENGTH_SHORT).show();
+                    "Prvo otkrijte brojeve!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        try {
-            double rezultat = new ExprParser(izraz.replaceAll("\\s+", "")).parse();
-            int rezultatInt = (int) rezultat;
-
-            if (rezultatInt == ciljniBroj) {
-                igraZavrsena = true;
-                tajmerGlavni.cancel();
-                bodovi = 10;
-                azurirajBodove();
-                binding.btnPotvrdi.setEnabled(false);
-                Toast.makeText(getContext(),
-                        "Tacno! Osvojili ste 10 bodova!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getContext(),
-                        "Rezultat je " + rezultatInt + ", trazeni je " + ciljniBroj,
-                        Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Toast.makeText(getContext(),
-                    "Neispravan izraz!", Toast.LENGTH_SHORT).show();
-        }
+        String broj = dugme.getText().toString();
+        dodajToken(broj, dugme);
+        dugme.setEnabled(false);
+        dugme.setAlpha(0.4f);
     }
 
+    private void dodajToken(String token, Button dugme) {
+        String trenutni = binding.etIzraz.getText().toString();
+        binding.etIzraz.setText(trenutni + token);
+        binding.etIzraz.setSelection(binding.etIzraz.getText().length());
+        tokeniIzraza.push(token);
+        koristenaDugmad.push(dugme);
+    }
+
+    private void generisiBrojeve() {
+        Random random = new Random();
+        ciljniBroj = random.nextInt(900) + 100;
+        for (int i = 0; i < 4; i++) dostupniBrojevi[i] = random.nextInt(9) + 1;
+        int[] srednji = {10, 15, 20};
+        dostupniBrojevi[4] = srednji[random.nextInt(3)];
+        int[] veliki = {25, 50, 75, 100};
+        dostupniBrojevi[5] = veliki[random.nextInt(4)];
+    }
+
+    // Rekurzivni parser
     private static class ExprParser {
         private final String expr;
         private int pos = 0;
@@ -270,69 +454,36 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                 pos++;
                 double result = parseExpr();
                 if (pos >= expr.length() || expr.charAt(pos) != ')')
-                    throw new Exception("Nedostaje zatvorena zagrada");
+                    throw new Exception("Nedostaje )");
                 pos++;
                 return result;
             }
-
             boolean negative = false;
             if (pos < expr.length() && expr.charAt(pos) == '-') {
                 negative = true;
                 pos++;
             }
-
             int start = pos;
             while (pos < expr.length() && Character.isDigit(expr.charAt(pos))) pos++;
-            if (pos == start) throw new Exception("Ocekivan broj na poziciji " + pos);
-
+            if (pos == start) throw new Exception("Ocekivan broj");
             double value = Double.parseDouble(expr.substring(start, pos));
             return negative ? -value : value;
         }
     }
 
-    private void azurirajBodove() {
-        binding.tvBodovi.setText("Bodovi: " + bodovi);
-    }
-
-    private void generisiBrojeve() {
-        Random random = new Random();
-        ciljniBroj = random.nextInt(900) + 100;
-        for (int i = 0; i < 4; i++) dostupniBrojevi[i] = random.nextInt(9) + 1;
-        int[] srednji = {10, 15, 20};
-        dostupniBrojevi[4] = srednji[random.nextInt(3)];
-        int[] veliki = {25, 50, 75, 100};
-        dostupniBrojevi[5] = veliki[random.nextInt(4)];
-    }
-
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
-
-        float x = event.values[0];
-        float y = event.values[1];
-        float z = event.values[2];
-
+        float x = event.values[0], y = event.values[1], z = event.values[2];
         if (prvaPromjena) {
-            zadnjaX = x;
-            zadnjaY = y;
-            zadnjaZ = z;
+            zadnjaX = x; zadnjaY = y; zadnjaZ = z;
             prvaPromjena = false;
             return;
         }
-
-        float razlika = Math.abs(x - zadnjaX)
-                + Math.abs(y - zadnjaY)
-                + Math.abs(z - zadnjaZ);
-
-        zadnjaX = x;
-        zadnjaY = y;
-        zadnjaZ = z;
-
+        float razlika = Math.abs(x - zadnjaX) + Math.abs(y - zadnjaY) + Math.abs(z - zadnjaZ);
+        zadnjaX = x; zadnjaY = y; zadnjaZ = z;
         if (razlika > SHAKE_LIMIT) {
-            requireActivity().runOnUiThread(() -> {
-                otkrijBrojeve();
-            });
+            requireActivity().runOnUiThread(this::otkrijBrojeve);
         }
     }
 
@@ -341,10 +492,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
-        if (akcelerometar != null) {
-            sensorManager.registerListener(this, akcelerometar,
-                    SensorManager.SENSOR_DELAY_GAME);
-        }
+        if (akcelerometar != null)
+            sensorManager.registerListener(this, akcelerometar, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
@@ -356,8 +505,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (tajmerGlavni != null) tajmerGlavni.cancel();
-        if (tajmerCiljni != null) tajmerCiljni.cancel();
+        zaustaviTajmere();
+        if (listenerRegistration != null) listenerRegistration.remove();
         binding = null;
     }
 }
