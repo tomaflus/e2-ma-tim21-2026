@@ -14,43 +14,42 @@ import androidx.fragment.app.Fragment;
 import com.elfak.slagalica.databinding.FragmentKorakPoKorakBinding;
 import com.elfak.slagalica.model.KorakPoKorak;
 import com.elfak.slagalica.repository.KorakPoKorakRepository;
-import com.elfak.slagalica.repository.PartijaRepository;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class KorakPoKorakFragment extends Fragment {
 
     private FragmentKorakPoKorakBinding binding;
     private KorakPoKorakRepository repository;
-    private PartijaRepository partijaRepository;
     private KorakPoKorak trenutnoPitanje;
+    private ListenerRegistration listenerRegistration;
 
-    // Parametri partije
     private String partijaId;
     private boolean jeIgrac1;
 
-    // Status igre
     private int trenutniKorak = 0;
     private int bodovi = 0;
-    private int boduiProtivnika = 0;
     private CountDownTimer tajmer;
-    private boolean igraZavrsena = false;
     private boolean mojaRunda = false;
-    private boolean runda1Zavrsena = false;
+    private boolean bonusRunda = false;
 
-    // Bodovanje
     private static final int MAX_BODOVA = 20;
     private static final int ODBITAK_PO_KORAKU = 2;
-    private static final int BODOVI_PROTIVNIK = 5;
-    private static final int TRAJANJE_KORAKA = 10000;
-    private static final int TRAJANJE_PROTIVNIK = 10000;
+    private static final int BODOVI_BONUS = 5;
+    private static final long TRAJANJE_RUNDE = 70000;
+    private static final long TRAJANJE_BONUSA = 10000;
 
-    // Status runde
+    // Statusi
     private static final String IGRAC1_IGRA = "IGRAC1_IGRA";
+    private static final String IGRAC1_BONUS = "IGRAC1_BONUS";
     private static final String IGRAC2_IGRA = "IGRAC2_IGRA";
-    private static final String IGRAC1_PROMISIO = "IGRAC1_PROMISIO";
-    private static final String IGRAC2_PROMISIO = "IGRAC2_PROMISIO";
+    private static final String IGRAC2_BONUS = "IGRAC2_BONUS";
+    private static final String IGRAC2_IGRA_RUNDA2 = "IGRAC2_IGRA_RUNDA2";
+    private static final String IGRAC2_BONUS_RUNDA2 = "IGRAC2_BONUS_RUNDA2";
+    private static final String IGRAC1_BONUS_RUNDA2 = "IGRAC1_BONUS_RUNDA2";
     private static final String ZAVRSENA = "ZAVRSENA";
+
+    private String trenutniStatus = "";
 
     @Nullable
     @Override
@@ -66,31 +65,26 @@ public class KorakPoKorakFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         repository = new KorakPoKorakRepository();
-        partijaRepository = new PartijaRepository();
 
-        // Dohvati argumente
         if (getArguments() != null) {
             partijaId = getArguments().getString("partijaId");
             jeIgrac1 = getArguments().getBoolean("jeIgrac1", true);
         }
 
-        // Igrac 1 počinje prvu rundu
-        mojaRunda = jeIgrac1;
-
         sakriSveKorake();
-        ucitajPitanje();
+        binding.btnOdgovori.setEnabled(false);
 
-        // Slušaj promjene statusa runde u Firestore
+        ucitajPitanje();
         slušajStatusRunde();
 
-        // Klik na dugme Odgovori
         binding.btnOdgovori.setOnClickListener(v -> {
-            if (igraZavrsena || !mojaRunda) return;
-
+            if (!mojaRunda) {
+                Toast.makeText(getContext(), "Nije tvoja runda!", Toast.LENGTH_SHORT).show();
+                return;
+            }
             String odgovor = binding.etOdgovor.getText().toString().trim();
             if (odgovor.isEmpty()) {
-                Toast.makeText(getContext(),
-                        "Unesite odgovor!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Unesite odgovor!", Toast.LENGTH_SHORT).show();
                 return;
             }
             provjeriOdgovor(odgovor);
@@ -98,26 +92,22 @@ public class KorakPoKorakFragment extends Fragment {
     }
 
     private void ucitajPitanje() {
-        binding.btnOdgovori.setEnabled(false);
         repository.dohvatiNasumicnoPitanje(
                 pitanje -> {
                     trenutnoPitanje = pitanje;
 
-                    // Sačuvaj pitanje ID u Firestore za oba igrača
                     if (jeIgrac1) {
                         FirebaseFirestore.getInstance()
                                 .collection("partije").document(partijaId)
-                                .update("pitanjeKorakPoKorakId", pitanje.getId(),
-                                        "statusKorakPoKorak", IGRAC1_IGRA);
-                    }
-
-                    if (mojaRunda) {
-                        binding.btnOdgovori.setEnabled(true);
-                        prikaziKorak(0);
-                        pokrniTajmer();
+                                .update(
+                                        "pitanjeKorakPoKorakId", pitanje.getId(),
+                                        "statusKorakPoKorak", IGRAC1_IGRA,
+                                        "bodovi1KorakPoKorak", 0,
+                                        "bodovi2KorakPoKorak", 0
+                                );
+                        pocniMojuRundu();
                     } else {
-                        binding.tvTajmer.setText("Cekaj...");
-                        prikaziPoruku("Protivnik igra svoju rundu...");
+                        prikaziCekanje("Protivnik igra svoju rundu...");
                     }
                 },
                 poruka -> Toast.makeText(getContext(),
@@ -126,66 +116,89 @@ public class KorakPoKorakFragment extends Fragment {
     }
 
     private void slušajStatusRunde() {
-        FirebaseFirestore.getInstance()
+        listenerRegistration = FirebaseFirestore.getInstance()
                 .collection("partije").document(partijaId)
                 .addSnapshotListener((snapshot, e) -> {
-                    if (snapshot == null || !snapshot.exists()) return;
+                    if (e != null || snapshot == null || !snapshot.exists()) return;
 
                     String status = snapshot.getString("statusKorakPoKorak");
-                    if (status == null) return;
+                    if (status == null || status.equals(trenutniStatus)) return;
+                    trenutniStatus = status;
 
-                    // Dohvati bodove iz Firestore
                     Long b1 = snapshot.getLong("bodovi1KorakPoKorak");
                     Long b2 = snapshot.getLong("bodovi2KorakPoKorak");
 
                     switch (status) {
-                        case IGRAC2_IGRA:
-                            // Igrac 1 je završio — sada Igrac 2 igra
-                            if (!jeIgrac1 && !runda1Zavrsena) {
-                                runda1Zavrsena = true;
-                                mojaRunda = true;
-                                trenutniKorak = 0;
-                                prikaziKorak(0);
-                                binding.btnOdgovori.setEnabled(true);
-                                pokrniTajmer();
-                                prikaziPoruku("Tvoja runda!");
-                            }
-                            break;
-
-                        case IGRAC1_PROMISIO:
-                            // Igrac 1 nije pogodio — Igrac 2 ima šansu za 5 bodova
-                            if (!jeIgrac1 && mojaRunda) {
+                        case IGRAC1_BONUS:
+                            if (!jeIgrac1) {
                                 zaustaviTajmer();
-                                prikaziPoruku("Protivnik nije pogodio! Imas 10s za 5 bodova!");
-                                pokrniTajmerProtivnika();
+                                mojaRunda = true;
+                                bonusRunda = true;
+                                binding.btnOdgovori.setEnabled(true);
+                                prikaziSveKorake();
+                                pokrniTajmerBonusa();
+                                prikaziStatus("Protivnik nije pogodio! Imas 10s za 5 bodova!");
+                            } else {
+                                prikaziCekanje("Protivnik pokusava pogoditi...");
                             }
                             break;
 
-                        case IGRAC2_PROMISIO:
-                            // Igrac 2 nije pogodio — Igrac 1 ima šansu za 5 bodova
+                        case IGRAC2_IGRA:
+                        case IGRAC2_IGRA_RUNDA2:
+                            if (!jeIgrac1) {
+                                zaustaviTajmer();
+                                trenutniKorak = 0;
+                                mojaRunda = true;
+                                bonusRunda = false;
+                                pocniMojuRundu();
+                            } else {
+                                prikaziCekanje("Protivnik igra svoju rundu...");
+                            }
+                            break;
+
+                        case IGRAC2_BONUS:
+                        case IGRAC2_BONUS_RUNDA2:
                             if (jeIgrac1) {
                                 zaustaviTajmer();
-                                prikaziPoruku("Protivnik nije pogodio! Imas 10s za 5 bodova!");
-                                pokrniTajmerProtivnika();
+                                mojaRunda = true;
+                                bonusRunda = true;
+                                binding.btnOdgovori.setEnabled(true);
+                                prikaziSveKorake();
+                                pokrniTajmerBonusa();
+                                prikaziStatus("Protivnik nije pogodio! Imas 10s za 5 bodova!");
+                            } else {
+                                prikaziCekanje("Protivnik pokusava pogoditi...");
+                            }
+                            break;
+
+                        case IGRAC1_BONUS_RUNDA2:
+                            if (jeIgrac1) {
+                                zaustaviTajmer();
+                                mojaRunda = true;
+                                bonusRunda = true;
+                                binding.btnOdgovori.setEnabled(true);
+                                prikaziSveKorake();
+                                pokrniTajmerBonusa();
+                                prikaziStatus("Protivnik nije pogodio! Imas 10s za 5 bodova!");
+                            } else {
+                                prikaziCekanje("Protivnik pokusava pogoditi...");
                             }
                             break;
 
                         case ZAVRSENA:
-                            // Igra završena
-                            igraZavrsena = true;
                             zaustaviTajmer();
+                            mojaRunda = false;
                             binding.btnOdgovori.setEnabled(false);
 
                             int mojiB = jeIgrac1 ?
                                     (b1 != null ? b1.intValue() : 0) :
                                     (b2 != null ? b2.intValue() : 0);
 
-                            prikaziPoruku("Igra završena! Tvoji bodovi: " + mojiB);
+                            prikaziStatus("Igra zavrsena! Bodovi: " + mojiB);
 
-                            // Obavijesti IgraFragment
-                            if (getArguments() != null) {
-                                Bundle result = new Bundle();
-                                result.putInt("bodovi", mojiB);
+                            Bundle result = new Bundle();
+                            result.putInt("bodovi", mojiB);
+                            if (getParentFragmentManager() != null) {
                                 getParentFragmentManager()
                                         .setFragmentResult("korakPoKorakZavrsen", result);
                             }
@@ -194,35 +207,72 @@ public class KorakPoKorakFragment extends Fragment {
                 });
     }
 
-    private void pokrniTajmer() {
+    private void pocniMojuRundu() {
+        prikaziStatus("Tvoja runda!");
+        trenutniKorak = 0;
+        prikaziKorak(0);
+        binding.btnOdgovori.setEnabled(true);
+        mojaRunda = true;
+        pokrniTajmerRunde();
+    }
+
+    private void prikaziCekanje(String poruka) {
+        mojaRunda = false;
+        binding.btnOdgovori.setEnabled(false);
+        binding.tvTajmer.setText("Cekaj...");
+        prikaziStatus(poruka);
+        sakriSveKorake();
+    }
+
+    private void pokrniTajmerRunde() {
         zaustaviTajmer();
-        tajmer = new CountDownTimer(TRAJANJE_KORAKA * 7L, 1000) {
+        tajmer = new CountDownTimer(TRAJANJE_RUNDE, 1000) {
             @Override
             public void onTick(long ms) {
                 int sekunde = (int)(ms / 1000);
                 binding.tvTajmer.setText(sekunde + "s");
-
-                // Otvori novi korak svakih 10s
-                int korakIndex = 6 - (sekunde / 10);
-                if (korakIndex > trenutniKorak && korakIndex <= 6) {
-                    trenutniKorak = korakIndex;
+                int noviKorak = (int)((TRAJANJE_RUNDE - ms) / 10000);
+                if (noviKorak > trenutniKorak && noviKorak <= 6) {
+                    trenutniKorak = noviKorak;
                     prikaziKorak(trenutniKorak);
                 }
             }
 
             @Override
             public void onFinish() {
-                // Igrač nije pogodio
-                igraZavrsena = true;
+                mojaRunda = false;
                 binding.btnOdgovori.setEnabled(false);
-                azurirajStatusPromisio();
+                binding.tvTajmer.setText("0s");
+                tajmerIstekao();
             }
         }.start();
     }
 
-    private void pokrniTajmerProtivnika() {
+    private void tajmerIstekao() {
+        String noviStatus;
+        switch (trenutniStatus) {
+            case IGRAC1_IGRA:
+                noviStatus = IGRAC1_BONUS;
+                break;
+            case IGRAC2_IGRA:
+                noviStatus = IGRAC2_BONUS;
+                break;
+            case IGRAC2_IGRA_RUNDA2:
+                noviStatus = IGRAC2_BONUS_RUNDA2;
+                break;
+            default:
+                noviStatus = ZAVRSENA;
+                break;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .update("statusKorakPoKorak", noviStatus);
+    }
+
+    private void pokrniTajmerBonusa() {
         zaustaviTajmer();
-        tajmer = new CountDownTimer(TRAJANJE_PROTIVNIK, 1000) {
+        tajmer = new CountDownTimer(TRAJANJE_BONUSA, 1000) {
             @Override
             public void onTick(long ms) {
                 binding.tvTajmer.setText("Bonus: " + ms / 1000 + "s");
@@ -230,92 +280,115 @@ public class KorakPoKorakFragment extends Fragment {
 
             @Override
             public void onFinish() {
-                // Nije iskoristio bonus šansu
-                azurirajZavrsenu();
+                mojaRunda = false;
+                binding.btnOdgovori.setEnabled(false);
+                bonusTajmerIstekao();
             }
         }.start();
-        binding.btnOdgovori.setEnabled(true);
-        mojaRunda = true;
+    }
+
+    private void bonusTajmerIstekao() {
+        String noviStatus;
+        switch (trenutniStatus) {
+            case IGRAC1_BONUS:
+                noviStatus = IGRAC2_IGRA_RUNDA2;
+                break;
+            case IGRAC2_BONUS:
+            case IGRAC2_BONUS_RUNDA2:
+            case IGRAC1_BONUS_RUNDA2:
+                noviStatus = ZAVRSENA;
+                break;
+            default:
+                noviStatus = ZAVRSENA;
+                break;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("partije").document(partijaId)
+                .update("statusKorakPoKorak", noviStatus);
     }
 
     private void provjeriOdgovor(String odgovor) {
         if (trenutnoPitanje == null) return;
 
         if (odgovor.equalsIgnoreCase(trenutnoPitanje.getRjesenje())) {
-            tajmer.cancel();
+            zaustaviTajmer();
+            mojaRunda = false;
             binding.btnOdgovori.setEnabled(false);
 
-            int osvојeniBodovi;
-            if (!runda1Zavrsena || (jeIgrac1 && !runda1Zavrsena)) {
-                // Normalna runda
-                osvојeniBodovi = MAX_BODOVA - (trenutniKorak * ODBITAK_PO_KORAKU);
-            } else {
-                // Bonus šansa
-                osvојeniBodovi = BODOVI_PROTIVNIK;
-            }
+            int osvојeniBodovi = bonusRunda ?
+                    BODOVI_BONUS :
+                    MAX_BODOVA - (trenutniKorak * ODBITAK_PO_KORAKU);
 
             bodovi += osvојeniBodovi;
+            binding.tvBodovi.setText("Bodovi: " + bodovi);
 
-            // Ažuriraj bodove u Firestore
             String poljeB = jeIgrac1 ? "bodovi1KorakPoKorak" : "bodovi2KorakPoKorak";
             FirebaseFirestore.getInstance()
                     .collection("partije").document(partijaId)
-                    .update(poljeB, bodovi);
-
-            Toast.makeText(getContext(),
-                    "Tacno! +" + osvојeniBodovi + " bodova!",
-                    Toast.LENGTH_SHORT).show();
-
-            azurirajSledeci();
+                    .update(poljeB, bodovi)
+                    .addOnSuccessListener(unused -> {
+                        Toast.makeText(getContext(),
+                                "Tacno! +" + osvојeniBodovi + " bodova!",
+                                Toast.LENGTH_SHORT).show();
+                        napraviSledeci();
+                    });
         } else {
-            Toast.makeText(getContext(),
-                    "Netacno!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Netacno!", Toast.LENGTH_SHORT).show();
             binding.etOdgovor.setText("");
         }
     }
 
-    private void azurirajSledeci() {
-        if (jeIgrac1 && !runda1Zavrsena) {
-            // Igrac 1 pogodio — Igrac 2 na red
-            runda1Zavrsena = true;
-            mojaRunda = false;
-            FirebaseFirestore.getInstance()
-                    .collection("partije").document(partijaId)
-                    .update("statusKorakPoKorak", IGRAC2_IGRA);
-        } else {
-            // Igrac 2 pogodio — igra završena
-            azurirajZavrsenu();
+    private void napraviSledeci() {
+        String noviStatus;
+        switch (trenutniStatus) {
+            case IGRAC1_IGRA:
+                noviStatus = IGRAC2_IGRA;
+                prikaziCekanje("Cekaj Igraca 2...");
+                break;
+            case IGRAC1_BONUS:
+                noviStatus = IGRAC2_IGRA_RUNDA2;
+                if (!jeIgrac1) prikaziCekanje("Cekaj...");
+                break;
+            default:
+                noviStatus = ZAVRSENA;
+                break;
         }
-    }
 
-    private void azurirajStatusPromisio() {
-        String status = jeIgrac1 ? IGRAC1_PROMISIO : IGRAC2_PROMISIO;
-        mojaRunda = false;
-
-        if (jeIgrac1 && !runda1Zavrsena) {
-            runda1Zavrsena = true;
-            FirebaseFirestore.getInstance()
-                    .collection("partije").document(partijaId)
-                    .update("statusKorakPoKorak", status);
-        } else {
-            FirebaseFirestore.getInstance()
-                    .collection("partije").document(partijaId)
-                    .update("statusKorakPoKorak", status);
-        }
-    }
-
-    private void azurirajZavrsenu() {
         FirebaseFirestore.getInstance()
                 .collection("partije").document(partijaId)
-                .update("statusKorakPoKorak", ZAVRSENA);
+                .update("statusKorakPoKorak", noviStatus);
     }
 
-    private void prikaziPoruku(String poruka) {
-        Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+    private void prikaziSveKorake() {
+        if (trenutnoPitanje == null) return;
+        String[] koraci = trenutnoPitanje.getKoraci();
+        binding.tvKorak1.setText("Korak 1: " + koraci[0]);
+        binding.tvKorak1.setVisibility(View.VISIBLE);
+        binding.tvKorak2.setText("Korak 2: " + koraci[1]);
+        binding.tvKorak2.setVisibility(View.VISIBLE);
+        binding.tvKorak3.setText("Korak 3: " + koraci[2]);
+        binding.tvKorak3.setVisibility(View.VISIBLE);
+        binding.tvKorak4.setText("Korak 4: " + koraci[3]);
+        binding.tvKorak4.setVisibility(View.VISIBLE);
+        binding.tvKorak5.setText("Korak 5: " + koraci[4]);
+        binding.tvKorak5.setVisibility(View.VISIBLE);
+        binding.tvKorak6.setText("Korak 6: " + koraci[5]);
+        binding.tvKorak6.setVisibility(View.VISIBLE);
+        binding.tvKorak7.setText("Korak 7: " + koraci[6]);
+        binding.tvKorak7.setVisibility(View.VISIBLE);
+    }
+
+    private void prikaziStatus(String poruka) {
+        if (getContext() != null)
+            Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
     }
 
     private void zaustaviTajmer() {
-        if (tajmer != null) tajmer.cancel();
+        if (tajmer != null) {
+            tajmer.cancel();
+            tajmer = null;
+        }
     }
 
     private void prikaziKorak(int index) {
@@ -354,6 +427,7 @@ public class KorakPoKorakFragment extends Fragment {
     }
 
     private void sakriSveKorake() {
+        if (binding == null) return;
         binding.tvKorak1.setVisibility(View.GONE);
         binding.tvKorak2.setVisibility(View.GONE);
         binding.tvKorak3.setVisibility(View.GONE);
@@ -363,14 +437,11 @@ public class KorakPoKorakFragment extends Fragment {
         binding.tvKorak7.setVisibility(View.GONE);
     }
 
-    private void azurirajBodove() {
-        binding.tvBodovi.setText("Bodovi: " + bodovi);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         zaustaviTajmer();
+        if (listenerRegistration != null) listenerRegistration.remove();
         binding = null;
     }
 }

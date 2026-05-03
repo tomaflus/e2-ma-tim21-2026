@@ -95,18 +95,64 @@ public class IgraFragment extends Fragment {
 
     private void pokrniIgru(int indeksIgre) {
         if (indeksIgre >= IGRE.length) {
-            // Sve igre završene
             završiPartiju();
             return;
         }
 
         binding.tvIgra.setText("Igra " + (indeksIgre + 1) + "/6: " + IGRE[indeksIgre]);
 
-        // TODO: U KO fazi ovdje navigiramo na konkretnu igru
-        // Za sada prikazujemo Toast
-        Toast.makeText(getContext(),
-                "Pokretanje igre: " + IGRE[indeksIgre],
-                Toast.LENGTH_SHORT).show();
+        Bundle args = new Bundle();
+        args.putString("partijaId", partijaId);
+        args.putBoolean("jeIgrac1", jeIgrac1);
+
+        // Pokreni odgovarajuću igru
+        Fragment igra;
+        switch (indeksIgre) {
+            case 4: // Korak po korak
+                igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
+                igra.setArguments(args);
+                break;
+            case 5: // Moj broj
+                igra = new com.elfak.slagalica.fragments.games.MojBrojFragment();
+                igra.setArguments(args);
+                break;
+            default:
+                // Placeholder za igre koje rade drugi studenti
+                Toast.makeText(getContext(),
+                        "Igra " + IGRE[indeksIgre] + " - dolazi uskoro",
+                        Toast.LENGTH_SHORT).show();
+                // Preskoci na sljedecu igru nakon 2s
+                new android.os.Handler().postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                return;
+        }
+
+        // Postavi fragment u kontejner
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.gameContainer, igra)
+                .commit();
+
+        // Slušaj kad igra završi
+        getChildFragmentManager().setFragmentResultListener(
+                "korakPoKorakZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    pokrniIgru(indeksIgre + 1);
+                });
+    }
+
+    private void azurirajBodovePartije(int noviBodovi, int indeksIgre) {
+        if (trenutnaPartija == null) return;
+
+        int ukupnoBodovi = jeIgrac1 ?
+                trenutnaPartija.getBodovi1() + noviBodovi :
+                trenutnaPartija.getBodovi2() + noviBodovi;
+
+        partijaRepository.azurirajBodove(partijaId, jeIgrac1, ukupnoBodovi,
+                () -> {},
+                poruka -> Toast.makeText(getContext(),
+                        "Greska: " + poruka, Toast.LENGTH_SHORT).show());
     }
 
     private void završiPartiju() {
