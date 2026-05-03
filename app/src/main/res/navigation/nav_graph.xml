@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment"/>
     </fragment>
 
     <fragment
@@ -25,4 +28,40 @@
             app:destination="@id/loginFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/mojBrojFragment"
+        android:name="com.elfak.slagalica.fragments.games.MojBrojFragment"
+        android:label="Moj broj"
+        tools:layout="@layout/fragment_moj_broj"/>
+
+    <fragment
+        android:id="@+id/korakPoKorakFragment"
+        android:name="com.elfak.slagalica.fragments.games.KorakPoKorakFragment"
+        android:label="Korak po korak"
+        tools:layout="@layout/fragment_korak_po_korak"/>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.elfak.slagalica.fragments.home.HomeFragment"
+        android:label="Pocetna"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_loginFragment"
+            app:destination="@id/loginFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_resetLozinkeFragment"
+            app:destination="@id/resetLozinkeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_korakPoKorakFragment"
+            app:destination="@id/korakPoKorakFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_mojBrojFragment"
+            app:destination="@id/mojBrojFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/resetLozinkeFragment"
+        android:name="com.elfak.slagalica.fragments.auth.ResetLozinkeFragment"
+        android:label="Promjena lozinke"
+        tools:layout="@layout/fragment_reset_lozinke"/>
 </navigation>

@@ -36,8 +36,8 @@ public class LoginFragment extends Fragment {
         authRepository = new AuthRepository();
 
         if (authRepository.jeUlogovan()) {
-            // TODO: navigacija na glavni ekran dolazi u KO
-            Toast.makeText(getContext(), "Već ste ulogovani!", Toast.LENGTH_SHORT).show();
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_loginFragment_to_homeFragment);
         }
 
         // Klik na dugme Prijavi se
@@ -52,22 +52,51 @@ public class LoginFragment extends Fragment {
             }
 
             // Onemogući dugme tokom logovanja
+            binding.progressBar.setVisibility(View.VISIBLE);
             binding.btnPrijava.setEnabled(false);
 
             authRepository.logovanje(email, lozinka,
-                    () -> {
+                    () -> requireActivity().runOnUiThread(() -> {
                         // Uspješno logovanje
+                        binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(),
                                 "Uspješno ste se prijavili!", Toast.LENGTH_SHORT).show();
-                        // TODO: navigacija na glavni ekran dolazi u KO
-                    },
-                    poruka -> {
+                        Navigation.findNavController(view)
+                                .navigate(R.id.action_loginFragment_to_homeFragment);
+                    }),
+                    poruka -> requireActivity().runOnUiThread(() -> {
                         // Greška
+                        binding.progressBar.setVisibility(View.GONE);
                         binding.btnPrijava.setEnabled(true);
                         Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
-                    });
+                    }));
             });
+
+        // Klik na "Zaboravili ste lozinku?"
+        binding.tvZaboravljenaLozinka.setOnClickListener(v -> {
+            String email = binding.etEmail.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(getContext(),
+                        "Unesite email za reset lozinke!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            binding.progressBar.setVisibility(View.VISIBLE);
+
+            authRepository.resetLozinke(email,
+                    () -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getContext(),
+                                "Email za reset lozinke je poslan!",
+                                Toast.LENGTH_LONG).show();
+                    },
+                    poruka -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+                    });
+        });
 
         // Klik na "Nemate nalog? Registrujte se"
         binding.tvRegistracija.setOnClickListener(v -> {

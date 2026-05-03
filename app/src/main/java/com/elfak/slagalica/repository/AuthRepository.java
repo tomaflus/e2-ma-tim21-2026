@@ -1,5 +1,8 @@
 package com.elfak.slagalica.repository;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.elfak.slagalica.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -9,6 +12,7 @@ public class AuthRepository {
 
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // Registracija
     public void registracija(String email, String lozinka, String korisnickoIme,
@@ -18,10 +22,8 @@ public class AuthRepository {
                     FirebaseUser firebaseUser = result.getUser();
                     if (firebaseUser == null) return;
 
-                    // Pošalji verifikacioni email
                     firebaseUser.sendEmailVerification();
 
-                    // Sačuvaj korisnika u Firestore
                     User user = new User(
                             firebaseUser.getUid(),
                             email,
@@ -32,30 +34,56 @@ public class AuthRepository {
                     db.collection("users")
                             .document(firebaseUser.getUid())
                             .set(user)
-                            .addOnSuccessListener(unused -> onSuccess.onSuccess())
-                            .addOnFailureListener(e -> onError.onError(e.getMessage()));
+                            .addOnSuccessListener(unused ->
+                                    mainHandler.post(onSuccess::onSuccess))
+                            .addOnFailureListener(e ->
+                                    mainHandler.post(() -> onError.onError(e.getMessage())));
                 })
-                .addOnFailureListener(e -> onError.onError(e.getMessage()));
+                .addOnFailureListener(e ->
+                        mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 
     // Logovanje
-    public void logovanje(String email, String lozinka,
+    public void logovanje(String emailIliKorisnickoIme, String lozinka,
                           OnSuccessListener onSuccess, OnErrorListener onError) {
+        if (emailIliKorisnickoIme.contains("@")) {
+            loginSaEmailom(emailIliKorisnickoIme, lozinka, onSuccess, onError);
+        } else {
+            db.collection("users")
+                    .whereEqualTo("korisnickoIme", emailIliKorisnickoIme)
+                    .get()
+                    .addOnSuccessListener(query -> {
+                        if (query.isEmpty()) {
+                            mainHandler.post(() ->
+                                    onError.onError("Korisnicko ime nije pronadjeno!"));
+                            return;
+                        }
+                        String email = query.getDocuments().get(0).getString("email");
+                        loginSaEmailom(email, lozinka, onSuccess, onError);
+                    })
+                    .addOnFailureListener(e ->
+                            mainHandler.post(() -> onError.onError(e.getMessage())));
+        }
+    }
+
+    private void loginSaEmailom(String email, String lozinka,
+                                OnSuccessListener onSuccess, OnErrorListener onError) {
         auth.signInWithEmailAndPassword(email, lozinka)
                 .addOnSuccessListener(result -> {
                     FirebaseUser firebaseUser = result.getUser();
                     if (firebaseUser == null) return;
 
-                    // Provjeri da li je email verifikovan
                     if (!firebaseUser.isEmailVerified()) {
-                        onError.onError("Email nije verifikovan! Provjerite inbox.");
+                        mainHandler.post(() ->
+                                onError.onError("Email nije verifikovan! Provjerite inbox."));
                         auth.signOut();
                         return;
                     }
 
-                    onSuccess.onSuccess();
+                    mainHandler.post(onSuccess::onSuccess);
                 })
-                .addOnFailureListener(e -> onError.onError(e.getMessage()));
+                .addOnFailureListener(e ->
+                        mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 
     // Odjava
@@ -72,6 +100,15 @@ public class AuthRepository {
     // Trenutni korisnik
     public FirebaseUser trenutniKorisnik() {
         return auth.getCurrentUser();
+    }
+
+    // Reset lozinke
+    public void resetLozinke(String email, OnSuccessListener onSuccess, OnErrorListener onError) {
+        auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused ->
+                        mainHandler.post(onSuccess::onSuccess))
+                .addOnFailureListener(e ->
+                        mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 
     // Interfejsi za callbacks
