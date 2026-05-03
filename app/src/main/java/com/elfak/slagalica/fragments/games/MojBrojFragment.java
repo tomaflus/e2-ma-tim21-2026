@@ -9,6 +9,7 @@ import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,7 +18,12 @@ import androidx.fragment.app.Fragment;
 
 import com.elfak.slagalica.databinding.FragmentMojBrojBinding;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MojBrojFragment extends Fragment implements SensorEventListener {
 
@@ -35,12 +41,15 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     private CountDownTimer tajmerCiljni;
     private CountDownTimer tajmerGlavni;
 
-    // Za detekciju shake-a
+    // Stack za pracenje tokena i korištenih dugmadi
+    private Stack<String> tokeniIzraza = new Stack<>();
+    private Stack<Button> koristenaDugmad = new Stack<>();
+
     private float zadnjaX, zadnjaY, zadnjaZ;
     private boolean prvaPromjena = true;
     private static final float SHAKE_LIMIT = 400;
-    private static final int TRAJANJE_IGRE = 60000; // 60 sekundi
-    private static final int TRAJANJE_STOP = 5000;  // 5 sekundi auto-otkrivanje
+    private static final int TRAJANJE_IGRE = 60000;
+    private static final int TRAJANJE_STOP = 5000;
 
     @Nullable
     @Override
@@ -55,7 +64,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inicijalizacija senzora
         sensorManager = (SensorManager) requireActivity()
                 .getSystemService(android.content.Context.SENSOR_SERVICE);
         akcelerometar = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -63,108 +71,108 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         generisiBrojeve();
         pokrniTajmere();
 
-        // Klik na Stop — otkrij ciljni broj
-        binding.btnStopCiljni.setOnClickListener(v -> {
-            if (!ciljniOtkriven) {
-                otkrijCiljniBroj();
-            }
-        });
-
-        // Klik na Stop — otkrij dostupne brojeve
+        binding.btnStopCiljni.setOnClickListener(v -> otkrijCiljniBroj());
         binding.btnStopBrojevi.setOnClickListener(v -> otkrijBrojeve());
 
-        // Operandi klikovi
-        binding.btnSaberi.setOnClickListener(v -> dodajUIzraz(" + "));
-        binding.btnOduzmi.setOnClickListener(v -> dodajUIzraz(" - "));
-        binding.btnPomnozi.setOnClickListener(v -> dodajUIzraz(" * "));
-        binding.btnPodijeli.setOnClickListener(v -> dodajUIzraz(" / "));
-        binding.btnZagraOtvori.setOnClickListener(v -> dodajUIzraz("("));
-        binding.btnZagraZatvori.setOnClickListener(v -> dodajUIzraz(")"));
+        // Operandi — dodaju token bez dugmeta
+        binding.btnSaberi.setOnClickListener(v -> dodajToken(" + ", null));
+        binding.btnOduzmi.setOnClickListener(v -> dodajToken(" - ", null));
+        binding.btnPomnozi.setOnClickListener(v -> dodajToken(" * ", null));
+        binding.btnPodijeli.setOnClickListener(v -> dodajToken(" / ", null));
+        binding.btnZagraOtvori.setOnClickListener(v -> dodajToken("(", null));
+        binding.btnZagraZatvori.setOnClickListener(v -> dodajToken(")", null));
 
-        // Brojevi klikovi
-        binding.btnBroj1.setOnClickListener(v -> {
-            if (binding.btnBroj1.getText() != null)
-                dodajUIzraz(binding.btnBroj1.getText().toString());
-        });
-        binding.btnBroj2.setOnClickListener(v -> {
-            if (binding.btnBroj2.getText() != null)
-                dodajUIzraz(binding.btnBroj2.getText().toString());
-        });
-        binding.btnBroj3.setOnClickListener(v -> {
-            if (binding.btnBroj3.getText() != null)
-                dodajUIzraz(binding.btnBroj3.getText().toString());
-        });
-        binding.btnBroj4.setOnClickListener(v -> {
-            if (binding.btnBroj4.getText() != null)
-                dodajUIzraz(binding.btnBroj4.getText().toString());
-        });
-        binding.btnBroj5.setOnClickListener(v -> {
-            if (binding.btnBroj5.getText() != null)
-                dodajUIzraz(binding.btnBroj5.getText().toString());
-        });
-        binding.btnBroj6.setOnClickListener(v -> {
-            if (binding.btnBroj6.getText() != null)
-                dodajUIzraz(binding.btnBroj6.getText().toString());
-        });
+        // Brojevi — dodaju token sa dugmetom
+        binding.btnBroj1.setOnClickListener(v -> klikniNaBroj(binding.btnBroj1));
+        binding.btnBroj2.setOnClickListener(v -> klikniNaBroj(binding.btnBroj2));
+        binding.btnBroj3.setOnClickListener(v -> klikniNaBroj(binding.btnBroj3));
+        binding.btnBroj4.setOnClickListener(v -> klikniNaBroj(binding.btnBroj4));
+        binding.btnBroj5.setOnClickListener(v -> klikniNaBroj(binding.btnBroj5));
+        binding.btnBroj6.setOnClickListener(v -> klikniNaBroj(binding.btnBroj6));
 
+        // Obrisi cijeli zadnji token
         binding.btnObrisi.setOnClickListener(v -> {
+            if (tokeniIzraza.isEmpty()) return;
+
+            String zadnjiToken = tokeniIzraza.pop();
+            Button dugme = koristenaDugmad.pop();
+
+            // Vrati dugme ako je broj
+            if (dugme != null) {
+                dugme.setEnabled(true);
+                dugme.setAlpha(1.0f);
+            }
+
+            // Obriši token iz izraza
             String trenutni = binding.etIzraz.getText().toString();
-            if (!trenutni.isEmpty()) {
-                binding.etIzraz.setText(trenutni.substring(0, trenutni.length() - 1));
+            if (trenutni.endsWith(zadnjiToken)) {
+                binding.etIzraz.setText(
+                        trenutni.substring(0, trenutni.length() - zadnjiToken.length()));
                 binding.etIzraz.setSelection(binding.etIzraz.getText().length());
             }
         });
 
-        // Potvrdi izraz
         binding.btnPotvrdi.setOnClickListener(v -> {
             if (igraZavrsena) return;
             String izraz = binding.etIzraz.getText().toString().trim();
             if (izraz.isEmpty()) {
-                Toast.makeText(getContext(),
-                        "Unesite izraz!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Unesite izraz!", Toast.LENGTH_SHORT).show();
                 return;
             }
             evaluirajIzraz(izraz);
         });
     }
 
+    private void dodajToken(String token, Button dugme) {
+        // Dodaj token u izraz
+        String trenutni = binding.etIzraz.getText().toString();
+        binding.etIzraz.setText(trenutni + token);
+        binding.etIzraz.setSelection(binding.etIzraz.getText().length());
+
+        // Sačuvaj token i dugme u stack
+        tokeniIzraza.push(token);
+        koristenaDugmad.push(dugme);
+    }
+
+    private void klikniNaBroj(Button dugme) {
+        if (!brojeviOtkriveni) {
+            Toast.makeText(getContext(),
+                    "Prvo otkrijte brojeve!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String broj = dugme.getText().toString();
+        dodajToken(broj, dugme);
+
+        // Onemogući dugme
+        dugme.setEnabled(false);
+        dugme.setAlpha(0.4f);
+    }
+
     private void pokrniTajmere() {
-        // Tajmer 5s za auto-otkrivanje ciljnog broja
         tajmerCiljni = new CountDownTimer(TRAJANJE_STOP, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {}
-
-            @Override
-            public void onFinish() {
+            @Override public void onTick(long ms) {}
+            @Override public void onFinish() {
                 otkrijCiljniBroj();
-                // Tajmer 5s za auto-otkrivanje dostupnih brojeva
                 new CountDownTimer(TRAJANJE_STOP, 1000) {
-                    @Override
-                    public void onTick(long millisUntilFinished) {}
-
-                    @Override
-                    public void onFinish() {
-                        otkrijBrojeve();
-                    }
+                    @Override public void onTick(long ms) {}
+                    @Override public void onFinish() { otkrijBrojeve(); }
                 }.start();
             }
         }.start();
 
-        // Glavni tajmer 60s
         tajmerGlavni = new CountDownTimer(TRAJANJE_IGRE, 1000) {
             @Override
-            public void onTick(long millisUntilFinished) {
-                binding.tvTajmer.setText(millisUntilFinished / 1000 + "s");
+            public void onTick(long ms) {
+                binding.tvTajmer.setText(ms / 1000 + "s");
             }
-
             @Override
             public void onFinish() {
                 igraZavrsena = true;
                 binding.btnPotvrdi.setEnabled(false);
                 binding.tvTajmer.setText("0s");
                 Toast.makeText(getContext(),
-                        "Isteklo vrijeme! Bodovi: " + bodovi,
-                        Toast.LENGTH_LONG).show();
+                        "Isteklo vrijeme! Bodovi: " + bodovi, Toast.LENGTH_LONG).show();
             }
         }.start();
     }
@@ -191,25 +199,27 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     }
 
     private void evaluirajIzraz(String izraz) {
+        if (!brojeviOtkriveni) {
+            Toast.makeText(getContext(),
+                    "Prvo otkrijte dostupne brojeve!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
-            // Evaluacija matematičkog izraza
-            double rezultat = evaluiraj(izraz);
+            double rezultat = new ExprParser(izraz.replaceAll("\\s+", "")).parse();
             int rezultatInt = (int) rezultat;
 
             if (rezultatInt == ciljniBroj) {
-                // Tačan rezultat!
                 igraZavrsena = true;
                 tajmerGlavni.cancel();
                 bodovi = 10;
                 azurirajBodove();
-                Toast.makeText(getContext(),
-                        "Tacno! Osvojili ste 10 bodova!",
-                        Toast.LENGTH_LONG).show();
                 binding.btnPotvrdi.setEnabled(false);
-            } else {
-                // Netačan rezultat
                 Toast.makeText(getContext(),
-                        "Rezultat je " + rezultatInt + ", a trazeni je " + ciljniBroj,
+                        "Tacno! Osvojili ste 10 bodova!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(),
+                        "Rezultat je " + rezultatInt + ", trazeni je " + ciljniBroj,
                         Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
@@ -218,60 +228,64 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         }
     }
 
-    // Evaluacija matematičkog izraza
-    private double evaluiraj(String izraz) {
-        izraz = izraz.trim();
-        return evaluirajSabiranje(izraz, new int[]{0});
-    }
+    private static class ExprParser {
+        private final String expr;
+        private int pos = 0;
 
-    private double evaluirajSabiranje(String izraz, int[] pos) {
-        double rezultat = evaluirajMnozenje(izraz, pos);
-        while (pos[0] < izraz.length()) {
-            char op = izraz.charAt(pos[0]);
-            if (op != '+' && op != '-') break;
-            pos[0]++;
-            double desno = evaluirajMnozenje(izraz, pos);
-            if (op == '+') rezultat += desno;
-            else rezultat -= desno;
-        }
-        return rezultat;
-    }
+        ExprParser(String expr) { this.expr = expr; }
 
-    private double evaluirajMnozenje(String izraz, int[] pos) {
-        double rezultat = evaluirajBroj(izraz, pos);
-        while (pos[0] < izraz.length()) {
-            char op = izraz.charAt(pos[0]);
-            if (op != '*' && op != '/') break;
-            pos[0]++;
-            double desno = evaluirajBroj(izraz, pos);
-            if (op == '*') rezultat *= desno;
-            else rezultat /= desno;
-        }
-        return rezultat;
-    }
-
-    private double evaluirajBroj(String izraz, int[] pos) {
-        // Preskoči razmake
-        while (pos[0] < izraz.length() && izraz.charAt(pos[0]) == ' ') pos[0]++;
-
-        if (pos[0] < izraz.length() && izraz.charAt(pos[0]) == '(') {
-            pos[0]++; // preskoči '('
-            double rezultat = evaluirajSabiranje(izraz, pos);
-            pos[0]++; // preskoči ')'
-            return rezultat;
+        double parse() throws Exception {
+            double result = parseExpr();
+            if (pos != expr.length()) throw new Exception("Neispravan izraz");
+            return result;
         }
 
-        int pocetak = pos[0];
-        if (pos[0] < izraz.length() && izraz.charAt(pos[0]) == '-') pos[0]++;
-        while (pos[0] < izraz.length() &&
-                (Character.isDigit(izraz.charAt(pos[0])) || izraz.charAt(pos[0]) == '.')) {
-            pos[0]++;
+        private double parseExpr() throws Exception {
+            double result = parseTerm();
+            while (pos < expr.length() &&
+                    (expr.charAt(pos) == '+' || expr.charAt(pos) == '-')) {
+                char op = expr.charAt(pos++);
+                double term = parseTerm();
+                result = (op == '+') ? result + term : result - term;
+            }
+            return result;
         }
 
-        // Preskoči razmake
-        while (pos[0] < izraz.length() && izraz.charAt(pos[0]) == ' ') pos[0]++;
+        private double parseTerm() throws Exception {
+            double result = parseFactor();
+            while (pos < expr.length() &&
+                    (expr.charAt(pos) == '*' || expr.charAt(pos) == '/')) {
+                char op = expr.charAt(pos++);
+                double factor = parseFactor();
+                if (op == '/' && factor == 0) throw new Exception("Dijeljenje s nulom");
+                result = (op == '*') ? result * factor : result / factor;
+            }
+            return result;
+        }
 
-        return Double.parseDouble(izraz.substring(pocetak, pos[0]).trim());
+        private double parseFactor() throws Exception {
+            if (pos < expr.length() && expr.charAt(pos) == '(') {
+                pos++;
+                double result = parseExpr();
+                if (pos >= expr.length() || expr.charAt(pos) != ')')
+                    throw new Exception("Nedostaje zatvorena zagrada");
+                pos++;
+                return result;
+            }
+
+            boolean negative = false;
+            if (pos < expr.length() && expr.charAt(pos) == '-') {
+                negative = true;
+                pos++;
+            }
+
+            int start = pos;
+            while (pos < expr.length() && Character.isDigit(expr.charAt(pos))) pos++;
+            if (pos == start) throw new Exception("Ocekivan broj na poziciji " + pos);
+
+            double value = Double.parseDouble(expr.substring(start, pos));
+            return negative ? -value : value;
+        }
     }
 
     private void azurirajBodove() {
@@ -281,60 +295,42 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     private void generisiBrojeve() {
         Random random = new Random();
         ciljniBroj = random.nextInt(900) + 100;
-
-        for (int i = 0; i < 4; i++) {
-            dostupniBrojevi[i] = random.nextInt(9) + 1;
-        }
+        for (int i = 0; i < 4; i++) dostupniBrojevi[i] = random.nextInt(9) + 1;
         int[] srednji = {10, 15, 20};
         dostupniBrojevi[4] = srednji[random.nextInt(3)];
-
         int[] veliki = {25, 50, 75, 100};
         dostupniBrojevi[5] = veliki[random.nextInt(4)];
     }
 
-    private void dodajUIzraz(String vrijednost) {
-        String trenutni = binding.etIzraz.getText().toString();
-        binding.etIzraz.setText(trenutni + vrijednost);
-        binding.etIzraz.setSelection(binding.etIzraz.getText().length());
-    }
-
-    // Shake senzor
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
-
             if (!prvaPromjena) {
                 float razlika = Math.abs(x - zadnjaX)
                         + Math.abs(y - zadnjaY)
                         + Math.abs(z - zadnjaZ);
-
                 if (razlika > SHAKE_LIMIT) {
                     otkrijBrojeve();
                     Toast.makeText(getContext(),
                             "Shake detektovan!", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            zadnjaX = x;
-            zadnjaY = y;
-            zadnjaZ = z;
+            zadnjaX = x; zadnjaY = y; zadnjaZ = z;
             prvaPromjena = false;
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    @Override public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     @Override
     public void onResume() {
         super.onResume();
-        if (akcelerometar != null) {
+        if (akcelerometar != null)
             sensorManager.registerListener(this, akcelerometar,
                     SensorManager.SENSOR_DELAY_NORMAL);
-        }
     }
 
     @Override
@@ -350,6 +346,4 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         if (tajmerCiljni != null) tajmerCiljni.cancel();
         binding = null;
     }
-
-
 }
