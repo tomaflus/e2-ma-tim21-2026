@@ -57,6 +57,9 @@
         <action
             android:id="@+id/action_homeFragment_to_mojBrojFragment"
             app:destination="@id/mojBrojFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_cekanjeFragment"
+            app:destination="@id/cekanjeFragment"/>
     </fragment>
 
     <fragment
@@ -64,4 +67,23 @@
         android:name="com.elfak.slagalica.fragments.auth.ResetLozinkeFragment"
         android:label="Promjena lozinke"
         tools:layout="@layout/fragment_reset_lozinke"/>
+
+    <fragment
+        android:id="@+id/cekanjeFragment"
+        android:name="com.elfak.slagalica.fragments.game.CekanjeFragment"
+        android:label="Cekanje"
+        tools:layout="@layout/fragment_cekanje">
+        <action
+            android:id="@+id/action_cekanjeFragment_to_igraFragment"
+            app:destination="@id/igraFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/igraFragment"
+        android:name="com.elfak.slagalica.fragments.game.IgraFragment"
+        android:label="Igra"
+        tools:layout="@layout/fragment_igra"/>
+        <action
+        android:id="@+id/action_igraFragment_to_homeFragment"
+        app:destination="@id/homeFragment"/>
 </navigation>
