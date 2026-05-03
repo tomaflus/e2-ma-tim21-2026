@@ -51,6 +51,13 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_resetLozinkeFragment);
         });
 
+        binding.btnIgraj.setOnClickListener(v -> {
+            // TODO: Provjeri tokene iz Firestore
+
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_cekanjeFragment);
+        });
+
         binding.btnKorakPoKorak.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
