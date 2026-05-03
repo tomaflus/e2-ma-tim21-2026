@@ -8,6 +8,7 @@ public class User {
     private int tokeni;
     private int zvezde;
     private int liga;
+    private long zadnjiLoginDatum;
 
     public User() {}
 
@@ -19,6 +20,7 @@ public class User {
         this.tokeni = 5;
         this.zvezde = 0;
         this.liga = 0;
+        this.zadnjiLoginDatum = System.currentTimeMillis();
     }
 
     public String getId() { return id; }
@@ -41,4 +43,6 @@ public class User {
 
     public int getLiga() { return liga; }
     public void setLiga(int liga) { this.liga = liga; }
+    public long getZadnjiLoginDatum() { return zadnjiLoginDatum; }
+    public void setZadnjiLoginDatum(long zadnjiLoginDatum) { this.zadnjiLoginDatum = zadnjiLoginDatum; }
 }
