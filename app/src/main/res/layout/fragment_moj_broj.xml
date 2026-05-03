@@ -156,11 +156,12 @@
             android:textSize="16sp"
             android:layout_marginBottom="8dp"/>
 
+        <!-- Operandi red 1 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <Button
                 android:id="@+id/btnSaberi"
@@ -168,6 +169,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="+"
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
 
             <Button
@@ -176,6 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="-"
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
 
             <Button
@@ -184,7 +187,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="*"
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
+
+        </LinearLayout>
+
+        <!-- Operandi red 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
 
             <Button
                 android:id="@+id/btnPodijeli"
@@ -192,6 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="/"
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
 
             <Button
@@ -200,6 +214,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="("
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
 
             <Button
@@ -208,6 +223,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text=")"
+                android:textSize="20sp"
                 android:layout_margin="4dp"/>
 
         </LinearLayout>
@@ -219,13 +235,31 @@
             android:hint="Unesite izraz"
             android:inputType="text"
             android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnPotvrdi"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Potvrdi izraz"/>
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btnObrisi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="⌫"
+                android:layout_margin="4dp"/>
+
+            <Button
+                android:id="@+id/btnPotvrdi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Potvrdi"
+                android:layout_margin="4dp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

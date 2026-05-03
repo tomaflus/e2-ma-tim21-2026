@@ -27,7 +27,13 @@
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-    
+
+    <fragment
+        android:id="@+id/mojBrojFragment"
+        android:name="com.elfak.slagalica.fragments.games.MojBrojFragment"
+        android:label="Moj broj"
+        tools:layout="@layout/fragment_moj_broj"/>
+
     <fragment
         android:id="@+id/korakPoKorakFragment"
         android:name="com.elfak.slagalica.fragments.games.KorakPoKorakFragment"
@@ -48,6 +54,9 @@
         <action
             android:id="@+id/action_homeFragment_to_korakPoKorakFragment"
             app:destination="@id/korakPoKorakFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_mojBrojFragment"
+            app:destination="@id/mojBrojFragment"/>
     </fragment>
 
     <fragment

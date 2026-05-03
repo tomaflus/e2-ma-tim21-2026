@@ -55,6 +55,11 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
         });
+
+        binding.btnMojBroj.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_mojBrojFragment);
+        });
     }
 
     @Override

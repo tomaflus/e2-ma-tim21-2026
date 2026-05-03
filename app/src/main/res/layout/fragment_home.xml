@@ -38,6 +38,13 @@
         android:layout_marginBottom="8dp"/>
 
     <Button
+        android:id="@+id/btnMojBroj"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TEST - Moj broj"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
         android:id="@+id/btnOdjava"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
