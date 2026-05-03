@@ -47,7 +47,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
     private float zadnjaX, zadnjaY, zadnjaZ;
     private boolean prvaPromjena = true;
-    private static final float SHAKE_LIMIT = 400;
+    private static final float SHAKE_LIMIT = 80;
     private static final int TRAJANJE_IGRE = 60000;
     private static final int TRAJANJE_STOP = 5000;
 
@@ -67,6 +67,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         sensorManager = (SensorManager) requireActivity()
                 .getSystemService(android.content.Context.SENSOR_SERVICE);
         akcelerometar = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+
 
         generisiBrojeve();
         pokrniTajmere();
@@ -302,24 +304,35 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         dostupniBrojevi[5] = veliki[random.nextInt(4)];
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-            if (!prvaPromjena) {
-                float razlika = Math.abs(x - zadnjaX)
-                        + Math.abs(y - zadnjaY)
-                        + Math.abs(z - zadnjaZ);
-                if (razlika > SHAKE_LIMIT) {
-                    otkrijBrojeve();
-                    Toast.makeText(getContext(),
-                            "Shake detektovan!", Toast.LENGTH_SHORT).show();
-                }
-            }
-            zadnjaX = x; zadnjaY = y; zadnjaZ = z;
+        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
+
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        if (prvaPromjena) {
+            zadnjaX = x;
+            zadnjaY = y;
+            zadnjaZ = z;
             prvaPromjena = false;
+            return;
+        }
+
+        float razlika = Math.abs(x - zadnjaX)
+                + Math.abs(y - zadnjaY)
+                + Math.abs(z - zadnjaZ);
+
+        zadnjaX = x;
+        zadnjaY = y;
+        zadnjaZ = z;
+
+        if (razlika > SHAKE_LIMIT) {
+            requireActivity().runOnUiThread(() -> {
+                otkrijBrojeve();
+            });
         }
     }
 
@@ -328,9 +341,10 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
-        if (akcelerometar != null)
+        if (akcelerometar != null) {
             sensorManager.registerListener(this, akcelerometar,
-                    SensorManager.SENSOR_DELAY_NORMAL);
+                    SensorManager.SENSOR_DELAY_GAME);
+        }
     }
 
     @Override
