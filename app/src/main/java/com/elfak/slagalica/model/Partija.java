@@ -14,6 +14,13 @@ public class Partija {
     private boolean prijateljska;
     private long kreirano;
 
+    private String statusKorakPoKorak; // IGRAC1_IGRA, IGRAC2_IGRA, ZAVRSENA
+    private int bodovi1KorakPoKorak;
+    private int bodovi2KorakPoKorak;
+    private boolean igrac1PogodioKorak;
+    private boolean igrac2PogodioKorak;
+    private String pitanjeKorakPoKorakId;
+
     public Partija() {}
 
     public Partija(String igrac1Id, String igrac1Ime, boolean prijateljska) {
@@ -63,4 +70,22 @@ public class Partija {
 
     public long getKreirano() { return kreirano; }
     public void setKreirano(long kreirano) { this.kreirano = kreirano; }
+
+    public String getStatusKorakPoKorak() { return statusKorakPoKorak; }
+    public void setStatusKorakPoKorak(String s) { this.statusKorakPoKorak = s; }
+
+    public int getBodovi1KorakPoKorak() { return bodovi1KorakPoKorak; }
+    public void setBodovi1KorakPoKorak(int b) { this.bodovi1KorakPoKorak = b; }
+
+    public int getBodovi2KorakPoKorak() { return bodovi2KorakPoKorak; }
+    public void setBodovi2KorakPoKorak(int b) { this.bodovi2KorakPoKorak = b; }
+
+    public boolean isIgrac1PogodioKorak() { return igrac1PogodioKorak; }
+    public void setIgrac1PogodioKorak(boolean b) { this.igrac1PogodioKorak = b; }
+
+    public boolean isIgrac2PogodioKorak() { return igrac2PogodioKorak; }
+    public void setIgrac2PogodioKorak(boolean b) { this.igrac2PogodioKorak = b; }
+
+    public String getPitanjeKorakPoKorakId() { return pitanjeKorakPoKorakId; }
+    public void setPitanjeKorakPoKorakId(String s) { this.pitanjeKorakPoKorakId = s; }
 }
