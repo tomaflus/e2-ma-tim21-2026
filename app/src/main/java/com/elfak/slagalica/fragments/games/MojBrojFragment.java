@@ -17,11 +17,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.elfak.slagalica.databinding.FragmentMojBrojBinding;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -43,8 +43,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     private boolean ciljniOtkriven = false;
     private boolean brojeviOtkriveni = false;
     private boolean igraZavrsena = false;
-    private int bodovi = 0;
     private int mojRezultat = 0;
+    private int trenutnaRunda = 1;
 
     // Tajmeri
     private CountDownTimer tajmerCiljni;
@@ -62,10 +62,9 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     private static final int TRAJANJE_STOP = 5000;
 
     // Statusi
-    private static final String IGRAC1_IGRA = "IGRAC1_IGRA";
-    private static final String IGRAC2_IGRA = "IGRAC2_IGRA";
     private static final String OBA_IGRAJU = "OBA_IGRAJU";
     private static final String RACUNANJE_BODOVA = "RACUNANJE_BODOVA";
+    private static final String RUNDA2 = "RUNDA2";
     private static final String ZAVRSENA = "ZAVRSENA";
 
     private String trenutniStatus = "";
@@ -142,9 +141,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
     private void inicijalizujIgru() {
         if (jeIgrac1) {
-            // Igrac 1 generise brojeve i cuva u Firebase
             generisiBrojeve();
-
             List<Integer> lista = new ArrayList<>();
             for (int b : dostupniBrojevi) lista.add(b);
 
@@ -160,8 +157,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                             "rezultat2Runda1", -1
                     );
         }
-        // Igrac 2 ucitava brojeve iz Firebase u slušajStatus()
-
         pokrniTajmere();
     }
 
@@ -174,11 +169,11 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                     String status = snapshot.getString("statusMojBroj");
                     if (status == null) return;
 
-                    // Igrac 2 ucitava brojeve kad su dostupni
-                    if (!jeIgrac1 && !brojeviOtkriveni && !ciljniOtkriven) {
+                    // Igrac 2 ucitava brojeve za Rundu 1
+                    if (!jeIgrac1 && trenutnaRunda == 1 && !ciljniOtkriven) {
                         Long ciljni = snapshot.getLong("ciljniBrojRunda1");
                         List<Long> dostupni = (List<Long>) snapshot.get("dostupniBrojeviRunda1");
-                        if (ciljni != null && dostupni != null) {
+                        if (ciljni != null && dostupni != null && ciljniBroj == 0) {
                             ciljniBroj = ciljni.intValue();
                             for (int i = 0; i < dostupni.size() && i < 6; i++) {
                                 dostupniBrojevi[i] = dostupni.get(i).intValue();
@@ -191,8 +186,36 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
                     switch (status) {
                         case RACUNANJE_BODOVA:
-                            // Oba igraca su zavrsili — racunaj bodove
                             izracunajBodove(snapshot);
+                            break;
+
+                        case RUNDA2:
+                            // Resetuj za Rundu 2
+                            trenutnaRunda = 2;
+                            mojaTurnaZavrsena = false;
+                            ciljniOtkriven = false;
+                            brojeviOtkriveni = false;
+                            tokeniIzraza.clear();
+                            koristenaDugmad.clear();
+                            mojRezultat = 0;
+
+                            // Ucitaj nove brojeve za Rundu 2
+                            Long ciljni2 = snapshot.getLong("ciljniBrojRunda2");
+                            List<Long> dostupni2 = (List<Long>) snapshot.get("dostupniBrojeviRunda2");
+
+                            if (ciljni2 != null) ciljniBroj = ciljni2.intValue();
+                            if (dostupni2 != null) {
+                                for (int i = 0; i < dostupni2.size() && i < 6; i++) {
+                                    dostupniBrojevi[i] = dostupni2.get(i).intValue();
+                                }
+                            }
+
+                            // Resetuj UI
+                            resetujUI();
+                            Toast.makeText(getContext(),
+                                    "Runda 2 pocinje! Igrac 2 je vlasnik runde.",
+                                    Toast.LENGTH_LONG).show();
+                            pokrniTajmere();
                             break;
 
                         case ZAVRSENA:
@@ -207,7 +230,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                             binding.btnPotvrdi.setEnabled(false);
 
                             Toast.makeText(getContext(),
-                                    "Igra zavrsena! Bodovi: " + mojiB,
+                                    "Igra zavrsena! Ukupni bodovi: " + mojiB,
                                     Toast.LENGTH_LONG).show();
 
                             Bundle result = new Bundle();
@@ -221,12 +244,36 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                 });
     }
 
-    private void izracunajBodove(com.google.firebase.firestore.DocumentSnapshot snapshot) {
+    private void resetujUI() {
+        binding.etIzraz.setText("");
+        binding.tvCiljniBroj.setText("---");
+        binding.btnBroj1.setText("?"); binding.btnBroj1.setEnabled(true); binding.btnBroj1.setAlpha(1.0f);
+        binding.btnBroj2.setText("?"); binding.btnBroj2.setEnabled(true); binding.btnBroj2.setAlpha(1.0f);
+        binding.btnBroj3.setText("?"); binding.btnBroj3.setEnabled(true); binding.btnBroj3.setAlpha(1.0f);
+        binding.btnBroj4.setText("?"); binding.btnBroj4.setEnabled(true); binding.btnBroj4.setAlpha(1.0f);
+        binding.btnBroj5.setText("?"); binding.btnBroj5.setEnabled(true); binding.btnBroj5.setAlpha(1.0f);
+        binding.btnBroj6.setText("?"); binding.btnBroj6.setEnabled(true); binding.btnBroj6.setAlpha(1.0f);
+        binding.btnStopCiljni.setEnabled(true);
+        binding.btnStopBrojevi.setEnabled(true);
+        binding.btnPotvrdi.setEnabled(true);
+        binding.tvTajmer.setText("60s");
+        binding.tvBodovi.setText("Bodovi: 0");
+    }
+
+    private void izracunajBodove(DocumentSnapshot snapshot) {
         if (!jeIgrac1) return; // Samo Igrac 1 racuna bodove
 
-        Long r1 = snapshot.getLong("rezultat1Runda1");
-        Long r2 = snapshot.getLong("rezultat2Runda1");
-        Long ciljni = snapshot.getLong("ciljniBrojRunda1");
+        Long r1, r2, ciljni;
+
+        if (trenutnaRunda == 1) {
+            r1 = snapshot.getLong("rezultat1Runda1");
+            r2 = snapshot.getLong("rezultat2Runda1");
+            ciljni = snapshot.getLong("ciljniBrojRunda1");
+        } else {
+            r1 = snapshot.getLong("rezultat1Runda2");
+            r2 = snapshot.getLong("rezultat2Runda2");
+            ciljni = snapshot.getLong("ciljniBrojRunda2");
+        }
 
         if (r1 == null || r2 == null || ciljni == null) return;
 
@@ -236,46 +283,62 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         int bod1 = 0, bod2 = 0;
 
         if (rez1 == cilj && rez2 != cilj) {
-            // Igrac 1 pogodio, Igrac 2 nije
             bod1 = 10;
         } else if (rez2 == cilj && rez1 != cilj) {
-            // Igrac 2 pogodio, Igrac 1 nije
             bod2 = 10;
         } else if (rez1 == cilj && rez2 == cilj) {
-            // Oba pogodila
-            bod1 = 10;
-            bod2 = 10;
+            bod1 = 10; bod2 = 10;
         } else if (rez1 == 0 && rez2 == 0) {
-            // Nijedan nije unio nista
-            bod1 = 0;
-            bod2 = 0;
+            bod1 = 0; bod2 = 0;
         } else if (rez1 == 0) {
-            // Igrac 1 nije unio nista
             bod2 = 5;
         } else if (rez2 == 0) {
-            // Igrac 2 nije unio nista
             bod1 = 5;
         } else if (rez1 == rez2) {
-            // Isti netacni rezultat — bodove dobija Igrac 1 (cija je runda)
-            bod1 = 5;
+            // Isti netacni — vlasnik runde dobija 5 bodova
+            // Runda 1: Igrac 1 je vlasnik, Runda 2: Igrac 2 je vlasnik
+            if (trenutnaRunda == 1) bod1 = 5;
+            else bod2 = 5;
         } else {
-            // Ko je blizi
             int razl1 = Math.abs(cilj - rez1);
             int razl2 = Math.abs(cilj - rez2);
             if (razl1 < razl2) bod1 = 5;
             else if (razl2 < razl1) bod2 = 5;
         }
 
-        int finalBod1 = bod1;
-        int finalBod2 = bod2;
+        // Dohvati trenutne bodove i dodaj nove
+        Long trenutniBod1 = snapshot.getLong("bodovi1MojBroj");
+        Long trenutniBod2 = snapshot.getLong("bodovi2MojBroj");
+        int ukupno1 = (trenutniBod1 != null ? trenutniBod1.intValue() : 0) + bod1;
+        int ukupno2 = (trenutniBod2 != null ? trenutniBod2.intValue() : 0) + bod2;
 
-        FirebaseFirestore.getInstance()
-                .collection("partije").document(partijaId)
-                .update(
-                        "bodovi1MojBroj", finalBod1,
-                        "bodovi2MojBroj", finalBod2,
-                        "statusMojBroj", ZAVRSENA
-                );
+        if (trenutnaRunda == 1) {
+            // Pokreni Rundu 2 — generiši nove brojeve
+            generisiBrojeve();
+            List<Integer> lista = new ArrayList<>();
+            for (int b : dostupniBrojevi) lista.add(b);
+
+            FirebaseFirestore.getInstance()
+                    .collection("partije").document(partijaId)
+                    .update(
+                            "bodovi1MojBroj", ukupno1,
+                            "bodovi2MojBroj", ukupno2,
+                            "ciljniBrojRunda2", ciljniBroj,
+                            "dostupniBrojeviRunda2", lista,
+                            "rezultat1Runda2", -1,
+                            "rezultat2Runda2", -1,
+                            "statusMojBroj", RUNDA2
+                    );
+        } else {
+            // Runda 2 završena — igra gotova
+            FirebaseFirestore.getInstance()
+                    .collection("partije").document(partijaId)
+                    .update(
+                            "bodovi1MojBroj", ukupno1,
+                            "bodovi2MojBroj", ukupno2,
+                            "statusMojBroj", ZAVRSENA
+                    );
+        }
     }
 
     private void potvrdiRezultat(String izraz) {
@@ -290,7 +353,12 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         zaustaviTajmere();
         binding.btnPotvrdi.setEnabled(false);
 
-        String poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+        String poljeR;
+        if (trenutnaRunda == 1) {
+            poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+        } else {
+            poljeR = jeIgrac1 ? "rezultat1Runda2" : "rezultat2Runda2";
+        }
 
         Toast.makeText(getContext(),
                 "Rezultat: " + mojRezultat + " (ciljni: " + ciljniBroj + ")",
@@ -307,10 +375,15 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
                 .collection("partije").document(partijaId)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    Long r1 = snapshot.getLong("rezultat1Runda1");
-                    Long r2 = snapshot.getLong("rezultat2Runda1");
+                    Long r1, r2;
+                    if (trenutnaRunda == 1) {
+                        r1 = snapshot.getLong("rezultat1Runda1");
+                        r2 = snapshot.getLong("rezultat2Runda1");
+                    } else {
+                        r1 = snapshot.getLong("rezultat1Runda2");
+                        r2 = snapshot.getLong("rezultat2Runda2");
+                    }
 
-                    // Ako oba igraca imaju rezultat (nije -1) — racunaj bodove
                     if (r1 != null && r2 != null && r1 != -1 && r2 != -1) {
                         FirebaseFirestore.getInstance()
                                 .collection("partije").document(partijaId)
@@ -320,7 +393,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     }
 
     private void pokrniTajmere() {
-        // Tajmer 5s za auto-otkrivanje ciljnog broja
+        zaustaviTajmere();
+
         tajmerCiljni = new CountDownTimer(TRAJANJE_STOP, 1000) {
             @Override public void onTick(long ms) {}
             @Override public void onFinish() {
@@ -332,7 +406,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
             }
         }.start();
 
-        // Glavni tajmer 60s
         tajmerGlavni = new CountDownTimer(TRAJANJE_IGRE, 1000) {
             @Override
             public void onTick(long ms) {
@@ -341,12 +414,17 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
             @Override
             public void onFinish() {
                 if (!mojaTurnaZavrsena) {
-                    // Igrac nije unio nista — postavi 0
                     mojaTurnaZavrsena = true;
                     binding.btnPotvrdi.setEnabled(false);
                     mojRezultat = 0;
 
-                    String poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+                    String poljeR;
+                    if (trenutnaRunda == 1) {
+                        poljeR = jeIgrac1 ? "rezultat1Runda1" : "rezultat2Runda1";
+                    } else {
+                        poljeR = jeIgrac1 ? "rezultat1Runda2" : "rezultat2Runda2";
+                    }
+
                     FirebaseFirestore.getInstance()
                             .collection("partije").document(partijaId)
                             .update(poljeR, 0)
@@ -358,8 +436,8 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     }
 
     private void zaustaviTajmere() {
-        if (tajmerGlavni != null) tajmerGlavni.cancel();
-        if (tajmerCiljni != null) tajmerCiljni.cancel();
+        if (tajmerGlavni != null) { tajmerGlavni.cancel(); tajmerGlavni = null; }
+        if (tajmerCiljni != null) { tajmerCiljni.cancel(); tajmerCiljni = null; }
     }
 
     private void otkrijCiljniBroj() {
@@ -385,8 +463,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
     private void klikniNaBroj(Button dugme) {
         if (!brojeviOtkriveni) {
-            Toast.makeText(getContext(),
-                    "Prvo otkrijte brojeve!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Prvo otkrijte brojeve!", Toast.LENGTH_SHORT).show();
             return;
         }
         String broj = dugme.getText().toString();
@@ -413,7 +490,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         dostupniBrojevi[5] = veliki[random.nextInt(4)];
     }
 
-    // Rekurzivni parser
     private static class ExprParser {
         private final String expr;
         private int pos = 0;
@@ -428,8 +504,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
         private double parseExpr() throws Exception {
             double result = parseTerm();
-            while (pos < expr.length() &&
-                    (expr.charAt(pos) == '+' || expr.charAt(pos) == '-')) {
+            while (pos < expr.length() && (expr.charAt(pos) == '+' || expr.charAt(pos) == '-')) {
                 char op = expr.charAt(pos++);
                 double term = parseTerm();
                 result = (op == '+') ? result + term : result - term;
@@ -439,8 +514,7 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
 
         private double parseTerm() throws Exception {
             double result = parseFactor();
-            while (pos < expr.length() &&
-                    (expr.charAt(pos) == '*' || expr.charAt(pos) == '/')) {
+            while (pos < expr.length() && (expr.charAt(pos) == '*' || expr.charAt(pos) == '/')) {
                 char op = expr.charAt(pos++);
                 double factor = parseFactor();
                 if (op == '/' && factor == 0) throw new Exception("Dijeljenje s nulom");
@@ -453,16 +527,12 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
             if (pos < expr.length() && expr.charAt(pos) == '(') {
                 pos++;
                 double result = parseExpr();
-                if (pos >= expr.length() || expr.charAt(pos) != ')')
-                    throw new Exception("Nedostaje )");
+                if (pos >= expr.length() || expr.charAt(pos) != ')') throw new Exception("Nedostaje )");
                 pos++;
                 return result;
             }
             boolean negative = false;
-            if (pos < expr.length() && expr.charAt(pos) == '-') {
-                negative = true;
-                pos++;
-            }
+            if (pos < expr.length() && expr.charAt(pos) == '-') { negative = true; pos++; }
             int start = pos;
             while (pos < expr.length() && Character.isDigit(expr.charAt(pos))) pos++;
             if (pos == start) throw new Exception("Ocekivan broj");
@@ -475,16 +545,10 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
         float x = event.values[0], y = event.values[1], z = event.values[2];
-        if (prvaPromjena) {
-            zadnjaX = x; zadnjaY = y; zadnjaZ = z;
-            prvaPromjena = false;
-            return;
-        }
+        if (prvaPromjena) { zadnjaX = x; zadnjaY = y; zadnjaZ = z; prvaPromjena = false; return; }
         float razlika = Math.abs(x - zadnjaX) + Math.abs(y - zadnjaY) + Math.abs(z - zadnjaZ);
         zadnjaX = x; zadnjaY = y; zadnjaZ = z;
-        if (razlika > SHAKE_LIMIT) {
-            requireActivity().runOnUiThread(this::otkrijBrojeve);
-        }
+        if (razlika > SHAKE_LIMIT) requireActivity().runOnUiThread(this::otkrijBrojeve);
     }
 
     @Override public void onAccuracyChanged(Sensor sensor, int accuracy) {}
