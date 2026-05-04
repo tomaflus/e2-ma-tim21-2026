@@ -17,16 +17,19 @@ import com.elfak.slagalica.model.Partija;
 import com.elfak.slagalica.model.StatusPartije;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
+import com.elfak.slagalica.repository.UserRepository;
 
 public class IgraFragment extends Fragment {
 
     private FragmentIgraBinding binding;
     private PartijaRepository partijaRepository;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
 
     private String partijaId;
     private boolean jeIgrac1;
     private Partija trenutnaPartija;
+    private boolean partijaPrikazana = false;
 
     // Redoslijed igara
     private static final String[] IGRE = {
@@ -53,6 +56,7 @@ public class IgraFragment extends Fragment {
 
         partijaRepository = new PartijaRepository();
         authRepository = new AuthRepository();
+        userRepository = new UserRepository();
 
         // Dohvati argumente
         if (getArguments() != null) {
@@ -66,14 +70,16 @@ public class IgraFragment extends Fragment {
                     trenutnaPartija = partija;
                     azurirajUI(partija);
 
-                    if (partija.getStatus() == StatusPartije.ZAVRSENA) {
+                    if (partija.getStatus() == StatusPartije.ZAVRSENA && !partijaPrikazana) {
+                        partijaPrikazana = true;
                         prikaziRezultat(partija);
                     } else if (partija.getStatus() == StatusPartije.NAPUSTENA) {
+                        // Protivnik napustio — ti pobjedjujes
                         Toast.makeText(getContext(),
-                                "Protivnik je napustio partiju!",
+                                "Protivnik je napustio partiju! Pobjedili ste!",
                                 Toast.LENGTH_LONG).show();
-                        Navigation.findNavController(view)
-                                .navigate(R.id.action_igraFragment_to_homeFragment);
+                        azurirajZvezdeINaHome(true, jeIgrac1 ?
+                                partija.getBodovi1() : partija.getBodovi2());
                     }
                 },
                 poruka -> Toast.makeText(getContext(),
@@ -105,7 +111,6 @@ public class IgraFragment extends Fragment {
         args.putString("partijaId", partijaId);
         args.putBoolean("jeIgrac1", jeIgrac1);
 
-        // Pokreni odgovarajuću igru
         Fragment igra;
         switch (indeksIgre) {
             case 4: // Korak po korak
@@ -121,8 +126,8 @@ public class IgraFragment extends Fragment {
                 Toast.makeText(getContext(),
                         "Igra " + IGRE[indeksIgre] + " - dolazi uskoro",
                         Toast.LENGTH_SHORT).show();
-                // Preskoci na sljedecu igru nakon 2s
-                new android.os.Handler().postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
                 return;
         }
 
@@ -132,13 +137,24 @@ public class IgraFragment extends Fragment {
                 .replace(R.id.gameContainer, igra)
                 .commit();
 
-        // Slušaj kad igra završi
+        // Slušaj kad Korak po korak završi
         getChildFragmentManager().setFragmentResultListener(
                 "korakPoKorakZavrsen", getViewLifecycleOwner(),
                 (key, result) -> {
                     int bodovi = result.getInt("bodovi");
                     azurirajBodovePartije(bodovi, indeksIgre);
-                    pokrniIgru(indeksIgre + 1);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
+
+        // Slušaj kad Moj broj završi
+        getChildFragmentManager().setFragmentResultListener(
+                "mojBrojZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
                 });
     }
 
@@ -170,47 +186,61 @@ public class IgraFragment extends Fragment {
             pobjednikId = "nerijeseno";
         }
 
-        partijaRepository.završiPartiju(partijaId, pobjednikId,
-                () -> {
-                    // Ažuriraj zvezde i tokene
-                    String mojiId = authRepository.trenutniKorisnik().getUid();
-                    boolean jePobjedio = pobjednikId.equals(mojiId);
-                    int mojiBodyvi = jeIgrac1 ? bodovi1 : bodovi2;
+        int mojiBodyvi = jeIgrac1 ? bodovi1 : bodovi2;
+        String mojiId = authRepository.trenutniKorisnik().getUid();
+        boolean jePobjedio = pobjednikId.equals(mojiId);
 
-                    // Bodovanje prema specifikaciji
-                    int zvezdeDodati;
-                    if (!trenutnaPartija.isPrijateljska()) {
-                        if (jePobjedio) {
-                            zvezdeDodati = 10 + (mojiBodyvi / 40);
-                        } else {
-                            zvezdeDodati = -10 + (mojiBodyvi / 40);
-                        }
-                        partijaRepository.azurirajZvezdeITokene(mojiId, zvezdeDodati,
-                                () -> {}, poruka -> {});
-                    }
-                },
+        partijaRepository.završiPartiju(partijaId, pobjednikId,
+                () -> azurirajZvezdeINaHome(jePobjedio, mojiBodyvi),
                 poruka -> Toast.makeText(getContext(),
                         "Greska: " + poruka, Toast.LENGTH_SHORT).show());
+    }
+
+    private void azurirajZvezdeINaHome(boolean jePobjedio, int mojiBodyvi) {
+        if (trenutnaPartija == null) return;
+
+        userRepository.azurirajNakonPartije(
+                jePobjedio,
+                mojiBodyvi,
+                trenutnaPartija.isPrijateljska(),
+                () -> {
+                    String poruka = jePobjedio ?
+                            "Pobjedili ste! +zvezde" :
+                            "Izgubili ste! -zvezde";
+                    Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+
+                    if (isAdded() && getView() != null) {
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_igraFragment_to_homeFragment);
+                    }
+                },
+                poruka -> {
+                    if (isAdded() && getView() != null) {
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_igraFragment_to_homeFragment);
+                    }
+                }
+        );
     }
 
     private void prikaziRezultat(Partija partija) {
         String mojiId = authRepository.trenutniKorisnik().getUid();
         boolean jePobjedio = partija.getPobjednik() != null &&
                 partija.getPobjednik().equals(mojiId);
+        int mojiBodyvi = jeIgrac1 ?
+                partija.getBodovi1() : partija.getBodovi2();
 
-        Toast.makeText(getContext(),
-                jePobjedio ? "Pobjedili ste!" : "Izgubili ste!",
-                Toast.LENGTH_LONG).show();
-
-        // Vrati na Home
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_igraFragment_to_homeFragment);
+        azurirajZvezdeINaHome(jePobjedio, mojiBodyvi);
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        partijaRepository.ukloniListener();
-        binding = null;
+    public void onStop() {
+        super.onStop();
+        // Ako korisnik napusti igru — označi kao napuštenu
+        if (partijaId != null && trenutnaPartija != null &&
+                trenutnaPartija.getStatus() != StatusPartije.ZAVRSENA &&
+                trenutnaPartija.getStatus() != StatusPartije.NAPUSTENA) {
+            partijaRepository.napustiPartiju(partijaId, () -> {}, poruka -> {});
+        }
     }
 }

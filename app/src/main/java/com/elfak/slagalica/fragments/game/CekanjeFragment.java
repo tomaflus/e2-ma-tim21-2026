@@ -13,7 +13,6 @@ import androidx.navigation.Navigation;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentCekanjeBinding;
-import com.elfak.slagalica.model.Partija;
 import com.elfak.slagalica.model.StatusPartije;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
@@ -24,6 +23,7 @@ public class CekanjeFragment extends Fragment {
     private PartijaRepository partijaRepository;
     private AuthRepository authRepository;
     private String partijaId;
+    private boolean napustio = false;
 
     @Nullable
     @Override
@@ -41,19 +41,24 @@ public class CekanjeFragment extends Fragment {
         partijaRepository = new PartijaRepository();
         authRepository = new AuthRepository();
 
-        // Dohvati korisničko ime
         String korisnickoIme = authRepository.trenutniKorisnik() != null
                 ? authRepository.trenutniKorisnik().getEmail()
                 : "Nepoznat";
 
-        // Traži partiju
         traziPartiju(korisnickoIme);
 
-        // Odustani
+        // Klik na Odustani
         binding.btnOdustani.setOnClickListener(v -> {
+            napustio = true;
             if (partijaId != null) {
                 partijaRepository.napustiPartiju(partijaId,
-                        () -> Navigation.findNavController(view).popBackStack(),
+                        () -> {
+                            if (isAdded() && getView() != null) {
+                                requireActivity().runOnUiThread(() ->
+                                        Navigation.findNavController(requireView())
+                                                .popBackStack());
+                            }
+                        },
                         poruka -> Toast.makeText(getContext(),
                                 poruka, Toast.LENGTH_SHORT).show());
             } else {
@@ -71,7 +76,6 @@ public class CekanjeFragment extends Fragment {
                     partijaId = partija.getId();
 
                     if (partija.getStatus() == StatusPartije.U_TOKU) {
-                        // Pronasli smo protivnika — idemo na igru
                         binding.tvStatus.setText("Protivnik pronadjen! Pokretanje igre...");
 
                         Bundle args = new Bundle();
@@ -80,8 +84,10 @@ public class CekanjeFragment extends Fragment {
                                 partija.getIgrac1Id().equals(
                                         authRepository.trenutniKorisnik().getUid()));
 
-                        Navigation.findNavController(requireView())
-                                .navigate(R.id.action_cekanjeFragment_to_igraFragment, args);
+                        if (isAdded() && getView() != null) {
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_cekanjeFragment_to_igraFragment, args);
+                        }
 
                         partijaRepository.ukloniListener();
                     } else {
@@ -90,6 +96,25 @@ public class CekanjeFragment extends Fragment {
                 },
                 poruka -> Toast.makeText(getContext(),
                         "Greska: " + poruka, Toast.LENGTH_LONG).show());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Napusti partiju SAMO ako je u statusu CEKANJE
+        // Ne napuštaj ako je partija već U_TOKU (prešli smo na IgraFragment)
+        if (!napustio && partijaId != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("partije").document(partijaId)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        String status = snapshot.getString("status");
+                        if (status != null && status.equals("CEKANJE")) {
+                            napustio = true;
+                            partijaRepository.napustiPartiju(partijaId, () -> {}, poruka -> {});
+                        }
+                    });
+        }
     }
 
     @Override

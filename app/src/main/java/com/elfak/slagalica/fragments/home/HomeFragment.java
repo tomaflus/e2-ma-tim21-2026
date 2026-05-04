@@ -62,17 +62,37 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_resetLozinkeFragment);
         });
 
-        // Klik na Igraj — provjeri tokene
         binding.btnIgraj.setOnClickListener(v -> {
+            if (authRepository.trenutniKorisnik() == null) {
+                Toast.makeText(getContext(),
+                        "Niste ulogovani!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Onemogući dugme da ne može kliknuti dvaput
+            binding.btnIgraj.setEnabled(false);
+
             userRepository.oduzmiToken(
                     () -> {
-                        // Token oduzet — idi na čekanje
-                        ucitajTokene(); // osvježi prikaz
-                        Navigation.findNavController(view)
-                                .navigate(R.id.action_homeFragment_to_cekanjeFragment);
+                        // Vrati se na UI thread za navigaciju
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                ucitajTokene();
+                                binding.btnIgraj.setEnabled(true);
+                                Navigation.findNavController(requireView())
+                                        .navigate(R.id.action_homeFragment_to_cekanjeFragment);
+                            });
+                        }
                     },
-                    poruka -> Toast.makeText(getContext(),
-                            poruka, Toast.LENGTH_LONG).show()
+                    poruka -> {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                binding.btnIgraj.setEnabled(true);
+                                Toast.makeText(getContext(),
+                                        poruka, Toast.LENGTH_LONG).show();
+                            });
+                        }
+                    }
             );
         });
 
@@ -90,9 +110,18 @@ public class HomeFragment extends Fragment {
 
     private void ucitajTokene() {
         userRepository.dohvatiKorisnika(
-                user -> binding.tvKorisnik.setText(
-                        user.getEmail() + " | Tokeni: " + user.getTokeni() +
-                                " | Zvezde: " + user.getZvezde()),
+                user -> {
+                    if (getActivity() != null && binding != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (binding != null) {
+                                binding.tvKorisnik.setText(user.getEmail());
+                                binding.tvTokeniZvezde.setText(
+                                        "Tokeni: " + user.getTokeni() +
+                                                " | Zvezde: " + user.getZvezde());
+                            }
+                        });
+                    }
+                },
                 poruka -> {}
         );
     }
