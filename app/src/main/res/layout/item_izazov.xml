@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_margin="4dp"
+    android:background="#FFFDE7"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/tvKreatorIzazov"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kreator: "
+        android:textStyle="bold"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tvUlogIzazov"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ulog: 0 zvezda, 0 tokena"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/tvIgraciIzazov"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Igraci: 1/4"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"/>
+
+    <Button
+        android:id="@+id/btnPrihvatiIzazov"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Prihvati izazov"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

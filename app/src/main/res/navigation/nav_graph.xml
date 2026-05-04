@@ -63,6 +63,9 @@
         <action
             android:id="@+id/action_homeFragment_to_cetFragment"
             app:destination="@id/cetFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_izazovFragment"
+            app:destination="@id/izazovFragment"/>
     </fragment>
 
     <fragment
@@ -95,4 +98,10 @@
         android:name="com.elfak.slagalica.fragments.chat.CetFragment"
         android:label="Chat"
         tools:layout="@layout/fragment_cet"/>
+
+    <fragment
+        android:id="@+id/izazovFragment"
+        android:name="com.elfak.slagalica.fragments.izazov.IzazovFragment"
+        android:label="Izazov"
+        tools:layout="@layout/fragment_izazov"/>
 </navigation>

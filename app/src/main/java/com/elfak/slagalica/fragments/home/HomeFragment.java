@@ -111,6 +111,11 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_mojBrojFragment);
         });
+
+        binding.btnIzazov.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_izazovFragment);
+        });
     }
 
     private void ucitajTokene() {
