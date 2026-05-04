@@ -114,10 +114,9 @@ public class CetFragment extends Fragment {
     }
 
     private void ucitajPoruke() {
-        cetRepository.slušajPoruke(mojRegion,
+        cetRepository.slušajPoruke(mojRegion, requireContext(),
                 poruke -> {
                     adapter.azurirajPoruke(poruke);
-                    // Skroluj na zadnju poruku
                     if (!poruke.isEmpty()) {
                         binding.rvPoruke.scrollToPosition(poruke.size() - 1);
                     }

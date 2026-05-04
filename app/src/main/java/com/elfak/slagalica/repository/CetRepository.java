@@ -11,6 +11,8 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.content.Context;
+import com.elfak.slagalica.helpers.NotifikacijaHelper;
 
 public class CetRepository {
 
@@ -50,8 +52,12 @@ public class CetRepository {
     }
 
     // Slušaj poruke u realnom vremenu
-    public void slušajPoruke(String region, OnPorukeListener onPoruke,
+    public void slušajPoruke(String region, Context context,
+                             OnPorukeListener onPoruke,
                              OnErrorListener onError) {
+        String mojId = auth.getCurrentUser().getUid();
+        int[] prethodnaVelicina = {-1};
+
         listenerRegistration = db.collection("chat")
                 .document(region)
                 .collection("poruke")
@@ -71,6 +77,22 @@ public class CetRepository {
                                 poruke.add(poruka);
                             }
                         }
+
+                        // Prikaži notifikaciju za novu poruku
+                        if (prethodnaVelicina[0] != -1 &&
+                                poruke.size() > prethodnaVelicina[0]) {
+                            Poruka novaPoruka = poruke.get(poruke.size() - 1);
+                            // Samo ako nije moja poruka
+                            if (!novaPoruka.getPosiljacId().equals(mojId)) {
+                                mainHandler.post(() ->
+                                        NotifikacijaHelper.prikaziNotifikacijuCet(
+                                                context,
+                                                novaPoruka.getPosiljacIme(),
+                                                novaPoruka.getTekst()));
+                            }
+                        }
+                        prethodnaVelicina[0] = poruke.size();
+
                         mainHandler.post(() -> onPoruke.onPoruke(poruke));
                     }
                 });
