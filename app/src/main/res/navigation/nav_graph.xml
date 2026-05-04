@@ -60,6 +60,9 @@
         <action
             android:id="@+id/action_homeFragment_to_cekanjeFragment"
             app:destination="@id/cekanjeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_cetFragment"
+            app:destination="@id/cetFragment"/>
     </fragment>
 
     <fragment
@@ -86,4 +89,10 @@
         <action
         android:id="@+id/action_igraFragment_to_homeFragment"
         app:destination="@id/homeFragment"/>
+
+    <fragment
+        android:id="@+id/cetFragment"
+        android:name="com.elfak.slagalica.fragments.chat.CetFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_cet"/>
 </navigation>

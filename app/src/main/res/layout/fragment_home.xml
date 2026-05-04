@@ -1,72 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="32dp"
     android:background="@color/white">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dobrodošli!"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvKorisnik"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvTokeniZvezde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tokeni: - | Zvezde: -"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="32dp"/>
+
+        <Button
+            android:id="@+id/btnIgraj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Igraj!"
+            android:textSize="18sp"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btnPromjeniLozinku"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Promijeni lozinku"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnKorakPoKorak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEST - Korak po korak"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnMojBroj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEST - Moj broj"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnOdjava"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Odjavi se"/>
+
+    </LinearLayout>
+
+    <!-- Chat FAB dugme u donjem desnom uglu -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Dobrodošli!"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_dialog_email"
+        android:contentDescription="Chat"
+        app:tint="@color/white"/>
 
-    <TextView
-        android:id="@+id/tvKorisnik"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="14sp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:id="@+id/tvTokeniZvezde"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tokeni: - | Zvezde: -"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="32dp"/>
-
-    <Button
-        android:id="@+id/btnIgraj"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Igraj!"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp"/>
-
-    <Button
-        android:id="@+id/btnPromjeniLozinku"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Promijeni lozinku"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnKorakPoKorak"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TEST - Korak po korak"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnMojBroj"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TEST - Moj broj"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnOdjava"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Odjavi se"/>
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
