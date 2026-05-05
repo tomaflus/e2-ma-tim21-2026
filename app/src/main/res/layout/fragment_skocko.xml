@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvBodovi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bodovi: 0"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvTajmer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="⏱ 30s"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="end"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Skočko"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Pokušaj 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR1P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR1P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR1P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR1P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR1"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Pokušaj 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR2P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR2P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR2P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR2P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR2"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Pokušaj 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR3P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR3P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR3P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR3P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR3"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Pokušaj 4 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR4P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR4P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR4P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR4P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR4"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Pokušaj 5 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR5P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR5P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR5P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR5P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR5"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Pokušaj 6 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnSlotR6P1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR6P2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR6P3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSlotR6P4"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text=""
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/tvFeedbackR6"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="○○○○"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:letterSpacing="0.1"/>
+
+        </LinearLayout>
+
+        <!-- Odabir simbola -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Odaberi simbol:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <Button
+                android:id="@+id/btnSimbol1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="♞"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSimbol2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="■"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSimbol3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="●"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btnSimbol4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="♥"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSimbol5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="▲"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btnSimbol6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="★"
+                android:textSize="22sp"
+                android:layout_margin="2dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnPotvrdaPokusaja"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Potvrdi pokušaj"/>
+
+    </LinearLayout>
+
+</ScrollView>

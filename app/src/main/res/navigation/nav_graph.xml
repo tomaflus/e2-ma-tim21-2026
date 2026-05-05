@@ -41,6 +41,24 @@
         tools:layout="@layout/fragment_korak_po_korak"/>
 
     <fragment
+        android:id="@+id/asocijacijeFragment"
+        android:name="com.elfak.slagalica.fragments.games.AsocijacijeFragment"
+        android:label="Asocijacije"
+        tools:layout="@layout/fragment_asocijacije"/>
+
+    <fragment
+        android:id="@+id/skockoFragment"
+        android:name="com.elfak.slagalica.fragments.games.SkockoFragment"
+        android:label="Skočko"
+        tools:layout="@layout/fragment_skocko"/>
+
+    <fragment
+        android:id="@+id/notifikacijeFragment"
+        android:name="com.elfak.slagalica.fragments.notifications.NotifikacijeFragment"
+        android:label="Notifikacije"
+        tools:layout="@layout/fragment_notifikacije"/>
+
+    <fragment
         android:id="@+id/homeFragment"
         android:name="com.elfak.slagalica.fragments.home.HomeFragment"
         android:label="Pocetna"
@@ -66,6 +84,15 @@
         <action
             android:id="@+id/action_homeFragment_to_izazovFragment"
             app:destination="@id/izazovFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_asocijacijeFragment"
+            app:destination="@id/asocijacijeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_skockoFragment"
+            app:destination="@id/skockoFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_notifikacijeFragment"
+            app:destination="@id/notifikacijeFragment"/>
     </fragment>
 
     <fragment

@@ -108,6 +108,21 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_izazovFragment);
         });
+
+        binding.btnAsocijacije.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_asocijacijeFragment);
+        });
+
+        binding.btnSkocko.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_skockoFragment);
+        });
+
+        binding.btnNotifikacije.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_notifikacijeFragment);
+        });
     }
 
     private void ucitajTokene() {
