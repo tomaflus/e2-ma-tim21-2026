@@ -150,10 +150,14 @@ public class PartijaRepository {
     }
 
     // Napusti partiju
-    public void napustiPartiju(String partijaId, OnSuccessListener onSuccess,
+    public void napustiPartiju(String partijaId, String igracId,
+                               OnSuccessListener onSuccess,
                                OnErrorListener onError) {
         db.collection("partije").document(partijaId)
-                .update("status", StatusPartije.NAPUSTENA.name())
+                .update(
+                        "status", StatusPartije.NAPUSTENA.name(),
+                        "napustioId", igracId
+                )
                 .addOnSuccessListener(unused ->
                         mainHandler.post(onSuccess::onSuccess))
                 .addOnFailureListener(e ->

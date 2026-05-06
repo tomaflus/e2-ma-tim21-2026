@@ -52,11 +52,11 @@ public class CekanjeFragment extends Fragment {
             napustio = true;
             if (partijaId != null) {
                 partijaRepository.napustiPartiju(partijaId,
+                        authRepository.trenutniKorisnik().getUid(),
                         () -> {
                             if (isAdded() && getView() != null) {
                                 requireActivity().runOnUiThread(() ->
-                                        Navigation.findNavController(requireView())
-                                                .popBackStack());
+                                        Navigation.findNavController(requireView()).popBackStack());
                             }
                         },
                         poruka -> Toast.makeText(getContext(),
@@ -111,7 +111,9 @@ public class CekanjeFragment extends Fragment {
                         String status = snapshot.getString("status");
                         if (status != null && status.equals("CEKANJE")) {
                             napustio = true;
-                            partijaRepository.napustiPartiju(partijaId, () -> {}, poruka -> {});
+                            partijaRepository.napustiPartiju(partijaId,
+                                    authRepository.trenutniKorisnik().getUid(),
+                                    () -> {}, poruka -> {});
                         }
                     });
         }

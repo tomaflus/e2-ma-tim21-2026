@@ -13,6 +13,7 @@
         android:padding="8dp"
         android:background="#F5F5F5">
 
+
         <TextView
             android:id="@+id/tvIgrac1"
             android:layout_width="0dp"
@@ -22,6 +23,7 @@
             android:textSize="14sp"
             android:textStyle="bold"/>
 
+
         <TextView
             android:id="@+id/tvIgra"
             android:layout_width="0dp"
@@ -30,6 +32,7 @@
             android:text="Igra 1/6"
             android:textSize="14sp"
             android:gravity="center"/>
+
 
         <TextView
             android:id="@+id/tvIgrac2"
@@ -41,7 +44,9 @@
             android:textStyle="bold"
             android:gravity="end"/>
 
+
     </LinearLayout>
+
 
     <!-- Kontejner za igre -->
     <FrameLayout
@@ -49,5 +54,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
+
+
+
 
 </LinearLayout>

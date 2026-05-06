@@ -35,6 +35,8 @@ public class Partija {
     private int rezultat1Runda2;
     private int rezultat2Runda2;
 
+    private String napustioId;
+
     public Partija() {}
 
     public Partija(String igrac1Id, String igrac1Ime, boolean prijateljska) {
@@ -135,4 +137,6 @@ public class Partija {
 
     public int getRezultat2Runda2() { return rezultat2Runda2; }
     public void setRezultat2Runda2(int r) { this.rezultat2Runda2 = r; }
+    public String getNapustioId() { return napustioId; }
+    public void setNapustioId(String napustioId) { this.napustioId = napustioId; }
 }
