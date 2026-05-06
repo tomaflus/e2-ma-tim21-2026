@@ -60,6 +60,21 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_mojBrojFragment);
         });
+
+        binding.btnProfil.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_profilFragment);
+        });
+
+        binding.btnKoZnaZna.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_koZnaZnaFragment);
+        });
+
+        binding.btnSpojnice.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_spojniceFragment);
+        });
     }
 
     @Override

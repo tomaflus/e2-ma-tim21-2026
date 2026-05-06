@@ -136,6 +136,36 @@ git push origin main
 - `student2/kt1` — Student 2 (KT1)
 - `student3/kt1` — Student 3 (KT1)
 
+## KT1 Student 2 Completed GUI
+
+Za prvu kontrolnu tačku (KT1), Student 2 je završio sledeće GUI komponente:
+
+### 1. Profil Korisnika
+- Kompletan prikaz profila sa svim podacima (username, email, tokeni, zvezde, liga, region).
+- Prikaz avatara sa okvirom i dugme za izmenu.
+- Statistika igrača (odigrano igara, pobede).
+- Prikaz QR koda (placeholder).
+- Funkcionalno Logout dugme.
+
+### 2. Igra "Ko zna zna"
+- GUI za prikaz pitanja i 4 ponuđena odgovora.
+- Timer (vreme) sa ProgressBar-om.
+- Prikaz broja trenutnog pitanja (npr. 1/5).
+- Prikaz trenutnih bodova za oba igrača.
+- **Mockup Game Over**: Implementiran overlay koji prikazuje kraj igre i osvojene bodove.
+
+### 3. Igra "Spojnice"
+- GUI sa dve kolone pojmova za povezivanje.
+- Timer i prikaz runde.
+- Dinamička promena boja dugmadi pri tačnom/netačnom povezivanju (vizuelni feedback).
+- Dugme "POTVRDI" za završetak runde.
+- **Mockup Game Over**: Implementiran overlay sa finalnim rezultatom.
+
+### 4. Navigacija i Resursi
+- Povezana navigacija sa početnog ekrana ka Profilu, Igri Ko zna zna i Igri Spojnice.
+- Svi tekstovi su eksternalizovani u `strings.xml`.
+- Implementirani mockup podaci za demonstraciju toka igre.
+
 ## Preporuka za rad (Demo)
 
 > Ovo je preporučeni način rada koji se može mijenjati tokom razvoja prema potrebama tima.

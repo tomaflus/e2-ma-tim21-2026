@@ -1,5 +1,50 @@
 <resources>
     <string name="app_name">Slagalica</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_profile">Profil korisnika</string>
+    <string name="label_username">Korisničko ime:</string>
+    <string name="label_email">Email:</string>
+    <string name="label_tokens">Broj tokena:</string>
+    <string name="label_stars">Ukupno zvezda:</string>
+    <string name="label_league">Liga:</string>
+    <string name="label_region">Region:</string>
+    <string name="btn_change_avatar">Promeni avatar</string>
+    <string name="btn_logout">Odjavi se</string>
+    <string name="title_statistics">Statistika</string>
+    <string name="stat_games_played">Odigrano igara:</string>
+    <string name="stat_wins">Pobeda:</string>
+    <string name="label_qr_code">QR Kod:</string>
+
+    <string name="title_ko_zna_zna">Ko zna zna</string>
+    <string name="label_question_count">Pitanje: %1$d/5</string>
+    <string name="label_score_player">Ja: %1$d</string>
+    <string name="label_score_opponent">Protivnik: %1$d</string>
+    <string name="label_timer">Vreme: %1$ds</string>
+    <string name="game_over">Kraj igre!</string>
+    <string name="score_won">Osvojeno bodova: %1$d</string>
+
+    <string name="title_spojnice">Spojnice</string>
+    <string name="label_round">Runda: %1$d</string>
+    <string name="btn_confirm">POTVRDI</string>
+    <string name="btn_next_round">SLEDEĆA RUNDA</string>
+
+    <string name="btn_profile">Profil</string>
+    <string name="btn_ko_zna_zna">Ko zna zna</string>
+    <string name="btn_spojnice">Spojnice</string>
+
+    <string name="mock_question">Glavni grad Srbije je?</string>
+    <string name="mock_ans1">Beograd</string>
+    <string name="mock_ans2">Novi Sad</string>
+    <string name="mock_ans3">Niš</string>
+    <string name="mock_ans4">Kragujevac</string>
+
+    <string name="mock_left1">Srbija</string>
+    <string name="mock_right1">Beograd</string>
+    <string name="mock_left2">Francuska</string>
+    <string name="mock_right2">Pariz</string>
+    <string name="mock_left3">Nemačka</string>
+    <string name="mock_right3">Berlin</string>
+    <string name="mock_left4">Italija</string>
+    <string name="mock_right4">Rim</string>
+    <string name="mock_left5">Španija</string>
+    <string name="mock_right5">Madrid</string>
 </resources>
