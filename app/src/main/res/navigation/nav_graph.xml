@@ -57,6 +57,15 @@
         <action
             android:id="@+id/action_homeFragment_to_mojBrojFragment"
             app:destination="@id/mojBrojFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_cekanjeFragment"
+            app:destination="@id/cekanjeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_cetFragment"
+            app:destination="@id/cetFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_izazovFragment"
+            app:destination="@id/izazovFragment"/>
     </fragment>
 
     <fragment
@@ -64,4 +73,38 @@
         android:name="com.elfak.slagalica.fragments.auth.ResetLozinkeFragment"
         android:label="Promjena lozinke"
         tools:layout="@layout/fragment_reset_lozinke"/>
+
+    <fragment
+        android:id="@+id/cekanjeFragment"
+        android:name="com.elfak.slagalica.fragments.game.CekanjeFragment"
+        android:label="Cekanje"
+        tools:layout="@layout/fragment_cekanje">
+        <action
+            android:id="@+id/action_cekanjeFragment_to_igraFragment"
+            app:destination="@id/igraFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/igraFragment"
+        android:name="com.elfak.slagalica.fragments.game.IgraFragment"
+        android:label="Igra"
+        tools:layout="@layout/fragment_igra"/>
+        <action
+        android:id="@+id/action_igraFragment_to_homeFragment"
+        app:destination="@id/homeFragment"/>
+
+    <fragment
+        android:id="@+id/cetFragment"
+        android:name="com.elfak.slagalica.fragments.chat.CetFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_cet"/>
+
+    <fragment
+        android:id="@+id/izazovFragment"
+        android:name="com.elfak.slagalica.fragments.izazov.IzazovFragment"
+        android:label="Izazov"
+        tools:layout="@layout/fragment_izazov"/>
+        <action
+        android:id="@+id/action_izazovFragment_to_igraFragment"
+        app:destination="@id/igraFragment"/>
 </navigation>
