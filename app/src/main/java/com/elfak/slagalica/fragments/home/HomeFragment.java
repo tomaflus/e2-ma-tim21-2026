@@ -96,21 +96,13 @@ public class HomeFragment extends Fragment {
             );
         });
 
-        // Test dugmad
-        binding.btnKorakPoKorak.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
-        });
 
         binding.btnCet.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_cetFragment);
         });
 
-        binding.btnMojBroj.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_mojBrojFragment);
-        });
+
 
         binding.btnIzazov.setOnClickListener(v -> {
             Navigation.findNavController(view)
