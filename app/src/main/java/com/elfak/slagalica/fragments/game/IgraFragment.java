@@ -16,6 +16,7 @@ import com.elfak.slagalica.databinding.FragmentIgraBinding;
 import com.elfak.slagalica.model.Partija;
 import com.elfak.slagalica.model.StatusPartije;
 import com.elfak.slagalica.repository.AuthRepository;
+import com.elfak.slagalica.repository.IzazovRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
 import com.elfak.slagalica.repository.UserRepository;
 
@@ -30,6 +31,10 @@ public class IgraFragment extends Fragment {
     private boolean jeIgrac1;
     private Partija trenutnaPartija;
     private boolean partijaPrikazana = false;
+
+    private String izazovId;
+    private boolean jeIzazov = false;
+    private int ukupnoBodovi = 0;
 
     // Redoslijed igara
     private static final String[] IGRE = {
@@ -62,31 +67,37 @@ public class IgraFragment extends Fragment {
         if (getArguments() != null) {
             partijaId = getArguments().getString("partijaId");
             jeIgrac1 = getArguments().getBoolean("jeIgrac1", true);
+            izazovId = getArguments().getString("izazovId");
+            jeIzazov = getArguments().getBoolean("jeIzazov", false);
         }
+        if (jeIzazov) {
+            // Izazov mod — igraj sve igre samostalno
+            pokrniIzazovIgru(0);
+        }else {
+            // Slušaj promjene partije
+            partijaRepository.slušajPartiju(partijaId,
+                    partija -> {
+                        trenutnaPartija = partija;
+                        azurirajUI(partija);
 
-        // Slušaj promjene partije
-        partijaRepository.slušajPartiju(partijaId,
-                partija -> {
-                    trenutnaPartija = partija;
-                    azurirajUI(partija);
+                        if (partija.getStatus() == StatusPartije.ZAVRSENA && !partijaPrikazana) {
+                            partijaPrikazana = true;
+                            prikaziRezultat(partija);
+                        } else if (partija.getStatus() == StatusPartije.NAPUSTENA) {
+                            // Protivnik napustio — ti pobjedjujes
+                            Toast.makeText(getContext(),
+                                    "Protivnik je napustio partiju! Pobjedili ste!",
+                                    Toast.LENGTH_LONG).show();
+                            azurirajZvezdeINaHome(true, jeIgrac1 ?
+                                    partija.getBodovi1() : partija.getBodovi2());
+                        }
+                    },
+                    poruka -> Toast.makeText(getContext(),
+                            "Greska: " + poruka, Toast.LENGTH_SHORT).show());
 
-                    if (partija.getStatus() == StatusPartije.ZAVRSENA && !partijaPrikazana) {
-                        partijaPrikazana = true;
-                        prikaziRezultat(partija);
-                    } else if (partija.getStatus() == StatusPartije.NAPUSTENA) {
-                        // Protivnik napustio — ti pobjedjujes
-                        Toast.makeText(getContext(),
-                                "Protivnik je napustio partiju! Pobjedili ste!",
-                                Toast.LENGTH_LONG).show();
-                        azurirajZvezdeINaHome(true, jeIgrac1 ?
-                                partija.getBodovi1() : partija.getBodovi2());
-                    }
-                },
-                poruka -> Toast.makeText(getContext(),
-                        "Greska: " + poruka, Toast.LENGTH_SHORT).show());
-
-        // Pokreni prvu igru
-        pokrniIgru(0);
+            // Pokreni prvu igru
+            pokrniIgru(0);
+        }
     }
 
     private void azurirajUI(Partija partija) {
@@ -99,6 +110,74 @@ public class IgraFragment extends Fragment {
         binding.tvIgra.setText("Igra " + (partija.getTrenutnaIgra() + 1) + "/6");
     }
 
+    private void pokrniIzazovIgru(int indeksIgre) {
+        if (indeksIgre >= IGRE.length) {
+            // Sve igre završene — sačuvaj rezultat
+            završiIzazov();
+            return;
+        }
+
+        binding.tvIgra.setText("Igra " + (indeksIgre + 1) + "/6: " + IGRE[indeksIgre]);
+
+        Bundle args = new Bundle();
+        args.putString("izazovId", izazovId);
+        args.putBoolean("jeIzazov", true);
+        args.putBoolean("jeIgrac1", true); // U izazovu svako igra kao Igrac 1
+
+        Fragment igra;
+        switch (indeksIgre) {
+            case 4: // Korak po korak
+                igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
+                igra.setArguments(args);
+                break;
+            case 5: // Moj broj
+                igra = new com.elfak.slagalica.fragments.games.MojBrojFragment();
+                igra.setArguments(args);
+                break;
+            default:
+                // Placeholder
+                Toast.makeText(getContext(),
+                        "Igra " + IGRE[indeksIgre] + " - dolazi uskoro",
+                        Toast.LENGTH_SHORT).show();
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> pokrniIzazovIgru(indeksIgre + 1), 2000);
+                return;
+        }
+
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.gameContainer, igra)
+                .commit();
+
+        // Slušaj rezultate igara
+        getChildFragmentManager().setFragmentResultListener(
+                "korakPoKorakZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "mojBrojZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+    }
+
+    private void završiIzazov() {
+        IzazovRepository izazovRepository = new IzazovRepository();
+        izazovRepository.sacuvajRezultat(izazovId, ukupnoBodovi,
+                id -> {
+                    Toast.makeText(getContext(),
+                            "Završili ste izazov sa " + ukupnoBodovi + " bodova!",
+                            Toast.LENGTH_LONG).show();
+                    Navigation.findNavController(requireView())
+                            .navigate(R.id.action_igraFragment_to_homeFragment);
+                },
+                poruka -> Toast.makeText(getContext(),
+                        "Greska: " + poruka, Toast.LENGTH_SHORT).show());
+    }
     private void pokrniIgru(int indeksIgre) {
         if (indeksIgre >= IGRE.length) {
             završiPartiju();

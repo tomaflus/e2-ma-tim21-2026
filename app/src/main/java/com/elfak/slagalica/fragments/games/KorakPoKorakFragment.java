@@ -26,6 +26,8 @@ public class KorakPoKorakFragment extends Fragment {
 
     private String partijaId;
     private boolean jeIgrac1;
+    private boolean jeIzazov = false;
+    private String izazovId;
 
     private int trenutniKorak = 0;
     private int bodovi = 0;
@@ -69,13 +71,14 @@ public class KorakPoKorakFragment extends Fragment {
         if (getArguments() != null) {
             partijaId = getArguments().getString("partijaId");
             jeIgrac1 = getArguments().getBoolean("jeIgrac1", true);
+            izazovId = getArguments().getString("izazovId");
+            jeIzazov = getArguments().getBoolean("jeIzazov", false);
         }
 
         sakriSveKorake();
         binding.btnOdgovori.setEnabled(false);
 
         ucitajPitanje();
-        slušajStatusRunde();
 
         binding.btnOdgovori.setOnClickListener(v -> {
             if (!mojaRunda) {
@@ -96,18 +99,25 @@ public class KorakPoKorakFragment extends Fragment {
                 pitanje -> {
                     trenutnoPitanje = pitanje;
 
-                    if (jeIgrac1) {
-                        FirebaseFirestore.getInstance()
-                                .collection("partije").document(partijaId)
-                                .update(
-                                        "pitanjeKorakPoKorakId", pitanje.getId(),
-                                        "statusKorakPoKorak", IGRAC1_IGRA,
-                                        "bodovi1KorakPoKorak", 0,
-                                        "bodovi2KorakPoKorak", 0
-                                );
+                    if (jeIzazov) {
+                        // U izazovu — odmah pocni igrati solo
                         pocniMojuRundu();
                     } else {
-                        prikaziCekanje("Protivnik igra svoju rundu...");
+                        // U partiji
+                        if (jeIgrac1) {
+                            FirebaseFirestore.getInstance()
+                                    .collection("partije").document(partijaId)
+                                    .update(
+                                            "pitanjeKorakPoKorakId", pitanje.getId(),
+                                            "statusKorakPoKorak", IGRAC1_IGRA,
+                                            "bodovi1KorakPoKorak", 0,
+                                            "bodovi2KorakPoKorak", 0
+                                    );
+                            pocniMojuRundu();
+                        } else {
+                            prikaziCekanje("Protivnik igra svoju rundu...");
+                        }
+                        slušajStatusRunde();
                     }
                 },
                 poruka -> Toast.makeText(getContext(),
@@ -116,6 +126,8 @@ public class KorakPoKorakFragment extends Fragment {
     }
 
     private void slušajStatusRunde() {
+        if (jeIzazov || partijaId == null) return;
+
         listenerRegistration = FirebaseFirestore.getInstance()
                 .collection("partije").document(partijaId)
                 .addSnapshotListener((snapshot, e) -> {
@@ -243,7 +255,13 @@ public class KorakPoKorakFragment extends Fragment {
                 mojaRunda = false;
                 binding.btnOdgovori.setEnabled(false);
                 binding.tvTajmer.setText("0s");
-                tajmerIstekao();
+
+                if (jeIzazov) {
+                    // U izazovu — završi sa trenutnim bodovima
+                    završiIzazovIgru();
+                } else {
+                    tajmerIstekao();
+                }
             }
         }.start();
     }
@@ -323,19 +341,33 @@ public class KorakPoKorakFragment extends Fragment {
             bodovi += osvојeniBodovi;
             binding.tvBodovi.setText("Bodovi: " + bodovi);
 
-            String poljeB = jeIgrac1 ? "bodovi1KorakPoKorak" : "bodovi2KorakPoKorak";
-            FirebaseFirestore.getInstance()
-                    .collection("partije").document(partijaId)
-                    .update(poljeB, bodovi)
-                    .addOnSuccessListener(unused -> {
-                        Toast.makeText(getContext(),
-                                "Tacno! +" + osvојeniBodovi + " bodova!",
-                                Toast.LENGTH_SHORT).show();
-                        napraviSledeci();
-                    });
+            Toast.makeText(getContext(),
+                    "Tacno! +" + osvојeniBodovi + " bodova!",
+                    Toast.LENGTH_SHORT).show();
+
+            if (jeIzazov) {
+                // U izazovu — završi odmah
+                završiIzazovIgru();
+            } else {
+                // U partiji — sačuvaj u Firebase
+                String poljeB = jeIgrac1 ? "bodovi1KorakPoKorak" : "bodovi2KorakPoKorak";
+                FirebaseFirestore.getInstance()
+                        .collection("partije").document(partijaId)
+                        .update(poljeB, bodovi)
+                        .addOnSuccessListener(unused -> napraviSledeci());
+            }
         } else {
             Toast.makeText(getContext(), "Netacno!", Toast.LENGTH_SHORT).show();
             binding.etOdgovor.setText("");
+        }
+    }
+
+    private void završiIzazovIgru() {
+        Bundle result = new Bundle();
+        result.putInt("bodovi", bodovi);
+        if (getParentFragmentManager() != null) {
+            getParentFragmentManager()
+                    .setFragmentResult("korakPoKorakZavrsen", result);
         }
     }
 

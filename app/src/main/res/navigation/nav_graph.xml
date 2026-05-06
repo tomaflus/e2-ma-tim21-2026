@@ -104,4 +104,7 @@
         android:name="com.elfak.slagalica.fragments.izazov.IzazovFragment"
         android:label="Izazov"
         tools:layout="@layout/fragment_izazov"/>
+        <action
+        android:id="@+id/action_izazovFragment_to_igraFragment"
+        app:destination="@id/igraFragment"/>
 </navigation>
