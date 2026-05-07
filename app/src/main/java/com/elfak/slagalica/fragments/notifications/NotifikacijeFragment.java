@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentNotifikacijeBinding;
 import com.elfak.slagalica.databinding.ItemNotifikacijaBinding;
 
@@ -43,11 +44,27 @@ public class NotifikacijeFragment extends Fragment {
         binding.rvNotifikacije.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvNotifikacije.setAdapter(adapter);
 
-        viewModel.getFiltrirane().observe(getViewLifecycleOwner(), stavke -> adapter.postaviStavke(stavke));
+        viewModel.getFiltrirane().observe(getViewLifecycleOwner(),
+                stavke -> adapter.postaviStavke(stavke));
 
-        binding.btnFilterSve.setOnClickListener(v -> viewModel.postaviFilter(NotifikacijeViewModel.Filter.SVE));
-        binding.btnFilterNeprocitane.setOnClickListener(v -> viewModel.postaviFilter(NotifikacijeViewModel.Filter.NEPROCITANE));
-        binding.btnFilterProcitane.setOnClickListener(v -> viewModel.postaviFilter(NotifikacijeViewModel.Filter.PROCITANE));
+        binding.chipGroupFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int id = checkedIds.get(0);
+            if (id == R.id.chipFilterNeprocitane)
+                viewModel.postaviFilter(NotifikacijeViewModel.Filter.NEPROCITANE);
+            else if (id == R.id.chipFilterProcitane)
+                viewModel.postaviFilter(NotifikacijeViewModel.Filter.PROCITANE);
+            else
+                viewModel.postaviFilter(NotifikacijeViewModel.Filter.SVE);
+        });
+
+        viewModel.getAktivniFilter().observe(getViewLifecycleOwner(), filter -> {
+            int id = filter == NotifikacijeViewModel.Filter.NEPROCITANE ? R.id.chipFilterNeprocitane
+                    : filter == NotifikacijeViewModel.Filter.PROCITANE ? R.id.chipFilterProcitane
+                    : R.id.chipFilterSve;
+            if (binding.chipGroupFilter.getCheckedChipId() != id)
+                binding.chipGroupFilter.check(id);
+        });
     }
 
     @Override

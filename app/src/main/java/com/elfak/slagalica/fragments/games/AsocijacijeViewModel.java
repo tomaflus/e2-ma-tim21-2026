@@ -4,10 +4,24 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class AsocijacijeViewModel extends ViewModel {
+
+    // Hardkodovana asocijacija — tema: ZEMLJA (planeta)
+    public static final String[][] POLJA = {
+        {"Azija", "Afrika", "Amerika", "Australija"}, // Kolona A
+        {"Tihi", "Atlantski", "Indijski", "Arktički"}, // Kolona B
+        {"Himalaji", "Ande", "Alpe", "Kavkaz"},        // Kolona C
+        {"Nil", "Amazon", "Dunav", "Jangce"}            // Kolona D
+    };
+    public static final String[] RJESENJA_KOLONA = {"Kontinenti", "Okeani", "Planine", "Reke"};
+    public static final String KONACNO_RJESENJE = "Zemlja";
+    public static final char[] SLOVA_KOLONA = {'A', 'B', 'C', 'D'};
+
     public final MutableLiveData<Integer> score = new MutableLiveData<>(0);
-    public final MutableLiveData<String> timerText = new MutableLiveData<>("2:00");
-    // koja su polja otvorena: [kolona 0-3][red 0-3]
-    public final MutableLiveData<boolean[][]> otvorenaPolja = new MutableLiveData<>(new boolean[4][4]);
-    public final MutableLiveData<boolean[]> rijeseneKolone = new MutableLiveData<>(new boolean[4]);
-    public final MutableLiveData<Boolean> konacnoRijeseno = new MutableLiveData<>(false);
+
+    // Stanje igre — plain polja preživljavaju rotaciju u ViewModel-u
+    public final boolean[][] otvorenaPolja = new boolean[4][4];
+    public final boolean[] pogodenaKolona = new boolean[4];
+    public boolean konacnoPogodeno = false;
+    public boolean zavrsen = false;
+    public long timerEndMs = 0;
 }

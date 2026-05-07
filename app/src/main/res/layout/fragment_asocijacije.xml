@@ -1,332 +1,386 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:orientation="vertical"
+    android:background="#12205A"
+    android:padding="8dp">
 
+    <!-- Header: bodovi i tajmer -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:id="@+id/tvBodovi"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Bodovi: 0"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvTajmer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="⏱ 2:00"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="end"/>
-
-        </LinearLayout>
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/tvBodovi"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Asocijacije"
-            android:textSize="24sp"
+            android:layout_weight="1"
+            android:text="Bodovi: 0"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvTajmer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⏱ 2:00"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- 4 kolone sa po 4 skrivena polja -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-
-            <!-- Kolona 1 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="2dp">
-
-                <Button
-                    android:id="@+id/btnK1R1"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK1R2"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK1R3"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK1R4"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="4dp"/>
-
-                <!-- Rješenje kolone 1 -->
-                <Button
-                    android:id="@+id/btnRez1"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="14sp"
-                    android:backgroundTint="#1565C0"
-                    android:textColor="@color/white"/>
-
-            </LinearLayout>
-
-            <!-- Kolona 2 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp">
-
-                <Button
-                    android:id="@+id/btnK2R1"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK2R2"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK2R3"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK2R4"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="4dp"/>
-
-                <Button
-                    android:id="@+id/btnRez2"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="14sp"
-                    android:backgroundTint="#1565C0"
-                    android:textColor="@color/white"/>
-
-            </LinearLayout>
-
-            <!-- Kolona 3 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp">
-
-                <Button
-                    android:id="@+id/btnK3R1"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK3R2"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK3R3"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK3R4"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="4dp"/>
-
-                <Button
-                    android:id="@+id/btnRez3"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="14sp"
-                    android:backgroundTint="#1565C0"
-                    android:textColor="@color/white"/>
-
-            </LinearLayout>
-
-            <!-- Kolona 4 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="2dp">
-
-                <Button
-                    android:id="@+id/btnK4R1"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK4R2"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK4R3"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="2dp"/>
-
-                <Button
-                    android:id="@+id/btnK4R4"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="18sp"
-                    android:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="4dp"/>
-
-                <Button
-                    android:id="@+id/btnRez4"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="?"
-                    android:textSize="14sp"
-                    android:backgroundTint="#1565C0"
-                    android:textColor="@color/white"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Konačno rješenje -->
-        <Button
-            android:id="@+id/btnKonacnoRjesenje"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="KONAČNO RJEŠENJE: ?"
-            android:textSize="16sp"
-            android:backgroundTint="#B71C1C"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Unos odgovora -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Unesite odgovor"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="8dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOdgovor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btnPogodi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pogodi"/>
+            android:gravity="end"/>
 
     </LinearLayout>
 
-</ScrollView>
+    <!-- Gornji red: Kolone A i B, redosljed 4→1 pa oval rješenja -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <!-- Kolona A: A4, A3, A2, A1, oval-A -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="3dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnA4"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="A4"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnA3"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="A3"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnA2"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="A2"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnA1"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="6dp"
+                android:text="A1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <Button
+                android:id="@+id/btnRezA"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                android:background="@drawable/bg_oval_asocijacije"
+                android:stateListAnimator="@null"/>
+
+        </LinearLayout>
+
+        <!-- Kolona B: B4, B3, B2, B1, oval-B -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="3dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnB4"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="B4"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnB3"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="B3"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnB2"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="B2"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnB1"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="6dp"
+                android:text="B1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <Button
+                android:id="@+id/btnRezB"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                android:background="@drawable/bg_oval_asocijacije"
+                android:stateListAnimator="@null"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Konačno rješenje — centriran između gornjeg i donjeg reda -->
+    <Button
+        android:id="@+id/btnKonacno"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:text="\???"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#12205A"
+        android:background="@drawable/bg_oval_asocijacije"
+        android:stateListAnimator="@null"/>
+
+    <!-- Donji red: Kolone C i D, oval rješenja pa redosljed 1→4 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <!-- Kolona C: oval-C, C1, C2, C3, C4 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="3dp">
+
+            <Button
+                android:id="@+id/btnRezC"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="6dp"
+                android:text="C"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                android:background="@drawable/bg_oval_asocijacije"
+                android:stateListAnimator="@null"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnC1"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="C1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnC2"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="C2"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnC3"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="C3"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnC4"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="C4"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+        </LinearLayout>
+
+        <!-- Kolona D: oval-D, D1, D2, D3, D4 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="3dp">
+
+            <Button
+                android:id="@+id/btnRezD"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="6dp"
+                android:text="D"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                android:background="@drawable/bg_oval_asocijacije"
+                android:stateListAnimator="@null"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnD1"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="D1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnD2"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="D2"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnD3"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="3dp"
+                android:text="D3"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnD4"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="D4"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#12205A"
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="6dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

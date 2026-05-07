@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,47 +15,39 @@
         android:gravity="center"
         android:padding="16dp"/>
 
-    <!-- Filter dugmad -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Filter chipovi -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupFilter"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="12dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
 
-        <Button
-            android:id="@+id/btnFilterSve"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipFilterSve"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Sve"
-            android:textSize="13sp"
-            android:layout_marginEnd="4dp"/>
+            android:checked="true"/>
 
-        <Button
-            android:id="@+id/btnFilterNeprocitane"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipFilterNeprocitane"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Nepročitane"
-            android:textSize="13sp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"/>
+            android:text="Nepročitane"/>
 
-        <Button
-            android:id="@+id/btnFilterProcitane"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipFilterProcitane"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Pročitane"
-            android:textSize="13sp"
-            android:layout_marginStart="4dp"/>
+            android:text="Pročitane"/>
 
-    </LinearLayout>
+    </com.google.android.material.chip.ChipGroup>
 
     <View
         android:layout_width="match_parent"
