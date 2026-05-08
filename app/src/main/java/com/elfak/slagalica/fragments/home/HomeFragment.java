@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentHomeBinding;
+import com.elfak.slagalica.helpers.NotifikacijaHelper;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.UserRepository;
 
@@ -108,6 +109,25 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_izazovFragment);
         });
+
+        binding.btnAsocijacije.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_asocijacijeFragment);
+        });
+
+        binding.btnSkocko.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_skockoFragment);
+        });
+
+        binding.btnNotifikacije.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_notifikacijeFragment);
+        });
+
+        binding.btnTestNotifikacija.setOnClickListener(v ->
+                NotifikacijaHelper.prikaziNotifikacijuCet(
+                        requireContext(), "Testni igrač", "Hej, hoćeš li odigrati partiju?"));
     }
 
     private void ucitajTokene() {

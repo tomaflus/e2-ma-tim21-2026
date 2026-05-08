@@ -55,9 +55,33 @@
             android:text="Promijeni lozinku"
             android:layout_marginBottom="8dp"/>
 
+        <Button
+            android:id="@+id/btnAsocijacije"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEST - Asocijacije"
+            android:layout_marginBottom="8dp"/>
 
+        <Button
+            android:id="@+id/btnSkocko"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEST - Skočko"
+            android:layout_marginBottom="8dp"/>
 
+        <Button
+            android:id="@+id/btnNotifikacije"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notifikacije"
+            android:layout_marginBottom="8dp"/>
 
+        <Button
+            android:id="@+id/btnTestNotifikacija"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEST - Pošalji čet notifikaciju"
+            android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btnOdjava"

@@ -5,29 +5,33 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import com.elfak.slagalica.R;
+
 import androidx.core.app.NotificationCompat;
 
 public class NotifikacijaHelper {
 
-    private static final String KANAL_CET = "kanal_cet";
+    public static final String KANAL_CET       = "kanal_cet";
+    public static final String KANAL_RANGIRANJE = "kanal_rangiranje";
+    public static final String KANAL_NAGRADE   = "kanal_nagrade";
+    public static final String KANAL_OSTALO    = "kanal_ostalo";
+
     private static int notifikacijaId = 0;
 
-    // Inicijalizuj notifikacijski kanal
     public static void kreirajKanale(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel kanal = new NotificationChannel(
-                    KANAL_CET,
-                    "Chat notifikacije",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            kanal.setDescription("Notifikacije za nove poruke u chatu");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+        NotificationManager mgr = context.getSystemService(NotificationManager.class);
+        if (mgr == null) return;
+        kreirajKanal(mgr, KANAL_CET,        "Čet",       "Obavještenja o novim porukama u četu",        NotificationManager.IMPORTANCE_HIGH);
+        kreirajKanal(mgr, KANAL_RANGIRANJE,  "Rang lista","Obavještenja o plasmanu na rang listi",        NotificationManager.IMPORTANCE_DEFAULT);
+        kreirajKanal(mgr, KANAL_NAGRADE,    "Nagrade",   "Obavještenja o nagradama i prelasku u ligu",   NotificationManager.IMPORTANCE_HIGH);
+        kreirajKanal(mgr, KANAL_OSTALO,     "Ostalo",    "Ostala sistemska obavještenja",                NotificationManager.IMPORTANCE_LOW);
+    }
 
-            NotificationManager manager = context.getSystemService(
-                    NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(kanal);
-            }
-        }
+    private static void kreirajKanal(NotificationManager mgr, String id, String naziv, String opis, int vaznost) {
+        NotificationChannel kanal = new NotificationChannel(id, naziv, vaznost);
+        kanal.setDescription(opis);
+        mgr.createNotificationChannel(kanal);
     }
 
     // Prikaži notifikaciju za novu poruku
@@ -35,7 +39,7 @@ public class NotifikacijaHelper {
                                               String posiljac, String poruka) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, KANAL_CET)
-                        .setSmallIcon(android.R.drawable.ic_dialog_email)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("Nova poruka od " + posiljac)
                         .setContentText(poruka)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
