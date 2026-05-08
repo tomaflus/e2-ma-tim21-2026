@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import com.elfak.slagalica.R;
+
 import androidx.core.app.NotificationCompat;
 
 public class NotifikacijaHelper {
@@ -37,7 +39,7 @@ public class NotifikacijaHelper {
                                               String posiljac, String poruka) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, KANAL_CET)
-                        .setSmallIcon(android.R.drawable.ic_dialog_email)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("Nova poruka od " + posiljac)
                         .setContentText(poruka)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)

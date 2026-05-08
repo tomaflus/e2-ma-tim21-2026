@@ -108,8 +108,9 @@
                 app:backgroundTint="#A8D0EC"
                 app:cornerRadius="6dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRezA"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -117,8 +118,8 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#12205A"
-                android:background="@drawable/bg_oval_asocijacije"
-                android:stateListAnimator="@null"/>
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="50dp"/>
 
         </LinearLayout>
 
@@ -186,8 +187,9 @@
                 app:backgroundTint="#A8D0EC"
                 app:cornerRadius="6dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRezB"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -195,16 +197,17 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#12205A"
-                android:background="@drawable/bg_oval_asocijacije"
-                android:stateListAnimator="@null"/>
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="50dp"/>
 
         </LinearLayout>
 
     </LinearLayout>
 
     <!-- Konačno rješenje — centriran između gornjeg i donjeg reda -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnKonacno"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="24dp"
@@ -215,8 +218,8 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#12205A"
-        android:background="@drawable/bg_oval_asocijacije"
-        android:stateListAnimator="@null"/>
+        app:backgroundTint="#A8D0EC"
+        app:cornerRadius="50dp"/>
 
     <!-- Donji red: Kolone C i D, oval rješenja pa redosljed 1→4 -->
     <LinearLayout
@@ -233,8 +236,9 @@
             android:orientation="vertical"
             android:layout_marginEnd="3dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRezC"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -243,8 +247,8 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#12205A"
-                android:background="@drawable/bg_oval_asocijacije"
-                android:stateListAnimator="@null"/>
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="50dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnC1"
@@ -311,8 +315,9 @@
             android:orientation="vertical"
             android:layout_marginStart="3dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRezD"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -321,8 +326,8 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#12205A"
-                android:background="@drawable/bg_oval_asocijacije"
-                android:stateListAnimator="@null"/>
+                app:backgroundTint="#A8D0EC"
+                app:cornerRadius="50dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnD1"

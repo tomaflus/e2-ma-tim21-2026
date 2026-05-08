@@ -8,7 +8,6 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -26,7 +25,6 @@ public class AsocijacijeFragment extends Fragment {
 
     private static final int BOJA_SKRIVENO = Color.parseColor("#A8D0EC");
     private static final int BOJA_OTKRIVENO = Color.parseColor("#C0392B");
-    private static final int BOJA_POGODENO = Color.parseColor("#F5C518");
     private static final int BOJA_TEKST_TAMNO = Color.parseColor("#12205A");
 
     private FragmentAsocijacijeBinding binding;
@@ -34,7 +32,7 @@ public class AsocijacijeFragment extends Fragment {
     private CountDownTimer tajmer;
 
     private com.google.android.material.button.MaterialButton[][] itemDugmad;
-    private Button[] rezDugmad;
+    private com.google.android.material.button.MaterialButton[] rezDugmad;
 
     @Nullable
     @Override
@@ -67,7 +65,7 @@ public class AsocijacijeFragment extends Fragment {
             {binding.btnC1, binding.btnC2, binding.btnC3, binding.btnC4},
             {binding.btnD1, binding.btnD2, binding.btnD3, binding.btnD4}
         };
-        rezDugmad = new Button[]{
+        rezDugmad = new com.google.android.material.button.MaterialButton[]{
             binding.btnRezA, binding.btnRezB, binding.btnRezC, binding.btnRezD
         };
 
@@ -105,7 +103,8 @@ public class AsocijacijeFragment extends Fragment {
         }
         if (viewModel.konacnoPogodeno) {
             binding.btnKonacno.setText(AsocijacijeViewModel.KONACNO_RJESENJE);
-            binding.btnKonacno.getBackground().mutate().setTint(BOJA_POGODENO);
+            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
+            binding.btnKonacno.setTextColor(Color.WHITE);
         }
         if (viewModel.zavrsen) onemogucuiInterakciju();
     }
@@ -148,8 +147,8 @@ public class AsocijacijeFragment extends Fragment {
     }
 
     private void oznaciPogodenuKolonu(int k) {
-        rezDugmad[k].getBackground().mutate().setTint(BOJA_POGODENO);
-        rezDugmad[k].setTextColor(BOJA_TEKST_TAMNO);
+        rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
+        rezDugmad[k].setTextColor(Color.WHITE);
         rezDugmad[k].setText(AsocijacijeViewModel.RJESENJA_KOLONA[k]);
     }
 
@@ -183,15 +182,38 @@ public class AsocijacijeFragment extends Fragment {
 
         if (kolona == -1) {
             viewModel.konacnoPogodeno = true;
-            int bodovi = izracunajBodoveKonacno();
+            viewModel.zavrsen = true;
+            if (tajmer != null) tajmer.cancel();
+            int bodovi = izracunajBodoveKonacno(); // score se računa prije otkrivanja
             dodajBodove(bodovi);
+            // Otkrij sva preostala polja i neodgovorene kolone
+            for (int k = 0; k < 4; k++) {
+                for (int r = 0; r < 4; r++) {
+                    if (!viewModel.otvorenaPolja[k][r]) {
+                        viewModel.otvorenaPolja[k][r] = true;
+                        otkriPolje(k, r);
+                    }
+                }
+                if (!viewModel.pogodenaKolona[k]) {
+                    viewModel.pogodenaKolona[k] = true;
+                    oznaciPogodenuKolonu(k);
+                }
+            }
             binding.btnKonacno.setText(AsocijacijeViewModel.KONACNO_RJESENJE);
-            binding.btnKonacno.getBackground().mutate().setTint(BOJA_POGODENO);
+            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
+            binding.btnKonacno.setTextColor(Color.WHITE);
             Toast.makeText(getContext(), "Tačno! +" + bodovi + " bod.", Toast.LENGTH_SHORT).show();
         } else {
             viewModel.pogodenaKolona[kolona] = true;
-            int bodovi = izracunajBodoveKolone(kolona);
+            int bodovi = izracunajBodoveKolone(kolona); // score se računa prije otkrivanja
             dodajBodove(bodovi);
+            // Otkrij sva preostala polja te kolone
+            for (int r = 0; r < 4; r++) {
+                if (!viewModel.otvorenaPolja[kolona][r]) {
+                    viewModel.otvorenaPolja[kolona][r] = true;
+                    otkriPolje(kolona, r);
+                }
+            }
             oznaciPogodenuKolonu(kolona);
             Toast.makeText(getContext(), "Tačno! +" + bodovi + " bod.", Toast.LENGTH_SHORT).show();
         }
