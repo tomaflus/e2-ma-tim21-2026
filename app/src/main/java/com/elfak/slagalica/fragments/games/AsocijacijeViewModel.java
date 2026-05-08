@@ -9,8 +9,8 @@ public class AsocijacijeViewModel extends ViewModel {
     public static final String[][] POLJA = {
         {"Azija", "Afrika", "Amerika", "Australija"}, // Kolona A
         {"Tihi", "Atlantski", "Indijski", "Arktički"}, // Kolona B
-        {"Himalaji", "Ande", "Alpe", "Kavkaz"},        // Kolona C
-        {"Nil", "Amazon", "Dunav", "Jangce"}            // Kolona D
+        {"Himalaji", "Andi", "Alpi", "Kavkaz"},        // Kolona C
+        {"Nil", "Amazon", "Dunav", "Tisa"}            // Kolona D
     };
     public static final String[] RJESENJA_KOLONA = {"Kontinenti", "Okeani", "Planine", "Reke"};
     public static final String KONACNO_RJESENJE = "Zemlja";

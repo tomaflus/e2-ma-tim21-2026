@@ -249,7 +249,7 @@ public class SkockoFragment extends Fragment {
         binding.tvTajmer.setText("⏱ 0s");
         viewModel.faza = SkockoViewModel.Faza.PROTIVNIK;
         Toast.makeText(getContext(),
-                "Isteklo vrijeme! Protivnik dobija šansu.", Toast.LENGTH_SHORT).show();
+                "Isteklo vreme! Protivnik dobija šansu.", Toast.LENGTH_SHORT).show();
         pokreniTajmerProtivnika();
     }
 

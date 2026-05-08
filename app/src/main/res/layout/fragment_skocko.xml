@@ -127,11 +127,11 @@
             <TextView android:id="@+id/tvFeedbackR7" android:layout_width="56dp" android:layout_height="wrap_content" android:text="" android:textColor="#AAAACC" android:textSize="15sp" android:gravity="center"/>
         </LinearLayout>
 
-        <!-- Red 8 - tačno rješenje -->
+        <!-- Red 8 - tačno rešenje -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tačno rješenje:"
+            android:text="Tačno rešenje:"
             android:textColor="#AAAACC"
             android:textSize="13sp"
             android:layout_marginBottom="2dp"/>

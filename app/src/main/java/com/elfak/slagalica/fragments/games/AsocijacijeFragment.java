@@ -154,8 +154,8 @@ public class AsocijacijeFragment extends Fragment {
 
     private void prikaziDialog(int kolona) {
         String naslov = kolona == -1
-                ? "Konačno rješenje"
-                : "Rješenje kolone " + AsocijacijeViewModel.SLOVA_KOLONA[kolona];
+                ? "Konačno rešenje"
+                : "Rešenje kolone " + AsocijacijeViewModel.SLOVA_KOLONA[kolona];
 
         EditText et = new EditText(requireContext());
         et.setInputType(InputType.TYPE_CLASS_TEXT);
