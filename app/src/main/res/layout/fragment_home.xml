@@ -6,90 +6,134 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="32dp">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dobrodošli!"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/tvKorisnik"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
+            android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginBottom="8dp"/>
+            android:padding="32dp">
 
-        <TextView
-            android:id="@+id/tvTokeniZvezde"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tokeni: - | Zvezde: -"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="32dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dobrodošli!"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
 
-        <Button
-            android:id="@+id/btnIgraj"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Igraj!"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp"/>
+            <TextView
+                android:id="@+id/tvKorisnik"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnPromjeniLozinku"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Promijeni lozinku"
-            android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/tvTokeniZvezde"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tokeni: - | Zvezde: -"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="32dp"/>
 
-        <Button
-            android:id="@+id/btnAsocijacije"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TEST - Asocijacije"
-            android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnIgraj"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Igraj!"
+                android:textSize="18sp"
+                android:layout_marginBottom="16dp"/>
 
-        <Button
-            android:id="@+id/btnSkocko"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TEST - Skočko"
-            android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnPromjeniLozinku"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Promijeni lozinku"
+                android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnNotifikacije"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notifikacije"
-            android:layout_marginBottom="8dp"/>
+            <!-- Student 2 Igre -->
+            <Button
+                android:id="@+id/btnProfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_profile"
+                android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnTestNotifikacija"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TEST - Pošalji čet notifikaciju"
-            android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnKoZnaZna"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_ko_zna_zna"
+                android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnOdjava"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Odjavi se"/>
+            <Button
+                android:id="@+id/btnSpojnice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_spojnice"
+                android:layout_marginBottom="8dp"/>
 
-    </LinearLayout>
+            <!-- Student 1 Igre -->
+            <Button
+                android:id="@+id/btnKorakPoKorak"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEST - Korak po korak"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnMojBroj"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEST - Moj broj"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Student 3 Igre -->
+            <Button
+                android:id="@+id/btnAsocijacije"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEST - Asocijacije"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnSkocko"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEST - Skočko"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnNotifikacije"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notifikacije"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnTestNotifikacija"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEST - Pošalji čet notifikaciju"
+                android:layout_marginBottom="16dp"/>
+
+            <Button
+                android:id="@+id/btnOdjava"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Odjavi se"
+                android:backgroundTint="#FF5252"/>
+
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Chat FAB dugme u donjem desnom uglu -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

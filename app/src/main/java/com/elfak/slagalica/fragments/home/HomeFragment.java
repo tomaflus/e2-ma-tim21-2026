@@ -103,8 +103,6 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_cetFragment);
         });
 
-
-
         binding.btnIzazov.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_izazovFragment);
@@ -128,6 +126,32 @@ public class HomeFragment extends Fragment {
         binding.btnTestNotifikacija.setOnClickListener(v ->
                 NotifikacijaHelper.prikaziNotifikacijuCet(
                         requireContext(), "Testni igrač", "Hej, hoćeš li odigrati partiju?"));
+
+        // Student 2 Dugmad
+        binding.btnProfil.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_profilFragment);
+        });
+
+        binding.btnKoZnaZna.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_koZnaZnaFragment);
+        });
+
+        binding.btnSpojnice.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_spojniceFragment);
+        });
+        
+        binding.btnKorakPoKorak.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
+        });
+
+        binding.btnMojBroj.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_mojBrojFragment);
+        });
     }
 
     private void ucitajTokene() {

@@ -76,6 +76,15 @@
             android:id="@+id/action_homeFragment_to_mojBrojFragment"
             app:destination="@id/mojBrojFragment"/>
         <action
+            android:id="@+id/action_homeFragment_to_profilFragment"
+            app:destination="@id/profilFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_koZnaZnaFragment"
+            app:destination="@id/koZnaZnaFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_spojniceFragment"
+            app:destination="@id/spojniceFragment" />
+        <action
             android:id="@+id/action_homeFragment_to_cekanjeFragment"
             app:destination="@id/cekanjeFragment"/>
         <action
@@ -94,6 +103,28 @@
             android:id="@+id/action_homeFragment_to_notifikacijeFragment"
             app:destination="@id/notifikacijeFragment"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/profilFragment"
+        android:name="com.elfak.slagalica.fragments.profile.ProfilFragment"
+        android:label="Profil"
+        tools:layout="@layout/fragment_profil" >
+        <action
+            android:id="@+id/action_profilFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/koZnaZnaFragment"
+        android:name="com.elfak.slagalica.fragments.games.KoZnaZnaFragment"
+        android:label="Ko zna zna"
+        tools:layout="@layout/fragment_ko_zna_zna" />
+
+    <fragment
+        android:id="@+id/spojniceFragment"
+        android:name="com.elfak.slagalica.fragments.games.SpojniceFragment"
+        android:label="Spojnice"
+        tools:layout="@layout/fragment_spojnice" />
 
     <fragment
         android:id="@+id/resetLozinkeFragment"

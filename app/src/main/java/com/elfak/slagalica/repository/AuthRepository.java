@@ -73,12 +73,14 @@ public class AuthRepository {
                     FirebaseUser firebaseUser = result.getUser();
                     if (firebaseUser == null) return;
 
+                    /* 
                     if (!firebaseUser.isEmailVerified()) {
                         mainHandler.post(() ->
                                 onError.onError("Email nije verifikovan! Provjerite inbox."));
                         auth.signOut();
                         return;
                     }
+                    */
 
                     mainHandler.post(onSuccess::onSuccess);
                 })
@@ -93,13 +95,22 @@ public class AuthRepository {
 
     // Da li je korisnik ulogovan
     public boolean jeUlogovan() {
-        return auth.getCurrentUser() != null
-                && auth.getCurrentUser().isEmailVerified();
+        return auth.getCurrentUser() != null;
     }
 
-    // Trenutni korisnik
+    // Trenutni korisnik (Firebase)
     public FirebaseUser trenutniKorisnik() {
         return auth.getCurrentUser();
+    }
+
+    // Dohvati podatke o korisniku iz Firestore-a
+    public void getKorisnikPodaci(String uid, OnKorisnikLoadedListener listener) {
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    mainHandler.post(() -> listener.onKorisnikLoaded(user));
+                })
+                .addOnFailureListener(e -> mainHandler.post(() -> listener.onKorisnikLoaded(null)));
     }
 
     // Reset lozinke
@@ -118,5 +129,9 @@ public class AuthRepository {
 
     public interface OnErrorListener {
         void onError(String poruka);
+    }
+
+    public interface OnKorisnikLoadedListener {
+        void onKorisnikLoaded(User user);
     }
 }
