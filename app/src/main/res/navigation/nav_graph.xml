@@ -41,6 +41,24 @@
         tools:layout="@layout/fragment_korak_po_korak"/>
 
     <fragment
+        android:id="@+id/asocijacijeFragment"
+        android:name="com.elfak.slagalica.fragments.games.AsocijacijeFragment"
+        android:label="Asocijacije"
+        tools:layout="@layout/fragment_asocijacije"/>
+
+    <fragment
+        android:id="@+id/skockoFragment"
+        android:name="com.elfak.slagalica.fragments.games.SkockoFragment"
+        android:label="Skočko"
+        tools:layout="@layout/fragment_skocko"/>
+
+    <fragment
+        android:id="@+id/notifikacijeFragment"
+        android:name="com.elfak.slagalica.fragments.notifications.NotifikacijeFragment"
+        android:label="Notifikacije"
+        tools:layout="@layout/fragment_notifikacije"/>
+
+    <fragment
         android:id="@+id/homeFragment"
         android:name="com.elfak.slagalica.fragments.home.HomeFragment"
         android:label="Pocetna"
@@ -66,6 +84,24 @@
         <action
             android:id="@+id/action_homeFragment_to_spojniceFragment"
             app:destination="@id/spojniceFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_cekanjeFragment"
+            app:destination="@id/cekanjeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_cetFragment"
+            app:destination="@id/cetFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_izazovFragment"
+            app:destination="@id/izazovFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_asocijacijeFragment"
+            app:destination="@id/asocijacijeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_skockoFragment"
+            app:destination="@id/skockoFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_notifikacijeFragment"
+            app:destination="@id/notifikacijeFragment"/>
     </fragment>
 
     <fragment
@@ -95,4 +131,38 @@
         android:name="com.elfak.slagalica.fragments.auth.ResetLozinkeFragment"
         android:label="Promjena lozinke"
         tools:layout="@layout/fragment_reset_lozinke"/>
+
+    <fragment
+        android:id="@+id/cekanjeFragment"
+        android:name="com.elfak.slagalica.fragments.game.CekanjeFragment"
+        android:label="Cekanje"
+        tools:layout="@layout/fragment_cekanje">
+        <action
+            android:id="@+id/action_cekanjeFragment_to_igraFragment"
+            app:destination="@id/igraFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/igraFragment"
+        android:name="com.elfak.slagalica.fragments.game.IgraFragment"
+        android:label="Igra"
+        tools:layout="@layout/fragment_igra"/>
+        <action
+        android:id="@+id/action_igraFragment_to_homeFragment"
+        app:destination="@id/homeFragment"/>
+
+    <fragment
+        android:id="@+id/cetFragment"
+        android:name="com.elfak.slagalica.fragments.chat.CetFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_cet"/>
+
+    <fragment
+        android:id="@+id/izazovFragment"
+        android:name="com.elfak.slagalica.fragments.izazov.IzazovFragment"
+        android:label="Izazov"
+        tools:layout="@layout/fragment_izazov"/>
+        <action
+        android:id="@+id/action_izazovFragment_to_igraFragment"
+        app:destination="@id/igraFragment"/>
 </navigation>

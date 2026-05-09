@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Zaglavlje -->
+    <TextView
+        android:id="@+id/tvNaslovCeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chat - Region"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:background="#F5F5F5"/>
+
+    <!-- Lista poruka -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPoruke"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"/>
+
+    <!-- Unos poruke -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#F5F5F5">
+
+        <EditText
+            android:id="@+id/etPoruka"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Unesite poruku..."
+            android:inputType="text"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnPosalji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pošalji"/>
+
+    </LinearLayout>
+
+</LinearLayout>
