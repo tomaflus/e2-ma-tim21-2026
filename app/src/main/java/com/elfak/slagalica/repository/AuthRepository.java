@@ -34,8 +34,11 @@ public class AuthRepository {
                     db.collection("users")
                             .document(firebaseUser.getUid())
                             .set(user)
-                            .addOnSuccessListener(unused ->
-                                    mainHandler.post(onSuccess::onSuccess))
+                            .addOnSuccessListener(unused -> {
+                                        auth.signOut();
+
+                                    mainHandler.post(onSuccess::onSuccess);
+                            })
                             .addOnFailureListener(e ->
                                     mainHandler.post(() -> onError.onError(e.getMessage())));
                 })
@@ -73,14 +76,14 @@ public class AuthRepository {
                     FirebaseUser firebaseUser = result.getUser();
                     if (firebaseUser == null) return;
 
-                    /* 
+
                     if (!firebaseUser.isEmailVerified()) {
                         mainHandler.post(() ->
                                 onError.onError("Email nije verifikovan! Provjerite inbox."));
                         auth.signOut();
                         return;
                     }
-                    */
+
 
                     mainHandler.post(onSuccess::onSuccess);
                 })
@@ -95,7 +98,7 @@ public class AuthRepository {
 
     // Da li je korisnik ulogovan
     public boolean jeUlogovan() {
-        return auth.getCurrentUser() != null;
+        return auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified();
     }
 
     // Trenutni korisnik (Firebase)
