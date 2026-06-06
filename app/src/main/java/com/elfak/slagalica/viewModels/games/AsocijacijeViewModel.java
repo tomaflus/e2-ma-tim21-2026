@@ -1,4 +1,4 @@
-package com.elfak.slagalica.fragments.games;
+package com.elfak.slagalica.viewModels.games;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;

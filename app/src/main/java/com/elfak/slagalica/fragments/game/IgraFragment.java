@@ -171,6 +171,14 @@ public class IgraFragment extends Fragment {
 
         Fragment igra;
         switch (indeksIgre) {
+            case 2:
+                igra = new com.elfak.slagalica.fragments.games.AsocijacijeFragment();
+                igra.setArguments(args);
+                break;
+            case 3:
+                igra = new com.elfak.slagalica.fragments.games.SkockoFragment();
+                igra.setArguments(args);
+                break;
             case 4:
                 igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
                 igra.setArguments(args);
@@ -192,6 +200,20 @@ public class IgraFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.gameContainer, igra)
                 .commit();
+
+        getChildFragmentManager().setFragmentResultListener(
+                "asocijacijeZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "skockoZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
 
         getChildFragmentManager().setFragmentResultListener(
                 "korakPoKorakZavrsen", getViewLifecycleOwner(),
@@ -236,6 +258,14 @@ public class IgraFragment extends Fragment {
 
         Fragment igra;
         switch (indeksIgre) {
+            case 2:
+                igra = new com.elfak.slagalica.fragments.games.AsocijacijeFragment();
+                igra.setArguments(args);
+                break;
+            case 3:
+                igra = new com.elfak.slagalica.fragments.games.SkockoFragment();
+                igra.setArguments(args);
+                break;
             case 4:
                 igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
                 igra.setArguments(args);
@@ -257,6 +287,24 @@ public class IgraFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.gameContainer, igra)
                 .commit();
+
+        getChildFragmentManager().setFragmentResultListener(
+                "asocijacijeZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "skockoZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
 
         getChildFragmentManager().setFragmentResultListener(
                 "korakPoKorakZavrsen", getViewLifecycleOwner(),

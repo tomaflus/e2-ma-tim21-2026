@@ -7,6 +7,19 @@
     android:background="#12205A"
     android:padding="8dp">
 
+    <!-- Status poruka (multiplayer) -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#FFD700"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="2dp"/>
+
     <!-- Header: bodovi i tajmer -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -220,6 +233,18 @@
         android:textColor="#12205A"
         app:backgroundTint="#A8D0EC"
         app:cornerRadius="50dp"/>
+
+    <!-- Predaj potez dugme (multiplayer) -->
+    <Button
+        android:id="@+id/btnPredajPotez"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Predaj potez"
+        android:textSize="13sp"
+        android:visibility="gone"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"/>
 
     <!-- Donji red: Kolone C i D, oval rješenja pa redosljed 1→4 -->
     <LinearLayout
