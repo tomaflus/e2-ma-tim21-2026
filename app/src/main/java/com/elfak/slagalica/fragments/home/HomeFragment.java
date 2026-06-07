@@ -39,11 +39,6 @@ public class HomeFragment extends Fragment {
         authRepository = new AuthRepository();
         userRepository = new UserRepository();
 
-        // Prikaži email korisnika
-        if (authRepository.trenutniKorisnik() != null) {
-            binding.tvKorisnik.setText(authRepository.trenutniKorisnik().getEmail());
-        }
-
         // Dodaj dnevne tokene pri svakom otvaranju Home ekrana
         userRepository.dodajDnevneTokene(
                 () -> ucitajTokene(),
@@ -108,24 +103,10 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_izazovFragment);
         });
 
-        binding.btnAsocijacije.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_asocijacijeFragment);
-        });
-
-        binding.btnSkocko.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_skockoFragment);
-        });
-
         binding.btnNotifikacije.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_notifikacijeFragment);
         });
-
-        binding.btnTestNotifikacija.setOnClickListener(v ->
-                NotifikacijaHelper.prikaziNotifikacijuCet(
-                        requireContext(), "Testni igrač", "Hej, hoćeš li odigrati partiju?"));
 
         // Student 2 Dugmad
         binding.btnProfil.setOnClickListener(v -> {
@@ -143,15 +124,6 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_spojniceFragment);
         });
         
-        binding.btnKorakPoKorak.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_korakPoKorakFragment);
-        });
-
-        binding.btnMojBroj.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_mojBrojFragment);
-        });
     }
 
     private void ucitajTokene() {
@@ -160,7 +132,7 @@ public class HomeFragment extends Fragment {
                     if (getActivity() != null && binding != null) {
                         getActivity().runOnUiThread(() -> {
                             if (binding != null) {
-                                binding.tvKorisnik.setText(user.getEmail());
+                                binding.tvKorisnik.setText(user.getKorisnickoIme());
                                 binding.tvTokeniZvezde.setText(
                                         "Tokeni: " + user.getTokeni() +
                                                 " | Zvezde: " + user.getZvezde());

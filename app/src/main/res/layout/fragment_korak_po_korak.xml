@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="@color/pozadinaBoja">
 
     <!-- Zaglavlje sa bodovima i tajmerom -->
     <LinearLayout
@@ -20,7 +20,8 @@
             android:layout_weight="1"
             android:text="Bodovi: 0"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
 
         <TextView
             android:id="@+id/tvTajmer"
@@ -30,6 +31,7 @@
             android:text="⏱ 70s"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:textColor="#FFD700"
             android:gravity="end"/>
 
     </LinearLayout>
@@ -41,6 +43,7 @@
         android:text="Korak po korak"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:gravity="center"
         android:layout_marginBottom="16dp"/>
 

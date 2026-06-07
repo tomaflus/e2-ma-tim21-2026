@@ -16,6 +16,7 @@ import com.elfak.slagalica.databinding.FragmentCekanjeBinding;
 import com.elfak.slagalica.model.StatusPartije;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
+import com.elfak.slagalica.repository.UserRepository;
 
 public class CekanjeFragment extends Fragment {
 
@@ -41,11 +42,12 @@ public class CekanjeFragment extends Fragment {
         partijaRepository = new PartijaRepository();
         authRepository = new AuthRepository();
 
-        String korisnickoIme = authRepository.trenutniKorisnik() != null
-                ? authRepository.trenutniKorisnik().getEmail()
-                : "Nepoznat";
-
-        traziPartiju(korisnickoIme);
+        UserRepository userRepository = new UserRepository();
+        userRepository.dohvatiKorisnika(
+                user -> traziPartiju(user.getKorisnickoIme()),
+                err -> traziPartiju(authRepository.trenutniKorisnik() != null
+                        ? authRepository.trenutniKorisnik().getEmail()
+                        : "Nepoznat"));
 
         // Klik na Odustani
         binding.btnOdustani.setOnClickListener(v -> {

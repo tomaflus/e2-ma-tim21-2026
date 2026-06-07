@@ -148,12 +148,10 @@ public class IgraFragment extends Fragment {
     }
 
     private void azurirajUI(Partija partija) {
-        binding.tvIgrac1.setText(
-                (partija.getIgrac1Ime() != null ? partija.getIgrac1Ime() : "Igrac 1")
-                        + ": " + partija.getBodovi1());
-        binding.tvIgrac2.setText(
-                (partija.getIgrac2Ime() != null ? partija.getIgrac2Ime() : "Igrac 2")
-                        + ": " + partija.getBodovi2());
+        binding.tvIgrac1Ime.setText(partija.getIgrac1Ime() != null ? partija.getIgrac1Ime() : "Igrac 1");
+        binding.tvIgrac1Bodovi.setText(partija.getBodovi1() + " bodova");
+        binding.tvIgrac2Ime.setText(partija.getIgrac2Ime() != null ? partija.getIgrac2Ime() : "Igrac 2");
+        binding.tvIgrac2Bodovi.setText(partija.getBodovi2() + " bodova");
         binding.tvIgra.setText("Igra " + (currentIndeksIgre + 1) + "/6: " + IGRE[currentIndeksIgre]);
     }
 
