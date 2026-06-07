@@ -87,6 +87,7 @@ public class AsocijacijeFragment extends Fragment {
 
     private boolean mojePoljeOtvoreno = false;
     private String lastSeenStatus = null;
+    private boolean rezultatPoslan = false;
 
     // Pokušaj odgovora vidljiv protivniku
     private int pokusajKolonaCached = Integer.MIN_VALUE;
@@ -556,12 +557,15 @@ public class AsocijacijeFragment extends Fragment {
                         case ZAVRSENA:
                             if (tajmer != null) { tajmer.cancel(); tajmer = null; }
                             setOverlay(true);
-                            int mojiBodovi = jeIgrac1 ? bodovi1Multi : bodovi2Multi;
-                            Bundle result = new Bundle();
-                            result.putInt("bodovi", mojiBodovi);
-                            if (isAdded())
-                                getParentFragmentManager()
-                                        .setFragmentResult("asocijacijeZavrsen", result);
+                            if (!rezultatPoslan) {
+                                rezultatPoslan = true;
+                                int mojiBodovi = jeIgrac1 ? bodovi1Multi : bodovi2Multi;
+                                Bundle result = new Bundle();
+                                result.putInt("bodovi", mojiBodovi);
+                                if (isAdded())
+                                    getParentFragmentManager()
+                                            .setFragmentResult("asocijacijeZavrsen", result);
+                            }
                             break;
                     }
                 });
@@ -672,11 +676,14 @@ public class AsocijacijeFragment extends Fragment {
                                 db.collection("partije").document(partijaId)
                                         .update("statusAsocijacije", ZAVRSENA);
                             else {
-                                Bundle res = new Bundle();
-                                res.putInt("bodovi", bodovi2Multi);
-                                if (isAdded())
-                                    getParentFragmentManager()
-                                            .setFragmentResult("asocijacijeZavrsen", res);
+                                if (!rezultatPoslan) {
+                                    rezultatPoslan = true;
+                                    Bundle res = new Bundle();
+                                    res.putInt("bodovi", bodovi2Multi);
+                                    if (isAdded())
+                                        getParentFragmentManager()
+                                                .setFragmentResult("asocijacijeZavrsen", res);
+                                }
                             }
                         }
                     }

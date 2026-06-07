@@ -257,6 +257,10 @@ public class IgraFragment extends Fragment {
         Bundle args = new Bundle();
         args.putString("partijaId", partijaId);
         args.putBoolean("jeIgrac1", jeIgrac1);
+        if (trenutnaPartija != null) {
+            int sc = jeIgrac1 ? trenutnaPartija.getBodovi1() : trenutnaPartija.getBodovi2();
+            args.putInt("startingScore", sc);
+        }
 
         Fragment igra;
         switch (indeksIgre) {
@@ -290,9 +294,12 @@ public class IgraFragment extends Fragment {
                 .replace(R.id.gameContainer, igra)
                 .commit();
 
+        final boolean[] asocijacijeBrojano = {false};
         getChildFragmentManager().setFragmentResultListener(
                 "asocijacijeZavrsen", getViewLifecycleOwner(),
                 (key, result) -> {
+                    if (asocijacijeBrojano[0]) return;
+                    asocijacijeBrojano[0] = true;
                     int bodovi = result.getInt("bodovi");
                     azurirajBodovePartije(bodovi, indeksIgre);
                     new android.os.Handler(android.os.Looper.getMainLooper())

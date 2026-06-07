@@ -77,6 +77,7 @@ public class SkockoFragment extends Fragment {
     private String lastSeenStatus = null;
     private boolean odbrojavanjeAktivno = false;
     private int[][] feedbackBrojevi = new int[6][2];
+    private int startingScore = 0;
 
     @Nullable
     @Override
@@ -92,9 +93,10 @@ public class SkockoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (getArguments() != null) {
-            partijaId = getArguments().getString("partijaId");
-            jeIgrac1  = getArguments().getBoolean("jeIgrac1", true);
-            jeIzazov  = getArguments().getBoolean("jeIzazov", false);
+            partijaId    = getArguments().getString("partijaId");
+            jeIgrac1     = getArguments().getBoolean("jeIgrac1", true);
+            jeIzazov     = getArguments().getBoolean("jeIzazov", false);
+            startingScore = getArguments().getInt("startingScore", 0);
         }
 
         inicijalizujSlotove();
@@ -431,7 +433,7 @@ public class SkockoFragment extends Fragment {
                     Long b2L = snapshot.getLong("bodovi2Skocko");
                     int b1 = b1L != null ? b1L.intValue() : 0;
                     int b2 = b2L != null ? b2L.intValue() : 0;
-                    binding.tvBodovi.setText("Bodovi: " + (jeIgrac1 ? b1 : b2));
+                    binding.tvBodovi.setText("Bodovi: " + (jeIgrac1 ? startingScore + b1 : startingScore + b2));
 
                     syncBoardForWaitingPlayer(snapshot, status);
 
