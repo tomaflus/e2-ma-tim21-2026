@@ -4,6 +4,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,56 +23,78 @@ import com.elfak.slagalica.databinding.FragmentAsocijacijeBinding;
 import com.elfak.slagalica.model.Asocijacija;
 import com.elfak.slagalica.repository.AsocijacijeRepository;
 import com.elfak.slagalica.viewModels.games.AsocijacijeViewModel;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AsocijacijeFragment extends Fragment {
 
     private static final long TRAJANJE_RUNDE = 120_000;
-    private static final int BOJA_SKRIVENO  = Color.parseColor("#A8D0EC");
-    private static final int BOJA_OTKRIVENO = Color.parseColor("#C0392B");
 
-    // Multiplayer statusi
+    private static final int BOJA_SKRIVENO = Color.parseColor("#A8D0EC");
+    private static final int BOJA_IGRAC1   = Color.parseColor("#C0392B");
+    private static final int BOJA_IGRAC2   = Color.parseColor("#1565C0");
+    private static final int BOJA_POGRESNO = Color.parseColor("#757575");
+    private static final int BOJA_NEUTRAL  = Color.parseColor("#9E9E9E");
+
     private static final String RUNDA1_IGRAC1_IGRA     = "RUNDA1_IGRAC1_IGRA";
     private static final String RUNDA1_IGRAC2_IGRA     = "RUNDA1_IGRAC2_IGRA";
+    private static final String RUNDA1_PAUZA           = "RUNDA1_PAUZA";
     private static final String RUNDA2_INICIJALIZACIJA = "RUNDA2_INICIJALIZACIJA";
     private static final String RUNDA2_IGRAC2_IGRA     = "RUNDA2_IGRAC2_IGRA";
     private static final String RUNDA2_IGRAC1_IGRA     = "RUNDA2_IGRAC1_IGRA";
+    private static final String RUNDA2_PAUZA           = "RUNDA2_PAUZA";
     private static final String ZAVRSENA               = "ZAVRSENA";
+
+    private static final String[] SLOVA = {"A", "B", "C", "D"};
 
     private FragmentAsocijacijeBinding binding;
 
-    // Args
     private String partijaId;
     private boolean jeIgrac1;
     private boolean jeIzazov;
 
-    // Zajednička referenca na dugmad
     private com.google.android.material.button.MaterialButton[][] itemDugmad;
     private com.google.android.material.button.MaterialButton[] rezDugmad;
 
-    // ── Solo (jeIzazov=true) ──────────────────────────────
+    // Solo
     private AsocijacijeViewModel viewModel;
     private CountDownTimer tajmer;
 
-    // ── Multiplayer (jeIzazov=false) ─────────────────────
+    // Multi
     private FirebaseFirestore db;
     private ListenerRegistration listenerReg;
     private AsocijacijeRepository asocRepo;
     private Asocijacija lokalnoPitanjeR1;
     private Asocijacija lokalnoPitanjeR2;
-    private boolean jeRunda2    = false;
-    private boolean mojaRunda   = false;
-    private List<Boolean> otvorenaPolja;   // 16 elemenata (kolona*4+red)
-    private List<Boolean> pogodeneKolone;  // 4 elementa
-    private boolean konacnoPogodeno = false;
+    private boolean jeRunda2 = false;
+    private boolean mojaRunda = false;
+
+    private List<Long> vlasnikPolja;
+    private List<Long> vlasnikKolone;
+    private long vlasnikKonacno = 0L;
+
     private int bodovi1Multi = 0;
     private int bodovi2Multi = 0;
-    private long currentTimerEndMs = 0;    // sprječava restart tajmera na svakom snapshot-u
+    private long currentTimerEndMs = 0;
+
+    private boolean mojePoljeOtvoreno = false;
+    private String lastSeenStatus = null;
+
+    // Pokušaj odgovora vidljiv protivniku
+    private int pokusajKolonaCached = Integer.MIN_VALUE;
+    private String pokusajTekstCached = null;
+    private boolean pokusajVSecu = false;
+
+    // Odbrojavanje između rundi
+    private boolean odbrojavanjeAktivno = false;
 
     @Nullable
     @Override
@@ -102,9 +126,7 @@ public class AsocijacijeFragment extends Fragment {
         }
     }
 
-    // ═════════════════════════════════════════════════════
-    // SOLO / IZAZOV PATH
-    // ═════════════════════════════════════════════════════
+    // ─── SOLO PATH ────────────────────────────────────────
 
     private void inicijalizujSolo() {
         viewModel = new ViewModelProvider(this).get(AsocijacijeViewModel.class);
@@ -122,7 +144,7 @@ public class AsocijacijeFragment extends Fragment {
                 itemDugmad[k][r].setOnClickListener(v -> {
                     if (!viewModel.zavrsen && !viewModel.otvorenaPolja[kolona][red]) {
                         viewModel.otvorenaPolja[kolona][red] = true;
-                        otkriPolje(kolona, red, AsocijacijeViewModel.POLJA[kolona][red]);
+                        otkriPoljeBoja(kolona, red, AsocijacijeViewModel.POLJA[kolona][red], BOJA_IGRAC1);
                     }
                 });
             }
@@ -141,15 +163,12 @@ public class AsocijacijeFragment extends Fragment {
         for (int k = 0; k < 4; k++) {
             for (int r = 0; r < 4; r++)
                 if (viewModel.otvorenaPolja[k][r])
-                    otkriPolje(k, r, AsocijacijeViewModel.POLJA[k][r]);
+                    otkriPoljeBoja(k, r, AsocijacijeViewModel.POLJA[k][r], BOJA_IGRAC1);
             if (viewModel.pogodenaKolona[k])
-                oznaciPogodenuKolonu(k, AsocijacijeViewModel.RJESENJA_KOLONA[k]);
+                oznaciKolonuBoja(k, AsocijacijeViewModel.RJESENJA_KOLONA[k], BOJA_IGRAC1);
         }
-        if (viewModel.konacnoPogodeno) {
-            binding.btnKonacno.setText(AsocijacijeViewModel.KONACNO_RJESENJE);
-            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
-            binding.btnKonacno.setTextColor(Color.WHITE);
-        }
+        if (viewModel.konacnoPogodeno)
+            oznaciKonacnoBoja(AsocijacijeViewModel.KONACNO_RJESENJE, BOJA_IGRAC1);
         if (viewModel.zavrsen) onemogucuiSvePolja();
     }
 
@@ -206,33 +225,29 @@ public class AsocijacijeFragment extends Fragment {
             viewModel.konacnoPogodeno = true;
             viewModel.zavrsen = true;
             if (tajmer != null) tajmer.cancel();
-            int bodi = izracunajBodoveKonacnoSolo();
-            dodajBodoveSolo(bodi);
+            dodajBodoveSolo(izracunajBodoveKonacnoSolo());
             for (int k = 0; k < 4; k++) {
                 for (int r = 0; r < 4; r++)
                     if (!viewModel.otvorenaPolja[k][r]) {
                         viewModel.otvorenaPolja[k][r] = true;
-                        otkriPolje(k, r, AsocijacijeViewModel.POLJA[k][r]);
+                        otkriPoljeBoja(k, r, AsocijacijeViewModel.POLJA[k][r], BOJA_IGRAC1);
                     }
                 if (!viewModel.pogodenaKolona[k]) {
                     viewModel.pogodenaKolona[k] = true;
-                    oznaciPogodenuKolonu(k, AsocijacijeViewModel.RJESENJA_KOLONA[k]);
+                    oznaciKolonuBoja(k, AsocijacijeViewModel.RJESENJA_KOLONA[k], BOJA_IGRAC1);
                 }
             }
-            binding.btnKonacno.setText(AsocijacijeViewModel.KONACNO_RJESENJE);
-            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
-            binding.btnKonacno.setTextColor(Color.WHITE);
+            oznaciKonacnoBoja(AsocijacijeViewModel.KONACNO_RJESENJE, BOJA_IGRAC1);
             posaljiRezultatSolo();
         } else {
             viewModel.pogodenaKolona[kolona] = true;
-            int bodi = izracunajBodoveKoloneSolo(kolona);
-            dodajBodoveSolo(bodi);
+            dodajBodoveSolo(izracunajBodoveKoloneSolo(kolona));
             for (int r = 0; r < 4; r++)
                 if (!viewModel.otvorenaPolja[kolona][r]) {
                     viewModel.otvorenaPolja[kolona][r] = true;
-                    otkriPolje(kolona, r, AsocijacijeViewModel.POLJA[kolona][r]);
+                    otkriPoljeBoja(kolona, r, AsocijacijeViewModel.POLJA[kolona][r], BOJA_IGRAC1);
                 }
-            oznaciPogodenuKolonu(kolona, AsocijacijeViewModel.RJESENJA_KOLONA[kolona]);
+            oznaciKolonuBoja(kolona, AsocijacijeViewModel.RJESENJA_KOLONA[kolona], BOJA_IGRAC1);
         }
     }
 
@@ -274,24 +289,21 @@ public class AsocijacijeFragment extends Fragment {
         if (isAdded()) getParentFragmentManager().setFragmentResult("asocijacijeZavrsen", result);
     }
 
-    // ═════════════════════════════════════════════════════
-    // MULTIPLAYER PATH
-    // ═════════════════════════════════════════════════════
+    // ─── MULTIPLAYER PATH ─────────────────────────────────
 
     private void inicijalizujMultiplayer() {
-        otvorenaPolja  = new ArrayList<>(Collections.nCopies(16, false));
-        pogodeneKolone = new ArrayList<>(Collections.nCopies(4, false));
+        vlasnikPolja  = new ArrayList<>(Collections.nCopies(16, 0L));
+        vlasnikKolone = new ArrayList<>(Collections.nCopies(4, 0L));
 
         binding.tvStatus.setVisibility(View.VISIBLE);
         binding.btnPredajPotez.setVisibility(View.VISIBLE);
         binding.btnPredajPotez.setOnClickListener(v -> predajPotez());
 
         postaviListenereMultiplayer();
-        onemogucuiInterakcijuMulti(false);
+        setOverlay(true);
         prikaziStatusMulti("Učitavanje...");
 
         slušajPartijuMulti();
-
         if (jeIgrac1) inicijalizujRunda1KaoIgrac1();
     }
 
@@ -301,10 +313,10 @@ public class AsocijacijeFragment extends Fragment {
             lokalnoPitanjeR1 = pitanje;
             long timerEnd = System.currentTimeMillis() + TRAJANJE_RUNDE;
             db.collection("partije").document(partijaId).update(
-                    "pitanjeAsocijacijeIdR1", pitanje.getId(),
-                    "otvorenaPoljaR1",         new ArrayList<>(Collections.nCopies(16, false)),
-                    "pogodeneKoloneR1",        new ArrayList<>(Collections.nCopies(4, false)),
-                    "konacnoPogodenoR1",       false,
+                    "pitanjeAsocijacijeIdR1",  pitanje.getId(),
+                    "vlasnikPoljaR1",          new ArrayList<>(Collections.nCopies(16, 0L)),
+                    "vlasnikKoloneR1",         new ArrayList<>(Collections.nCopies(4, 0L)),
+                    "vlasnikKonacnoR1",        0L,
                     "bodovi1Asocijacije",      0,
                     "bodovi2Asocijacije",      0,
                     "timerEndMsAsocijacijeR1", timerEnd,
@@ -319,10 +331,10 @@ public class AsocijacijeFragment extends Fragment {
             lokalnoPitanjeR2 = pitanje;
             long timerEnd = System.currentTimeMillis() + TRAJANJE_RUNDE;
             db.collection("partije").document(partijaId).update(
-                    "pitanjeAsocijacijeIdR2", pitanje.getId(),
-                    "otvorenaPoljaR2",         new ArrayList<>(Collections.nCopies(16, false)),
-                    "pogodeneKoloneR2",        new ArrayList<>(Collections.nCopies(4, false)),
-                    "konacnoPogodenoR2",       false,
+                    "pitanjeAsocijacijeIdR2",  pitanje.getId(),
+                    "vlasnikPoljaR2",          new ArrayList<>(Collections.nCopies(16, 0L)),
+                    "vlasnikKoloneR2",         new ArrayList<>(Collections.nCopies(4, 0L)),
+                    "vlasnikKonacnoR2",        0L,
                     "timerEndMsAsocijacijeR2", timerEnd,
                     "statusAsocijacije",       RUNDA2_IGRAC2_IGRA
             );
@@ -335,35 +347,40 @@ public class AsocijacijeFragment extends Fragment {
                 final int kolona = k, red = r;
                 final int idx = k * 4 + r;
                 itemDugmad[k][r].setOnClickListener(v -> {
-                    if (!mojaRunda || otvorenaPolja.get(idx)) return;
-                    Asocijacija pitanje = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
-                    if (pitanje == null) return;
-                    // Optimistično ažuriranje UI
-                    otvorenaPolja.set(idx, true);
-                    otkriPolje(kolona, red, pitanje.getPolja()[kolona][red]);
-                    itemDugmad[kolona][red].setEnabled(false);
-                    String poljeF = jeRunda2 ? "otvorenaPoljaR2" : "otvorenaPoljaR1";
+                    if (!mojaRunda || mojePoljeOtvoreno || pokusajVSecu) return;
+                    if (vlasnikPolja.get(idx) != 0) return;
+                    Asocijacija pit = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
+                    if (pit == null) return;
+
+                    long vlasnik = jeIgrac1 ? 1L : 2L;
+                    vlasnikPolja.set(idx, vlasnik);
+                    mojePoljeOtvoreno = true;
+                    otkriPoljeBoja(kolona, red, pit.getPolja()[kolona][red],
+                            vlasnik == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2);
+                    osveziDugmadMulti();
+
+                    String f = jeRunda2 ? "vlasnikPoljaR2" : "vlasnikPoljaR1";
                     db.collection("partije").document(partijaId)
-                            .update(poljeF, new ArrayList<>(otvorenaPolja));
+                            .update(f, new ArrayList<>(vlasnikPolja));
                 });
             }
             final int kolona = k;
             rezDugmad[k].setOnClickListener(v -> {
-                if (!mojaRunda || pogodeneKolone.get(kolona)) return;
-                Asocijacija pitanje = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
-                if (pitanje != null) prikaziDialogMulti(kolona, pitanje);
+                if (!mojaRunda || !mojePoljeOtvoreno || pokusajVSecu) return;
+                if (vlasnikKolone.get(kolona) != 0) return;
+                Asocijacija pit = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
+                if (pit != null) prikaziDialogMulti(kolona, pit);
             });
         }
         binding.btnKonacno.setOnClickListener(v -> {
-            if (!mojaRunda || konacnoPogodeno) return;
-            Asocijacija pitanje = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
-            if (pitanje != null) prikaziDialogMulti(-1, pitanje);
+            if (!mojaRunda || !mojePoljeOtvoreno || pokusajVSecu || vlasnikKonacno != 0) return;
+            Asocijacija pit = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
+            if (pit != null) prikaziDialogMulti(-1, pit);
         });
     }
 
     private void prikaziDialogMulti(int kolona, Asocijacija pitanje) {
-        String naslov = kolona == -1 ? "Konačno rešenje"
-                : "Rešenje kolone " + new String[]{"A", "B", "C", "D"}[kolona];
+        String naslov = kolona == -1 ? "Konačno rešenje" : "Rešenje kolone " + SLOVA[kolona];
         EditText et = new EditText(requireContext());
         et.setInputType(InputType.TYPE_CLASS_TEXT);
         et.setHint("Unesite odgovor...");
@@ -379,64 +396,115 @@ public class AsocijacijeFragment extends Fragment {
                 : pitanje.getRjesenja()[kolona];
 
         if (!unos.equalsIgnoreCase(tacno)) {
-            Toast.makeText(getContext(), "Netačno!", Toast.LENGTH_SHORT).show();
-            predajPotez();
+            prikaziPogresnoPa1sPredaj(kolona, unos);
             return;
         }
 
+        long vlasnik = jeIgrac1 ? 1L : 2L;
+        int bojaInt  = vlasnik == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2;
+
         if (kolona == -1) {
-            // Pogodio konačno — završi rundu
-            konacnoPogodeno = true;
-            int bodi        = izracunajBodoveKonacnoMulti();
-            String poljeB   = jeIgrac1 ? "bodovi1Asocijacije" : "bodovi2Asocijacije";
-            int noviB       = (jeIgrac1 ? bodovi1Multi : bodovi2Multi) + bodi;
-            String poljeKonacno = jeRunda2 ? "konacnoPogodenoR2" : "konacnoPogodenoR1";
-            String poljeOtv = jeRunda2 ? "otvorenaPoljaR2"    : "otvorenaPoljaR1";
-            String poljeKol = jeRunda2 ? "pogodeneKoloneR2"   : "pogodeneKoloneR1";
-            String sledeci  = jeRunda2 ? ZAVRSENA : RUNDA2_INICIJALIZACIJA;
-
-            otkriSvaPoljaIKolone(pitanje);
-            binding.btnKonacno.setText(pitanje.getKonacnoRjesenje());
-            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
-            binding.btnKonacno.setTextColor(Color.WHITE);
-
-            db.collection("partije").document(partijaId).update(
-                    poljeB,       noviB,
-                    poljeKonacno, true,
-                    poljeOtv,     new ArrayList<>(Collections.nCopies(16, true)),
-                    poljeKol,     new ArrayList<>(Collections.nCopies(4, true)),
-                    "statusAsocijacije", sledeci
-            );
-        } else {
-            // Pogodio kolonu — nastavi (ne mijenjaj status)
-            pogodeneKolone.set(kolona, true);
-            int bodi    = izracunajBodoveKoloneMulti(kolona);
+            vlasnikKonacno = vlasnik;
+            int bodi    = izracunajBodoveKonacnoMulti();
             String poljeB = jeIgrac1 ? "bodovi1Asocijacije" : "bodovi2Asocijacije";
             int noviB   = (jeIgrac1 ? bodovi1Multi : bodovi2Multi) + bodi;
+            String pauza = jeRunda2 ? RUNDA2_PAUZA : RUNDA1_PAUZA;
+            String poljeKon = jeRunda2 ? "vlasnikKonacnoR2" : "vlasnikKonacnoR1";
+            String poljeOtv = jeRunda2 ? "vlasnikPoljaR2"   : "vlasnikPoljaR1";
+            String poljeKol = jeRunda2 ? "vlasnikKoloneR2"  : "vlasnikKoloneR1";
+
+            otkriSvaPoljaIKolone(pitanje, vlasnik);
+            oznaciKonacnoBoja(pitanje.getKonacnoRjesenje(), bojaInt);
+
+            db.collection("partije").document(partijaId).update(
+                    poljeB,   noviB,
+                    poljeKon, vlasnik,
+                    poljeOtv, new ArrayList<>(Collections.nCopies(16, vlasnik)),
+                    poljeKol, new ArrayList<>(Collections.nCopies(4, vlasnik)),
+                    "statusAsocijacije", pauza
+            );
+        } else {
+            vlasnikKolone.set(kolona, vlasnik);
+            int bodi  = izracunajBodoveKoloneMulti(kolona);
+            String poljeB = jeIgrac1 ? "bodovi1Asocijacije" : "bodovi2Asocijacije";
+            int noviB = (jeIgrac1 ? bodovi1Multi : bodovi2Multi) + bodi;
             if (jeIgrac1) bodovi1Multi = noviB; else bodovi2Multi = noviB;
             binding.tvBodovi.setText("Bodovi: " + noviB);
 
-            for (int r = 0; r < 4; r++) otvorenaPolja.set(kolona * 4 + r, true);
-            for (int r = 0; r < 4; r++) otkriPolje(kolona, r, pitanje.getPolja()[kolona][r]);
-            oznaciPogodenuKolonu(kolona, pitanje.getRjesenja()[kolona]);
-            rezDugmad[kolona].setEnabled(false);
+            for (int r = 0; r < 4; r++) vlasnikPolja.set(kolona * 4 + r, vlasnik);
+            for (int r = 0; r < 4; r++)
+                otkriPoljeBoja(kolona, r, pitanje.getPolja()[kolona][r], bojaInt);
+            oznaciKolonuBoja(kolona, pitanje.getRjesenja()[kolona], bojaInt);
 
-            String poljeOtv = jeRunda2 ? "otvorenaPoljaR2" : "otvorenaPoljaR1";
-            String poljeKol = jeRunda2 ? "pogodeneKoloneR2" : "pogodeneKoloneR1";
+            String poljeOtv = jeRunda2 ? "vlasnikPoljaR2"  : "vlasnikPoljaR1";
+            String poljeKol = jeRunda2 ? "vlasnikKoloneR2" : "vlasnikKoloneR1";
             db.collection("partije").document(partijaId).update(
                     poljeB,   noviB,
-                    poljeOtv, new ArrayList<>(otvorenaPolja),
-                    poljeKol, new ArrayList<>(pogodeneKolone)
+                    poljeOtv, new ArrayList<>(vlasnikPolja),
+                    poljeKol, new ArrayList<>(vlasnikKolone)
             );
             Toast.makeText(getContext(), "Tačno! +" + bodi, Toast.LENGTH_SHORT).show();
+            osveziDugmadMulti();
+        }
+    }
+
+    private void prikaziPogresnoPa1sPredaj(int kolona, String unos) {
+        pokusajVSecu = true;
+        osveziDugmadMulti();
+
+        // Odmah lokalno prikaži sivi odgovor
+        applyPokusajVizuelno(kolona, unos);
+
+        // Upiši u Firestore da protivnik vidi kroz overlay
+        String kolonaField = jeRunda2 ? "pokusajKolonaR2" : "pokusajKolonaR1";
+        String tekstField  = jeRunda2 ? "pokusajTekstR2"  : "pokusajTekstR1";
+        db.collection("partije").document(partijaId)
+                .update(kolonaField, (long) kolona, tekstField, unos);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (!isAdded()) return;
+            pokusajVSecu = false;
+            pokusajKolonaCached = Integer.MIN_VALUE;
+            pokusajTekstCached  = null;
+            resetPokusajVizuelno(kolona);
+
+            Map<String, Object> upd = new HashMap<>();
+            upd.put("statusAsocijacije", sledeciStatus());
+            upd.put(kolonaField, FieldValue.delete());
+            upd.put(tekstField,  FieldValue.delete());
+            db.collection("partije").document(partijaId).update(upd);
+        }, 1000);
+    }
+
+    private void applyPokusajVizuelno(int kolona, String tekst) {
+        if (kolona == -1) {
+            binding.btnKonacno.setText(tekst);
+            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_POGRESNO));
+            binding.btnKonacno.setTextColor(Color.WHITE);
+        } else if (kolona >= 0 && kolona < 4) {
+            rezDugmad[kolona].setText(tekst);
+            rezDugmad[kolona].setBackgroundTintList(ColorStateList.valueOf(BOJA_POGRESNO));
+            rezDugmad[kolona].setTextColor(Color.WHITE);
+        }
+    }
+
+    private void resetPokusajVizuelno(int kolona) {
+        if (kolona == -1) {
+            if (vlasnikKonacno == 0) {
+                binding.btnKonacno.setText("???");
+                binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+                binding.btnKonacno.setTextColor(Color.parseColor("#12205A"));
+            }
+        } else if (kolona >= 0 && kolona < 4 && vlasnikKolone.get(kolona) == 0) {
+            rezDugmad[kolona].setText(SLOVA[kolona]);
+            rezDugmad[kolona].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+            rezDugmad[kolona].setTextColor(Color.parseColor("#12205A"));
         }
     }
 
     private void predajPotez() {
-        String sledeci = sledeciStatus();
-        if (sledeci == null) return;
         db.collection("partije").document(partijaId)
-                .update("statusAsocijacije", sledeci);
+                .update("statusAsocijacije", sledeciStatus());
     }
 
     private String sledeciStatus() {
@@ -453,6 +521,9 @@ public class AsocijacijeFragment extends Fragment {
                     String status = snapshot.getString("statusAsocijacije");
                     if (status == null) return;
 
+                    boolean statusChanged = !status.equals(lastSeenStatus);
+                    lastSeenStatus = status;
+
                     Long b1L = snapshot.getLong("bodovi1Asocijacije");
                     Long b2L = snapshot.getLong("bodovi2Asocijacije");
                     bodovi1Multi = b1L != null ? b1L.intValue() : 0;
@@ -461,35 +532,15 @@ public class AsocijacijeFragment extends Fragment {
 
                     switch (status) {
                         case RUNDA1_IGRAC1_IGRA:
-                        case RUNDA1_IGRAC2_IGRA: {
-                            jeRunda2 = false;
-                            String pitId = snapshot.getString("pitanjeAsocijacijeIdR1");
-                            List<Boolean> otvR1 = (List<Boolean>) snapshot.get("otvorenaPoljaR1");
-                            List<Boolean> kol1  = (List<Boolean>) snapshot.get("pogodeneKoloneR1");
-                            Boolean konR1 = snapshot.getBoolean("konacnoPogodenoR1");
-                            if (otvR1 != null) otvorenaPolja  = new ArrayList<>(otvR1);
-                            if (kol1  != null) pogodeneKolone = new ArrayList<>(kol1);
-                            konacnoPogodeno = Boolean.TRUE.equals(konR1);
-
-                            Long timerEnd = snapshot.getLong("timerEndMsAsocijacijeR1");
-                            if (timerEnd != null) postaviTajmerAkoNov(timerEnd, status);
-
-                            if (pitId != null && lokalnoPitanjeR1 == null) {
-                                asocRepo.dohvatiPitanjePoId(pitId, p -> {
-                                    if (!isAdded()) return;
-                                    lokalnoPitanjeR1 = p;
-                                    rebuiltUIMulti(status);
-                                }, err -> {});
-                            } else {
-                                rebuiltUIMulti(status);
-                            }
+                        case RUNDA1_IGRAC2_IGRA:
+                        case RUNDA1_PAUZA:
+                            prosesujRunda1(snapshot, status, statusChanged);
                             break;
-                        }
 
                         case RUNDA2_INICIJALIZACIJA:
                             if (tajmer != null) { tajmer.cancel(); tajmer = null; }
-                            prikaziStatusMulti("Priprema runde 2...");
-                            onemogucuiInterakcijuMulti(false);
+                            setOverlay(true);
+                            prikaziStatusMulti("Priprema 2. runde...");
                             if (!jeIgrac1) {
                                 resetBoardMulti();
                                 inicijalizujRunda2KaoIgrac2();
@@ -497,35 +548,14 @@ public class AsocijacijeFragment extends Fragment {
                             break;
 
                         case RUNDA2_IGRAC2_IGRA:
-                        case RUNDA2_IGRAC1_IGRA: {
-                            jeRunda2 = true;
-                            String pitId = snapshot.getString("pitanjeAsocijacijeIdR2");
-                            List<Boolean> otvR2 = (List<Boolean>) snapshot.get("otvorenaPoljaR2");
-                            List<Boolean> kol2  = (List<Boolean>) snapshot.get("pogodeneKoloneR2");
-                            Boolean konR2 = snapshot.getBoolean("konacnoPogodenoR2");
-                            if (otvR2 != null) otvorenaPolja  = new ArrayList<>(otvR2);
-                            if (kol2  != null) pogodeneKolone = new ArrayList<>(kol2);
-                            konacnoPogodeno = Boolean.TRUE.equals(konR2);
-
-                            Long timerEnd = snapshot.getLong("timerEndMsAsocijacijeR2");
-                            if (timerEnd != null) postaviTajmerAkoNov(timerEnd, status);
-
-                            if (pitId != null && lokalnoPitanjeR2 == null) {
-                                asocRepo.dohvatiPitanjePoId(pitId, p -> {
-                                    if (!isAdded()) return;
-                                    lokalnoPitanjeR2 = p;
-                                    rebuiltUIMulti(status);
-                                }, err -> {});
-                            } else {
-                                rebuiltUIMulti(status);
-                            }
+                        case RUNDA2_IGRAC1_IGRA:
+                        case RUNDA2_PAUZA:
+                            prosesujRunda2(snapshot, status, statusChanged);
                             break;
-                        }
 
                         case ZAVRSENA:
                             if (tajmer != null) { tajmer.cancel(); tajmer = null; }
-                            onemogucuiInterakcijuMulti(false);
-                            prikaziStatusMulti("Igra završena!");
+                            setOverlay(true);
                             int mojiBodovi = jeIgrac1 ? bodovi1Multi : bodovi2Multi;
                             Bundle result = new Bundle();
                             result.putInt("bodovi", mojiBodovi);
@@ -537,7 +567,68 @@ public class AsocijacijeFragment extends Fragment {
                 });
     }
 
-    // Restartuje tajmer samo ako je timerEndMs nov (sprječava reset na svakom snapshot-u)
+    @SuppressWarnings("unchecked")
+    private void prosesujRunda1(DocumentSnapshot snapshot, String status, boolean statusChanged) {
+        jeRunda2 = false;
+        List<Long> vp = (List<Long>) snapshot.get("vlasnikPoljaR1");
+        List<Long> vk = (List<Long>) snapshot.get("vlasnikKoloneR1");
+        Long vkon     = snapshot.getLong("vlasnikKonacnoR1");
+        if (vp  != null) vlasnikPolja  = new ArrayList<>(vp);
+        if (vk  != null) vlasnikKolone = new ArrayList<>(vk);
+        vlasnikKonacno = vkon != null ? vkon : 0L;
+
+        if (!RUNDA1_PAUZA.equals(status)) {
+            Long timerEnd = snapshot.getLong("timerEndMsAsocijacijeR1");
+            if (timerEnd != null) postaviTajmerAkoNov(timerEnd, status);
+        }
+
+        Long pk = snapshot.getLong("pokusajKolonaR1");
+        pokusajKolonaCached = pk != null ? pk.intValue() : Integer.MIN_VALUE;
+        pokusajTekstCached  = snapshot.getString("pokusajTekstR1");
+
+        String pitId = snapshot.getString("pitanjeAsocijacijeIdR1");
+        if (pitId != null && lokalnoPitanjeR1 == null) {
+            asocRepo.dohvatiPitanjePoId(pitId, p -> {
+                if (!isAdded()) return;
+                lokalnoPitanjeR1 = p;
+                rebuiltUIMulti(lastSeenStatus, false);
+            }, err -> {});
+        } else {
+            rebuiltUIMulti(status, statusChanged);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void prosesujRunda2(DocumentSnapshot snapshot, String status, boolean statusChanged) {
+        jeRunda2 = true;
+        List<Long> vp = (List<Long>) snapshot.get("vlasnikPoljaR2");
+        List<Long> vk = (List<Long>) snapshot.get("vlasnikKoloneR2");
+        Long vkon     = snapshot.getLong("vlasnikKonacnoR2");
+        if (vp  != null) vlasnikPolja  = new ArrayList<>(vp);
+        if (vk  != null) vlasnikKolone = new ArrayList<>(vk);
+        vlasnikKonacno = vkon != null ? vkon : 0L;
+
+        if (!RUNDA2_PAUZA.equals(status)) {
+            Long timerEnd = snapshot.getLong("timerEndMsAsocijacijeR2");
+            if (timerEnd != null) postaviTajmerAkoNov(timerEnd, status);
+        }
+
+        Long pk = snapshot.getLong("pokusajKolonaR2");
+        pokusajKolonaCached = pk != null ? pk.intValue() : Integer.MIN_VALUE;
+        pokusajTekstCached  = snapshot.getString("pokusajTekstR2");
+
+        String pitId = snapshot.getString("pitanjeAsocijacijeIdR2");
+        if (pitId != null && lokalnoPitanjeR2 == null) {
+            asocRepo.dohvatiPitanjePoId(pitId, p -> {
+                if (!isAdded()) return;
+                lokalnoPitanjeR2 = p;
+                rebuiltUIMulti(lastSeenStatus, false);
+            }, err -> {});
+        } else {
+            rebuiltUIMulti(status, statusChanged);
+        }
+    }
+
     private void postaviTajmerAkoNov(long timerEndMs, String status) {
         if (timerEndMs == currentTimerEndMs) return;
         currentTimerEndMs = timerEndMs;
@@ -562,43 +653,175 @@ public class AsocijacijeFragment extends Fragment {
         }.start();
     }
 
-    private void rebuiltUIMulti(String status) {
+    private void rebuiltUIMulti(String status, boolean statusChanged) {
         if (!isAdded()) return;
+
+        // PAUZA: otkrij sva polja i odbrojavaj do sledeće faze
+        if (RUNDA1_PAUZA.equals(status) || RUNDA2_PAUZA.equals(status)) {
+            boolean jeR1 = RUNDA1_PAUZA.equals(status);
+            prikaziPauzu(
+                    jeR1 ? "Priprema 2. runde" : "Kraj Asocijacija",
+                    jeR1 ? "do početka 2. runde" : "do sledeće igre",
+                    () -> {
+                        if (jeR1) {
+                            if (jeIgrac1)
+                                db.collection("partije").document(partijaId)
+                                        .update("statusAsocijacije", RUNDA2_INICIJALIZACIJA);
+                        } else {
+                            if (jeIgrac1)
+                                db.collection("partije").document(partijaId)
+                                        .update("statusAsocijacije", ZAVRSENA);
+                            else {
+                                Bundle res = new Bundle();
+                                res.putInt("bodovi", bodovi2Multi);
+                                if (isAdded())
+                                    getParentFragmentManager()
+                                            .setFragmentResult("asocijacijeZavrsen", res);
+                            }
+                        }
+                    }
+            );
+            return;
+        }
+
         Asocijacija pitanje = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
         if (pitanje == null) return;
 
-        // Reset vizuelnog stanja
+        // Reset dugmadi
         for (int k = 0; k < 4; k++) {
             for (int r = 0; r < 4; r++) {
                 itemDugmad[k][r].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
                 itemDugmad[k][r].setTextColor(Color.parseColor("#12205A"));
-                itemDugmad[k][r].setText(new String[]{"A", "B", "C", "D"}[k] + (r + 1));
+                itemDugmad[k][r].setText(SLOVA[k] + (r + 1));
             }
             rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
             rezDugmad[k].setTextColor(Color.parseColor("#12205A"));
-            rezDugmad[k].setText(new String[]{"A", "B", "C", "D"}[k]);
+            rezDugmad[k].setText(SLOVA[k]);
         }
         binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
         binding.btnKonacno.setTextColor(Color.parseColor("#12205A"));
         binding.btnKonacno.setText("???");
 
-        // Primjeni trenutno stanje
+        // Primijeni boje vlasnika
         for (int k = 0; k < 4; k++) {
-            for (int r = 0; r < 4; r++)
-                if (otvorenaPolja.get(k * 4 + r))
-                    otkriPolje(k, r, pitanje.getPolja()[k][r]);
-            if (pogodeneKolone.get(k))
-                oznaciPogodenuKolonu(k, pitanje.getRjesenja()[k]);
+            for (int r = 0; r < 4; r++) {
+                long v = vlasnikPolja.get(k * 4 + r);
+                if (v != 0)
+                    otkriPoljeBoja(k, r, pitanje.getPolja()[k][r],
+                            v == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2);
+            }
+            long vk = vlasnikKolone.get(k);
+            if (vk != 0)
+                oznaciKolonuBoja(k, pitanje.getRjesenja()[k],
+                        vk == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2);
         }
-        if (konacnoPogodeno) {
-            binding.btnKonacno.setText(pitanje.getKonacnoRjesenje());
-            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
-            binding.btnKonacno.setTextColor(Color.WHITE);
+        if (vlasnikKonacno != 0)
+            oznaciKonacnoBoja(pitanje.getKonacnoRjesenje(),
+                    vlasnikKonacno == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2);
+
+        // Pokušaj odgovora — vidljiv i aktivnom i čekajućem igraču
+        if (pokusajKolonaCached != Integer.MIN_VALUE)
+            applyPokusajVizuelno(pokusajKolonaCached, pokusajTekstCached);
+
+        // Moj red
+        boolean moj = odrediMojuRundu(status);
+        if (moj && statusChanged) {
+            mojePoljeOtvoreno = false;
+            boolean imaZatvorenih = false;
+            for (int idx = 0; idx < 16; idx++)
+                if (vlasnikPolja.get(idx) == 0) { imaZatvorenih = true; break; }
+            if (!imaZatvorenih) mojePoljeOtvoreno = true;
+        }
+        mojaRunda = moj;
+
+        setOverlay(!moj);
+        osveziDugmadMulti();
+        prikaziStatusMulti(moj
+                ? (jeIgrac1 ? "🔴 Tvoj red!" : "🔵 Tvoj red!")
+                : (jeIgrac1 ? "🔵 Protivnik na potezu" : "🔴 Protivnik na potezu"));
+    }
+
+    private void prikaziPauzu(String naslov, String poruka, Runnable poslijePauze) {
+        if (odbrojavanjeAktivno) return;
+        odbrojavanjeAktivno = true;
+
+        if (tajmer != null) { tajmer.cancel(); tajmer = null; }
+        mojaRunda = false;
+        pokusajVSecu = false;
+        osveziDugmadMulti();
+        setOverlay(false);
+
+        // Otkrij sva polja: otvorena u boji vlasnika, neotvorena sivo
+        Asocijacija pitanje = jeRunda2 ? lokalnoPitanjeR2 : lokalnoPitanjeR1;
+        if (pitanje != null) {
+            // Reset na placeholder da bi tekst polja bio vidljiv
+            for (int k = 0; k < 4; k++) {
+                for (int r = 0; r < 4; r++) {
+                    itemDugmad[k][r].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+                    itemDugmad[k][r].setTextColor(Color.parseColor("#12205A"));
+                    itemDugmad[k][r].setText(SLOVA[k] + (r + 1));
+                }
+                rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+                rezDugmad[k].setTextColor(Color.parseColor("#12205A"));
+                rezDugmad[k].setText(SLOVA[k]);
+            }
+            binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+            binding.btnKonacno.setTextColor(Color.parseColor("#12205A"));
+            binding.btnKonacno.setText("???");
+
+            // Primijeni boje: vlasnik dobija svoju boju, neotvoreno = sivo
+            for (int k = 0; k < 4; k++) {
+                for (int r = 0; r < 4; r++) {
+                    long v = vlasnikPolja.get(k * 4 + r);
+                    int boja = v == 1L ? BOJA_IGRAC1 : (v == 2L ? BOJA_IGRAC2 : BOJA_NEUTRAL);
+                    otkriPoljeBoja(k, r, pitanje.getPolja()[k][r], boja);
+                }
+                long vk = vlasnikKolone.get(k);
+                int bojaK = vk == 1L ? BOJA_IGRAC1 : (vk == 2L ? BOJA_IGRAC2 : BOJA_NEUTRAL);
+                oznaciKolonuBoja(k, pitanje.getRjesenja()[k], bojaK);
+            }
+            int bojaKon = vlasnikKonacno == 1L ? BOJA_IGRAC1
+                        : (vlasnikKonacno == 2L ? BOJA_IGRAC2 : BOJA_NEUTRAL);
+            oznaciKonacnoBoja(pitanje.getKonacnoRjesenje(), bojaKon);
         }
 
-        boolean moj = odrediMojuRundu(status);
-        onemogucuiInterakcijuMulti(moj);
-        prikaziStatusMulti(moj ? "Tvoj red!" : "Red protivnika...");
+        final int[] sek = {5};
+        Handler h = new Handler(Looper.getMainLooper());
+        Runnable tick = new Runnable() {
+            @Override public void run() {
+                if (!isAdded()) return;
+                if (sek[0] > 0) {
+                    prikaziStatusMulti(naslov + " — " + sek[0] + "s " + poruka);
+                    sek[0]--;
+                    h.postDelayed(this, 1000);
+                } else {
+                    odbrojavanjeAktivno = false;
+                    poslijePauze.run();
+                }
+            }
+        };
+        h.post(tick);
+    }
+
+    private void osveziDugmadMulti() {
+        if (pokusajVSecu || odbrojavanjeAktivno) {
+            for (int k = 0; k < 4; k++) {
+                for (int r = 0; r < 4; r++) itemDugmad[k][r].setEnabled(false);
+                rezDugmad[k].setEnabled(false);
+            }
+            binding.btnKonacno.setEnabled(false);
+            binding.btnPredajPotez.setEnabled(false);
+            return;
+        }
+        for (int k = 0; k < 4; k++) {
+            for (int r = 0; r < 4; r++)
+                itemDugmad[k][r].setEnabled(mojaRunda && !mojePoljeOtvoreno
+                        && vlasnikPolja.get(k * 4 + r) == 0);
+            rezDugmad[k].setEnabled(mojaRunda && mojePoljeOtvoreno
+                    && vlasnikKolone.get(k) == 0);
+        }
+        binding.btnKonacno.setEnabled(mojaRunda && mojePoljeOtvoreno && vlasnikKonacno == 0);
+        binding.btnPredajPotez.setEnabled(mojaRunda);
     }
 
     private boolean odrediMojuRundu(String status) {
@@ -611,66 +834,73 @@ public class AsocijacijeFragment extends Fragment {
         }
     }
 
-    private void onemogucuiInterakcijuMulti(boolean ukljuci) {
-        mojaRunda = ukljuci;
-        for (int k = 0; k < 4; k++) {
-            for (int r = 0; r < 4; r++) {
-                boolean poljeOtvoreno = otvorenaPolja != null && otvorenaPolja.get(k * 4 + r);
-                itemDugmad[k][r].setEnabled(ukljuci && !poljeOtvoreno);
-            }
-            boolean kolonaPogodjene = pogodeneKolone != null && pogodeneKolone.get(k);
-            rezDugmad[k].setEnabled(ukljuci && !kolonaPogodjene);
-        }
-        binding.btnKonacno.setEnabled(ukljuci && !konacnoPogodeno);
-        binding.btnPredajPotez.setEnabled(ukljuci);
-    }
-
     private void zavrsiRunduMulti() {
-        onemogucuiInterakcijuMulti(false);
-        String sledeci = jeRunda2 ? ZAVRSENA : RUNDA2_INICIJALIZACIJA;
+        mojaRunda = false;
+        osveziDugmadMulti();
         db.collection("partije").document(partijaId)
-                .update("statusAsocijacije", sledeci);
+                .update("statusAsocijacije", jeRunda2 ? RUNDA2_PAUZA : RUNDA1_PAUZA);
     }
 
     private void resetBoardMulti() {
-        otvorenaPolja     = new ArrayList<>(Collections.nCopies(16, false));
-        pogodeneKolone    = new ArrayList<>(Collections.nCopies(4, false));
-        konacnoPogodeno   = false;
-        currentTimerEndMs = 0;
+        vlasnikPolja        = new ArrayList<>(Collections.nCopies(16, 0L));
+        vlasnikKolone       = new ArrayList<>(Collections.nCopies(4, 0L));
+        vlasnikKonacno      = 0L;
+        currentTimerEndMs   = 0;
+        mojePoljeOtvoreno   = false;
+        odbrojavanjeAktivno = false;
+        pokusajKolonaCached = Integer.MIN_VALUE;
+        pokusajTekstCached  = null;
+        for (int k = 0; k < 4; k++) {
+            for (int r = 0; r < 4; r++) {
+                itemDugmad[k][r].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+                itemDugmad[k][r].setTextColor(Color.parseColor("#12205A"));
+                itemDugmad[k][r].setText(SLOVA[k] + (r + 1));
+            }
+            rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+            rezDugmad[k].setTextColor(Color.parseColor("#12205A"));
+            rezDugmad[k].setText(SLOVA[k]);
+        }
+        binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(BOJA_SKRIVENO));
+        binding.btnKonacno.setTextColor(Color.parseColor("#12205A"));
+        binding.btnKonacno.setText("???");
     }
 
     private int izracunajBodoveKoloneMulti(int k) {
         int neotv = 0;
-        for (int r = 0; r < 4; r++) if (!otvorenaPolja.get(k * 4 + r)) neotv++;
+        for (int r = 0; r < 4; r++) if (vlasnikPolja.get(k * 4 + r) == 0) neotv++;
         return 2 + neotv;
     }
 
     private int izracunajBodoveKonacnoMulti() {
         int bodi = 7;
         for (int k = 0; k < 4; k++) {
-            if (!pogodeneKolone.get(k)) {
+            if (vlasnikKolone.get(k) == 0) {
                 boolean imaOtv = false;
-                for (int r = 0; r < 4; r++) if (otvorenaPolja.get(k * 4 + r)) { imaOtv = true; break; }
+                for (int r = 0; r < 4; r++)
+                    if (vlasnikPolja.get(k * 4 + r) != 0) { imaOtv = true; break; }
                 bodi += imaOtv ? izracunajBodoveKoloneMulti(k) : 6;
             }
         }
         return bodi;
     }
 
-    private void otkriSvaPoljaIKolone(Asocijacija pitanje) {
+    private void otkriSvaPoljaIKolone(Asocijacija pitanje, long vlasnik) {
+        int boja = vlasnik == 1L ? BOJA_IGRAC1 : BOJA_IGRAC2;
         for (int k = 0; k < 4; k++) {
-            for (int r = 0; r < 4; r++) otkriPolje(k, r, pitanje.getPolja()[k][r]);
-            oznaciPogodenuKolonu(k, pitanje.getRjesenja()[k]);
+            for (int r = 0; r < 4; r++) otkriPoljeBoja(k, r, pitanje.getPolja()[k][r], boja);
+            oznaciKolonuBoja(k, pitanje.getRjesenja()[k], boja);
         }
+    }
+
+    private void setOverlay(boolean prikazi) {
+        binding.overlayProtivnik.setVisibility(prikazi ? View.VISIBLE : View.GONE);
     }
 
     private void prikaziStatusMulti(String tekst) {
         if (binding != null) binding.tvStatus.setText(tekst);
     }
 
-    // ═════════════════════════════════════════════════════
-    // ZAJEDNIČKI UI UTILITY
-    // ═════════════════════════════════════════════════════
+    // ─── ZAJEDNIČKI UI ────────────────────────────────────
 
     private void inicijalizujDugmadReference() {
         itemDugmad = new com.google.android.material.button.MaterialButton[][]{
@@ -684,16 +914,22 @@ public class AsocijacijeFragment extends Fragment {
         };
     }
 
-    private void otkriPolje(int k, int r, String tekst) {
-        itemDugmad[k][r].setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
+    private void otkriPoljeBoja(int k, int r, String tekst, int boja) {
+        itemDugmad[k][r].setBackgroundTintList(ColorStateList.valueOf(boja));
         itemDugmad[k][r].setTextColor(Color.WHITE);
         itemDugmad[k][r].setText(tekst);
     }
 
-    private void oznaciPogodenuKolonu(int k, String tekst) {
-        rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(BOJA_OTKRIVENO));
+    private void oznaciKolonuBoja(int k, String tekst, int boja) {
+        rezDugmad[k].setBackgroundTintList(ColorStateList.valueOf(boja));
         rezDugmad[k].setTextColor(Color.WHITE);
         rezDugmad[k].setText(tekst);
+    }
+
+    private void oznaciKonacnoBoja(String tekst, int boja) {
+        binding.btnKonacno.setBackgroundTintList(ColorStateList.valueOf(boja));
+        binding.btnKonacno.setTextColor(Color.WHITE);
+        binding.btnKonacno.setText(tekst);
     }
 
     @Override

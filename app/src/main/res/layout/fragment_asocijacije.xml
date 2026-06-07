@@ -1,416 +1,433 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#12205A"
-    android:padding="8dp">
+    android:layout_height="match_parent">
 
-    <!-- Status poruka (multiplayer) -->
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#FFD700"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="2dp"/>
-
-    <!-- Header: bodovi i tajmer -->
+    <!-- Sadržaj igre -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#12205A"
+        android:padding="8dp">
 
+        <!-- Status poruka (multiplayer) -->
         <TextView
-            android:id="@+id/tvBodovi"
-            android:layout_width="0dp"
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Bodovi: 0"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/tvTajmer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="⏱ 2:00"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
+            android:text=""
+            android:textColor="#FFD700"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:gravity="end"/>
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="2dp"/>
 
-    </LinearLayout>
-
-    <!-- Gornji red: Kolone A i B, redosljed 4→1 pa oval rješenja -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <!-- Kolona A: A4, A3, A2, A1, oval-A -->
+        <!-- Header: bodovi i tajmer -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="3dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnA4"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+            <TextView
+                android:id="@+id/tvBodovi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="A4"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
+                android:text="Bodovi: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnA3"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+            <TextView
+                android:id="@+id/tvTajmer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="A3"
-                android:textSize="12sp"
+                android:text="⏱ 2:00"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnA2"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="A2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnA1"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="6dp"
-                android:text="A1"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRezA"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="A"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="50dp"/>
+                android:gravity="end"/>
 
         </LinearLayout>
 
-        <!-- Kolona B: B4, B3, B2, B1, oval-B -->
+        <!-- Gornji red: Kolone A i B -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="3dp">
+            android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnB4"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+            <!-- Kolona A: A4, A3, A2, A1, oval-A -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="B4"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
+                android:orientation="vertical"
+                android:layout_marginEnd="3dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnB3"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="B3"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnA4"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="A4"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnB2"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="B2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnA3"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="A3"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnB1"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="6dp"
-                android:text="B1"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnA2"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="A2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRezB"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnA1"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="6dp"
+                    android:text="A1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRezA"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="A"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="50dp"/>
+
+            </LinearLayout>
+
+            <!-- Kolona B: B4, B3, B2, B1, oval-B -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="B"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="50dp"/>
+                android:orientation="vertical"
+                android:layout_marginStart="3dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnB4"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="B4"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnB3"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="B3"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnB2"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="B2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnB1"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="6dp"
+                    android:text="B1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRezB"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="B"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="50dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Konačno rješenje -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnKonacno"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:text="\???"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#12205A"
+            app:backgroundTint="#A8D0EC"
+            app:cornerRadius="50dp"/>
+
+        <!-- Predaj potez dugme (multiplayer) -->
+        <Button
+            android:id="@+id/btnPredajPotez"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Predaj potez"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"/>
+
+        <!-- Donji red: Kolone C i D -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- Kolona C: oval-C, C1, C2, C3, C4 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="3dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRezC"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="6dp"
+                    android:text="C"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="50dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnC1"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="C1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnC2"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="C2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnC3"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="C3"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnC4"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="C4"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+            </LinearLayout>
+
+            <!-- Kolona D: oval-D, D1, D2, D3, D4 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="3dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRezD"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="6dp"
+                    android:text="D"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="50dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnD1"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="D1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnD2"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="D2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnD3"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="3dp"
+                    android:text="D3"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnD4"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="D4"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#12205A"
+                    app:backgroundTint="#A8D0EC"
+                    app:cornerRadius="6dp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Konačno rješenje — centriran između gornjeg i donjeg reda -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnKonacno"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+    <!-- Overlay dok protivnik igra — intercepts klikove, providno da se vidi tabla -->
+    <FrameLayout
+        android:id="@+id/overlayProtivnik"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:text="\???"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#12205A"
-        app:backgroundTint="#A8D0EC"
-        app:cornerRadius="50dp"/>
-
-    <!-- Predaj potez dugme (multiplayer) -->
-    <Button
-        android:id="@+id/btnPredajPotez"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Predaj potez"
-        android:textSize="13sp"
+        android:layout_height="match_parent"
+        android:background="#80000000"
         android:visibility="gone"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"/>
+        android:clickable="true"
+        android:focusable="true"/>
 
-    <!-- Donji red: Kolone C i D, oval rješenja pa redosljed 1→4 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <!-- Kolona C: oval-C, C1, C2, C3, C4 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="3dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRezC"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="6dp"
-                android:text="C"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="50dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnC1"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="C1"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnC2"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="C2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnC3"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="C3"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnC4"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="C4"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-        </LinearLayout>
-
-        <!-- Kolona D: oval-D, D1, D2, D3, D4 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="3dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRezD"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="6dp"
-                android:text="D"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="50dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnD1"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="D1"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnD2"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="D2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnD3"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="3dp"
-                android:text="D3"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnD4"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="D4"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#12205A"
-                app:backgroundTint="#A8D0EC"
-                app:cornerRadius="6dp"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

@@ -37,6 +37,7 @@ public class IgraFragment extends Fragment {
     private String izazovId;
     private boolean jeIzazov = false;
     private int ukupnoBodovi = 0;
+    private int currentIndeksIgre = 0;
 
     private static final String[] IGRE = {
             "Ko zna zna",
@@ -118,7 +119,7 @@ public class IgraFragment extends Fragment {
                     public void handleOnBackPressed() {
                         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                                 .setTitle("Napustiti igru?")
-                                .setMessage("Ako napustite, izgubiti cete partiju!")
+                                .setMessage("Ako napustite izgubićete partiju i bićete penalizovani žetonima!")
                                 .setPositiveButton("Napusti", (dialog, which) -> {
                                     if (partijaId != null && !jeIzazov) {
                                         String mojiId = authRepository
@@ -153,7 +154,7 @@ public class IgraFragment extends Fragment {
         binding.tvIgrac2.setText(
                 (partija.getIgrac2Ime() != null ? partija.getIgrac2Ime() : "Igrac 2")
                         + ": " + partija.getBodovi2());
-        binding.tvIgra.setText("Igra " + (partija.getTrenutnaIgra() + 1) + "/6");
+        binding.tvIgra.setText("Igra " + (currentIndeksIgre + 1) + "/6: " + IGRE[currentIndeksIgre]);
     }
 
     private void pokrniIzazovIgru(int indeksIgre) {
@@ -250,6 +251,7 @@ public class IgraFragment extends Fragment {
             return;
         }
 
+        currentIndeksIgre = indeksIgre;
         binding.tvIgra.setText("Igra " + (indeksIgre + 1) + "/6: " + IGRE[indeksIgre]);
 
         Bundle args = new Bundle();
