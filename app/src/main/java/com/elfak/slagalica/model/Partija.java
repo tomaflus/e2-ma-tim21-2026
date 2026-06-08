@@ -35,6 +35,28 @@ public class Partija {
     private int rezultat1Runda2;
     private int rezultat2Runda2;
 
+    // Skočko
+    private String statusSkocko;
+    private String tajnaKombinacijaR1Skocko;
+    private String tajnaKombinacijaR2Skocko;
+    private int bodovi1Skocko;
+    private int bodovi2Skocko;
+
+    // Asocijacije
+    private String statusAsocijacije;
+    private String pitanjeAsocijacijeIdR1;
+    private String pitanjeAsocijacijeIdR2;
+    private List<Boolean> otvorenaPoljaR1;
+    private List<Boolean> pogodeneKoloneR1;
+    private boolean konacnoPogodenoR1;
+    private List<Boolean> otvorenaPoljaR2;
+    private List<Boolean> pogodeneKoloneR2;
+    private boolean konacnoPogodenoR2;
+    private int bodovi1Asocijacije;
+    private int bodovi2Asocijacije;
+    private long timerEndMsAsocijacijeR1;
+    private long timerEndMsAsocijacijeR2;
+
     private String napustioId;
 
     public Partija() {}
@@ -139,4 +161,58 @@ public class Partija {
     public void setRezultat2Runda2(int r) { this.rezultat2Runda2 = r; }
     public String getNapustioId() { return napustioId; }
     public void setNapustioId(String napustioId) { this.napustioId = napustioId; }
+
+    public String getStatusSkocko() { return statusSkocko; }
+    public void setStatusSkocko(String s) { this.statusSkocko = s; }
+
+    public String getTajnaKombinacijaR1Skocko() { return tajnaKombinacijaR1Skocko; }
+    public void setTajnaKombinacijaR1Skocko(String s) { this.tajnaKombinacijaR1Skocko = s; }
+
+    public String getTajnaKombinacijaR2Skocko() { return tajnaKombinacijaR2Skocko; }
+    public void setTajnaKombinacijaR2Skocko(String s) { this.tajnaKombinacijaR2Skocko = s; }
+
+    public int getBodovi1Skocko() { return bodovi1Skocko; }
+    public void setBodovi1Skocko(int b) { this.bodovi1Skocko = b; }
+
+    public int getBodovi2Skocko() { return bodovi2Skocko; }
+    public void setBodovi2Skocko(int b) { this.bodovi2Skocko = b; }
+
+    public String getStatusAsocijacije() { return statusAsocijacije; }
+    public void setStatusAsocijacije(String s) { this.statusAsocijacije = s; }
+
+    public String getPitanjeAsocijacijeIdR1() { return pitanjeAsocijacijeIdR1; }
+    public void setPitanjeAsocijacijeIdR1(String s) { this.pitanjeAsocijacijeIdR1 = s; }
+
+    public String getPitanjeAsocijacijeIdR2() { return pitanjeAsocijacijeIdR2; }
+    public void setPitanjeAsocijacijeIdR2(String s) { this.pitanjeAsocijacijeIdR2 = s; }
+
+    public List<Boolean> getOtvorenaPoljaR1() { return otvorenaPoljaR1; }
+    public void setOtvorenaPoljaR1(List<Boolean> l) { this.otvorenaPoljaR1 = l; }
+
+    public List<Boolean> getPogodeneKoloneR1() { return pogodeneKoloneR1; }
+    public void setPogodeneKoloneR1(List<Boolean> l) { this.pogodeneKoloneR1 = l; }
+
+    public boolean isKonacnoPogodenoR1() { return konacnoPogodenoR1; }
+    public void setKonacnoPogodenoR1(boolean b) { this.konacnoPogodenoR1 = b; }
+
+    public List<Boolean> getOtvorenaPoljaR2() { return otvorenaPoljaR2; }
+    public void setOtvorenaPoljaR2(List<Boolean> l) { this.otvorenaPoljaR2 = l; }
+
+    public List<Boolean> getPogodeneKoloneR2() { return pogodeneKoloneR2; }
+    public void setPogodeneKoloneR2(List<Boolean> l) { this.pogodeneKoloneR2 = l; }
+
+    public boolean isKonacnoPogodenoR2() { return konacnoPogodenoR2; }
+    public void setKonacnoPogodenoR2(boolean b) { this.konacnoPogodenoR2 = b; }
+
+    public int getBodovi1Asocijacije() { return bodovi1Asocijacije; }
+    public void setBodovi1Asocijacije(int b) { this.bodovi1Asocijacije = b; }
+
+    public int getBodovi2Asocijacije() { return bodovi2Asocijacije; }
+    public void setBodovi2Asocijacije(int b) { this.bodovi2Asocijacije = b; }
+
+    public long getTimerEndMsAsocijacijeR1() { return timerEndMsAsocijacijeR1; }
+    public void setTimerEndMsAsocijacijeR1(long t) { this.timerEndMsAsocijacijeR1 = t; }
+
+    public long getTimerEndMsAsocijacijeR2() { return timerEndMsAsocijacijeR2; }
+    public void setTimerEndMsAsocijacijeR2(long t) { this.timerEndMsAsocijacijeR2 = t; }
 }

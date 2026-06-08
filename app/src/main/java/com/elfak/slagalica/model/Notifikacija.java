@@ -1,4 +1,4 @@
-package com.elfak.slagalica.fragments.notifications;
+package com.elfak.slagalica.model;
 
 public class Notifikacija {
     public String ikona;

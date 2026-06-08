@@ -231,7 +231,6 @@ public class KorakPoKorakFragment extends Fragment {
     private void prikaziCekanje(String poruka) {
         mojaRunda = false;
         binding.btnOdgovori.setEnabled(false);
-        binding.tvTajmer.setText("Cekaj...");
         prikaziStatus(poruka);
         sakriSveKorake();
     }
@@ -339,7 +338,6 @@ public class KorakPoKorakFragment extends Fragment {
                     MAX_BODOVA - (trenutniKorak * ODBITAK_PO_KORAKU);
 
             bodovi += osvојeniBodovi;
-            binding.tvBodovi.setText("Bodovi: " + bodovi);
 
             Toast.makeText(getContext(),
                     "Tacno! +" + osvојeniBodovi + " bodova!",
@@ -412,8 +410,10 @@ public class KorakPoKorakFragment extends Fragment {
     }
 
     private void prikaziStatus(String poruka) {
-        if (getContext() != null)
-            Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+        if (binding != null) {
+            binding.tvStatus.setVisibility(View.VISIBLE);
+            binding.tvStatus.setText(poruka);
+        }
     }
 
     private void zaustaviTajmer() {

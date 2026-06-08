@@ -67,6 +67,13 @@ public class UserRepository {
                         mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 
+    // Vrati token (refund kada igrač odustane iz čekaonice)
+    public void vratiToken() {
+        if (auth.getCurrentUser() == null) return;
+        db.collection("users").document(auth.getCurrentUser().getUid())
+                .update("tokeni", com.google.firebase.firestore.FieldValue.increment(1));
+    }
+
     // Ažuriraj zvezde i tokene nakon partije
     public void azurirajNakonPartije(boolean jePobjedio, int bodovi,
                                      boolean prijateljska,

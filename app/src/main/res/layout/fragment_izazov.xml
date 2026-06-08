@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/pozadinaBoja">
 
     <TextView
         android:layout_width="match_parent"
@@ -11,8 +11,9 @@
         android:text="Izazovi"
         android:textSize="22sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:padding="16dp"
-        android:background="#F5F5F5"/>
+        android:background="@color/headerBoja"/>
 
     <!-- Rezultati izazova -->
     <LinearLayout
@@ -21,7 +22,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#E8F5E9"
+        android:background="#1A3A2A"
         android:visibility="gone">
 
         <TextView
@@ -30,6 +31,7 @@
             android:text="Rezultati izazova"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:textColor="#FFFFFF"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -61,13 +63,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#F5F5F5">
+        android:background="@color/headerBoja">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Novi izazov:"
             android:textStyle="bold"
+            android:textColor="#FFFFFF"
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
@@ -80,6 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Zvezde (max 10): "
+                android:textColor="#CCCCCC"
                 android:layout_gravity="center_vertical"/>
 
             <EditText
@@ -88,12 +92,15 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:hint="0"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888"
                 android:padding="4dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="  Tokeni (max 2): "
+                android:textColor="#CCCCCC"
                 android:layout_gravity="center_vertical"/>
 
             <EditText
@@ -102,6 +109,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:hint="0"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888"
                 android:padding="4dp"/>
 
         </LinearLayout>
