@@ -83,6 +83,8 @@ public class AsocijacijeFragment extends Fragment {
 
     private int bodovi1Multi = 0;
     private int bodovi2Multi = 0;
+    private int startingScore1 = 0;
+    private int startingScore2 = 0;
     private long currentTimerEndMs = 0;
 
     private boolean mojePoljeOtvoreno = false;
@@ -96,6 +98,7 @@ public class AsocijacijeFragment extends Fragment {
 
     // Odbrojavanje između rundi
     private boolean odbrojavanjeAktivno = false;
+    private long lastToastTsAsoc = 0;
 
     @Nullable
     @Override
@@ -111,9 +114,11 @@ public class AsocijacijeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (getArguments() != null) {
-            partijaId = getArguments().getString("partijaId");
-            jeIgrac1  = getArguments().getBoolean("jeIgrac1", true);
-            jeIzazov  = getArguments().getBoolean("jeIzazov", false);
+            partijaId      = getArguments().getString("partijaId");
+            jeIgrac1       = getArguments().getBoolean("jeIgrac1", true);
+            jeIzazov       = getArguments().getBoolean("jeIzazov", false);
+            startingScore1 = getArguments().getInt("startingScore1", 0);
+            startingScore2 = getArguments().getInt("startingScore2", 0);
         }
 
         inicijalizujDugmadReference();
@@ -131,8 +136,6 @@ public class AsocijacijeFragment extends Fragment {
 
     private void inicijalizujSolo() {
         viewModel = new ViewModelProvider(this).get(AsocijacijeViewModel.class);
-        viewModel.score.observe(getViewLifecycleOwner(),
-                s -> binding.tvBodovi.setText("Bodovi: " + s));
         postaviListenereSolo();
         obnavljanjeUISolo();
         obnavljanjeTajmeraSolo();
@@ -320,6 +323,8 @@ public class AsocijacijeFragment extends Fragment {
                     "vlasnikKonacnoR1",        0L,
                     "bodovi1Asocijacije",      0,
                     "bodovi2Asocijacije",      0,
+                    "bodovi1",                 startingScore1,
+                    "bodovi2",                 startingScore2,
                     "timerEndMsAsocijacijeR1", timerEnd,
                     "statusAsocijacije",       RUNDA1_IGRAC1_IGRA
             );
@@ -409,6 +414,7 @@ public class AsocijacijeFragment extends Fragment {
             int bodi    = izracunajBodoveKonacnoMulti();
             String poljeB = jeIgrac1 ? "bodovi1Asocijacije" : "bodovi2Asocijacije";
             int noviB   = (jeIgrac1 ? bodovi1Multi : bodovi2Multi) + bodi;
+            if (jeIgrac1) bodovi1Multi = noviB; else bodovi2Multi = noviB;
             String pauza = jeRunda2 ? RUNDA2_PAUZA : RUNDA1_PAUZA;
             String poljeKon = jeRunda2 ? "vlasnikKonacnoR2" : "vlasnikKonacnoR1";
             String poljeOtv = jeRunda2 ? "vlasnikPoljaR2"   : "vlasnikPoljaR1";
@@ -417,20 +423,23 @@ public class AsocijacijeFragment extends Fragment {
             otkriSvaPoljaIKolone(pitanje, vlasnik);
             oznaciKonacnoBoja(pitanje.getKonacnoRjesenje(), bojaInt);
 
-            db.collection("partije").document(partijaId).update(
-                    poljeB,   noviB,
-                    poljeKon, vlasnik,
-                    poljeOtv, new ArrayList<>(Collections.nCopies(16, vlasnik)),
-                    poljeKol, new ArrayList<>(Collections.nCopies(4, vlasnik)),
-                    "statusAsocijacije", pauza
-            );
+            Map<String, Object> updKon = new HashMap<>();
+            updKon.put(poljeB,   noviB);
+            updKon.put(poljeKon, vlasnik);
+            updKon.put(poljeOtv, new ArrayList<>(Collections.nCopies(16, vlasnik)));
+            updKon.put(poljeKol, new ArrayList<>(Collections.nCopies(4, vlasnik)));
+            updKon.put("statusAsocijacije", pauza);
+            if (jeIgrac1) updKon.put("bodovi1", startingScore1 + bodovi1Multi);
+            else          updKon.put("bodovi2", startingScore2 + bodovi2Multi);
+            updKon.put("toastMsgAsoc", "Konačno! +" + bodi + " bodova");
+            updKon.put("toastTsAsoc", System.currentTimeMillis());
+            db.collection("partije").document(partijaId).update(updKon);
         } else {
             vlasnikKolone.set(kolona, vlasnik);
             int bodi  = izracunajBodoveKoloneMulti(kolona);
             String poljeB = jeIgrac1 ? "bodovi1Asocijacije" : "bodovi2Asocijacije";
             int noviB = (jeIgrac1 ? bodovi1Multi : bodovi2Multi) + bodi;
             if (jeIgrac1) bodovi1Multi = noviB; else bodovi2Multi = noviB;
-            binding.tvBodovi.setText("Bodovi: " + noviB);
 
             for (int r = 0; r < 4; r++) vlasnikPolja.set(kolona * 4 + r, vlasnik);
             for (int r = 0; r < 4; r++)
@@ -439,12 +448,15 @@ public class AsocijacijeFragment extends Fragment {
 
             String poljeOtv = jeRunda2 ? "vlasnikPoljaR2"  : "vlasnikPoljaR1";
             String poljeKol = jeRunda2 ? "vlasnikKoloneR2" : "vlasnikKoloneR1";
-            db.collection("partije").document(partijaId).update(
-                    poljeB,   noviB,
-                    poljeOtv, new ArrayList<>(vlasnikPolja),
-                    poljeKol, new ArrayList<>(vlasnikKolone)
-            );
-            Toast.makeText(getContext(), "Tačno! +" + bodi, Toast.LENGTH_SHORT).show();
+            Map<String, Object> updKol = new HashMap<>();
+            updKol.put(poljeB,   noviB);
+            updKol.put(poljeOtv, new ArrayList<>(vlasnikPolja));
+            updKol.put(poljeKol, new ArrayList<>(vlasnikKolone));
+            if (jeIgrac1) updKol.put("bodovi1", startingScore1 + bodovi1Multi);
+            else          updKol.put("bodovi2", startingScore2 + bodovi2Multi);
+            updKol.put("toastMsgAsoc", "Tačan odgovor! +" + bodi + " bodova");
+            updKol.put("toastTsAsoc", System.currentTimeMillis());
+            db.collection("partije").document(partijaId).update(updKol);
             osveziDugmadMulti();
         }
     }
@@ -460,7 +472,9 @@ public class AsocijacijeFragment extends Fragment {
         String kolonaField = jeRunda2 ? "pokusajKolonaR2" : "pokusajKolonaR1";
         String tekstField  = jeRunda2 ? "pokusajTekstR2"  : "pokusajTekstR1";
         db.collection("partije").document(partijaId)
-                .update(kolonaField, (long) kolona, tekstField, unos);
+                .update(kolonaField, (long) kolona, tekstField, unos,
+                        "toastMsgAsoc", "Netačan odgovor!",
+                        "toastTsAsoc", System.currentTimeMillis());
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (!isAdded()) return;
@@ -529,7 +543,14 @@ public class AsocijacijeFragment extends Fragment {
                     Long b2L = snapshot.getLong("bodovi2Asocijacije");
                     bodovi1Multi = b1L != null ? b1L.intValue() : 0;
                     bodovi2Multi = b2L != null ? b2L.intValue() : 0;
-                    binding.tvBodovi.setText("Bodovi: " + (jeIgrac1 ? bodovi1Multi : bodovi2Multi));
+
+                    Long toastTs = snapshot.getLong("toastTsAsoc");
+                    if (toastTs != null && toastTs != lastToastTsAsoc) {
+                        lastToastTsAsoc = toastTs;
+                        String msg = snapshot.getString("toastMsgAsoc");
+                        if (msg != null && !msg.isEmpty() && isAdded())
+                            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
 
                     switch (status) {
                         case RUNDA1_IGRAC1_IGRA:

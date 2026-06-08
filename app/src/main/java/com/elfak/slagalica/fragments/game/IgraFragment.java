@@ -258,6 +258,8 @@ public class IgraFragment extends Fragment {
         if (trenutnaPartija != null) {
             int sc = jeIgrac1 ? trenutnaPartija.getBodovi1() : trenutnaPartija.getBodovi2();
             args.putInt("startingScore", sc);
+            args.putInt("startingScore1", trenutnaPartija.getBodovi1());
+            args.putInt("startingScore2", trenutnaPartija.getBodovi2());
         }
 
         Fragment igra;
@@ -298,8 +300,7 @@ public class IgraFragment extends Fragment {
                 (key, result) -> {
                     if (asocijacijeBrojano[0]) return;
                     asocijacijeBrojano[0] = true;
-                    int bodovi = result.getInt("bodovi");
-                    azurirajBodovePartije(bodovi, indeksIgre);
+                    // AsocijacijeFragment already wrote bodovi1/bodovi2 to Firestore in real time
                     new android.os.Handler(android.os.Looper.getMainLooper())
                             .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
                 });

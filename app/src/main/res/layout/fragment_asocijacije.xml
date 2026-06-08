@@ -12,20 +12,7 @@
         android:background="@color/pozadinaBoja"
         android:padding="8dp">
 
-        <!-- Status poruka (multiplayer) -->
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#FFD700"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:visibility="gone"
-            android:layout_marginBottom="2dp"/>
-
-        <!-- Header: bodovi i tajmer -->
+        <!-- Status + tajmer (jedan red) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,25 +20,24 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:id="@+id/tvBodovi"
+                android:id="@+id/tvStatus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Bodovi: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"/>
+                android:text=""
+                android:textColor="#FFD700"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tvTajmer"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="⏱ 2:00"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
-                android:textStyle="bold"
-                android:gravity="end"/>
+                android:textStyle="bold"/>
 
         </LinearLayout>
 

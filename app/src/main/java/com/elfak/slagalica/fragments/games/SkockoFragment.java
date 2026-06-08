@@ -25,11 +25,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class SkockoFragment extends Fragment {
 
-    private static final long TRAJANJE_IGRAC = 30_000;
+    private static final long TRAJANJE_IGRAC = 45_000;
     private static final long TRAJANJE_BONUS = 10_000;
 
     private static final String RUNDA1_IGRAC1_IGRA   = "RUNDA1_IGRAC1_IGRA";
@@ -78,6 +80,7 @@ public class SkockoFragment extends Fragment {
     private boolean odbrojavanjeAktivno = false;
     private int[][] feedbackBrojevi = new int[6][2];
     private int startingScore = 0;
+    private long lastToastTsSkocko = 0;
 
     @Nullable
     @Override
@@ -193,8 +196,7 @@ public class SkockoFragment extends Fragment {
 
     private void inicijalizujSolo() {
         viewModel = new ViewModelProvider(this).get(SkockoViewModel.class);
-        viewModel.score.observe(getViewLifecycleOwner(),
-                s -> binding.tvBodovi.setText("Bodovi: " + s));
+        viewModel.score.observe(getViewLifecycleOwner(), s -> {});
 
         viewModel.inicijalizujTajnu();
         obnavljanjeUISolo();
@@ -433,9 +435,15 @@ public class SkockoFragment extends Fragment {
                     Long b2L = snapshot.getLong("bodovi2Skocko");
                     int b1 = b1L != null ? b1L.intValue() : 0;
                     int b2 = b2L != null ? b2L.intValue() : 0;
-                    binding.tvBodovi.setText("Bodovi: " + (jeIgrac1 ? startingScore + b1 : startingScore + b2));
-
                     syncBoardForWaitingPlayer(snapshot, status);
+
+                    Long toastTs = snapshot.getLong("toastTsSkocko");
+                    if (toastTs != null && toastTs != lastToastTsSkocko) {
+                        lastToastTsSkocko = toastTs;
+                        String msg = snapshot.getString("toastMsgSkocko");
+                        if (msg != null && !msg.isEmpty() && isAdded())
+                            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
 
                     boolean statusChanged = !status.equals(lastSeenStatus);
                     if (!statusChanged) return;
@@ -679,7 +687,12 @@ public class SkockoFragment extends Fragment {
             String poljeB = jeIgrac1 ? "bodovi1Skocko" : "bodovi2Skocko";
             prikaziRjesenjeMulti();
             String sledeci = jeIgrac1 ? RUNDA1_PAUZA : RUNDA2_PAUZA;
-            db.collection("partije").document(partijaId).update(poljeB, bodovi, "statusSkocko", sledeci);
+            Map<String, Object> updTacno = new HashMap<>();
+            updTacno.put(poljeB, bodovi);
+            updTacno.put("statusSkocko", sledeci);
+            updTacno.put("toastMsgSkocko", "Tačna kombinacija! +" + bodi + " bodova");
+            updTacno.put("toastTsSkocko", System.currentTimeMillis());
+            db.collection("partije").document(partijaId).update(updTacno);
             return;
         }
 
@@ -719,11 +732,16 @@ public class SkockoFragment extends Fragment {
             bonusBuilder.append(bonusPokusaj[pi] != null ? bonusPokusaj[pi] : "-");
         }
         String sledeci = !jeIgrac1 ? RUNDA1_PAUZA : RUNDA2_PAUZA;
-        db.collection("partije").document(partijaId).update(
-            poljeB, bodovi,
-            bonusSyncKey, bonusBuilder.toString(),
-            bonusFbKey, fb[0] + "," + fb[1],
-            "statusSkocko", sledeci);
+        Map<String, Object> updBonus = new HashMap<>();
+        updBonus.put(poljeB, bodovi);
+        updBonus.put(bonusSyncKey, bonusBuilder.toString());
+        updBonus.put(bonusFbKey, fb[0] + "," + fb[1]);
+        updBonus.put("statusSkocko", sledeci);
+        if (pogodio) {
+            updBonus.put("toastMsgSkocko", "Tačna kombinacija! +10 bodova");
+            updBonus.put("toastTsSkocko", System.currentTimeMillis());
+        }
+        db.collection("partije").document(partijaId).update(updBonus);
     }
 
     private void pokreniBonusRezim() {

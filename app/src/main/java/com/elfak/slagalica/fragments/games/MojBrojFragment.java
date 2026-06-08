@@ -273,7 +273,6 @@ public class MojBrojFragment extends Fragment implements SensorEventListener {
         binding.btnStopBrojevi.setEnabled(true);
         binding.btnPotvrdi.setEnabled(true);
         binding.tvTajmer.setText("60s");
-        binding.tvBodovi.setText("Bodovi: 0");
     }
 
     private void izracunajBodove(DocumentSnapshot snapshot) {
