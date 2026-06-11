@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="450dp"
+    android:viewportWidth="300"
+    android:viewportHeight="450">
+    <!-- VOJVODINA (Sever) -->
+    <path
+        android:id="@+id/path_vojvodina"
+        android:fillColor="#4CAF50"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M50,20 L250,20 L270,120 L30,120 Z" />
+    <!-- BEOGRAD (Mali krug/centar) -->
+    <path
+        android:id="@+id/path_beograd"
+        android:fillColor="#FFD700"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M130,120 L170,120 L170,160 L130,160 Z" />
+    <!-- SUMADIJA I ZAPADNA (Levo) -->
+    <path
+        android:id="@+id/path_sumadija"
+        android:fillColor="#2196F3"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M30,120 L130,120 L130,300 L20,300 Z" />
+    <!-- JUZNA I ISTOCNA (Desno) -->
+    <path
+        android:id="@+id/path_istok"
+        android:fillColor="#FF9800"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M170,120 L270,120 L280,300 L170,300 Z" />
+    <!-- KOSOVO I METOHIJA (Jug) -->
+    <path
+        android:id="@+id/path_kosovo"
+        android:fillColor="#F44336"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M100,300 L200,300 L180,400 L120,400 Z" />
+</vector>

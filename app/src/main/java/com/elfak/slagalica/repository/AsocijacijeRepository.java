@@ -1,156 +1,45 @@
 package com.elfak.slagalica.repository;
 
-import android.os.Handler;
-import android.os.Looper;
-
-import com.elfak.slagalica.model.Asocijacija;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class AsocijacijeRepository {
+    public static class Asocijacija {
+        public String a1, a2, a3, a4, resA;
+        public String b1, b2, b3, b4, resB;
+        public String c1, c2, c3, c4, resC;
+        public String d1, d2, d3, d4, resD;
+        public String konacno;
 
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    public interface OnUcitanoListener {
-        void onUcitano(Asocijacija pitanje);
-    }
-
-    public interface OnGreskaListener {
-        void onGreska(String poruka);
-    }
-
-    public void dohvatiNasumicnoPitanje(OnUcitanoListener onUcitano,
-                                         OnGreskaListener onGreska) {
-        db.collection("asocijacije")
-                .get()
-                .addOnSuccessListener(query -> {
-                    if (query.isEmpty()) {
-                        // Kolekcija prazna — seeduj Firebase pa vrati jedno pitanje
-                        seedujIVrati(onUcitano, onGreska);
-                        return;
-                    }
-
-                    List<QueryDocumentSnapshot> dokumenti = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : query) dokumenti.add(doc);
-
-                    QueryDocumentSnapshot nasumicni =
-                            dokumenti.get(new Random().nextInt(dokumenti.size()));
-                    Asocijacija pitanje = nasumicni.toObject(Asocijacija.class);
-                    pitanje.setId(nasumicni.getId());
-                    mainHandler.post(() -> onUcitano.onUcitano(pitanje));
-                })
-                .addOnFailureListener(e ->
-                        mainHandler.post(() -> onGreska.onGreska(e.getMessage())));
-    }
-
-    public void dohvatiPitanjePoId(String id, OnUcitanoListener onUcitano,
-                                    OnGreskaListener onGreska) {
-        db.collection("asocijacije").document(id)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) {
-                        mainHandler.post(() -> onGreska.onGreska("Pitanje nije pronađeno!"));
-                        return;
-                    }
-                    Asocijacija pitanje = doc.toObject(Asocijacija.class);
-                    pitanje.setId(doc.getId());
-                    mainHandler.post(() -> onUcitano.onUcitano(pitanje));
-                })
-                .addOnFailureListener(e ->
-                        mainHandler.post(() -> onGreska.onGreska(e.getMessage())));
-    }
-
-    // Upiši 3 hardkodovana pitanja u Firebase, pa vrati jedno
-    private void seedujIVrati(OnUcitanoListener onUcitano, OnGreskaListener onGreska) {
-        List<Map<String, Object>> pitanja = napraviHardkodovanaPitanja();
-
-        WriteBatch batch = db.batch();
-        List<com.google.firebase.firestore.DocumentReference> refs = new ArrayList<>();
-        for (Map<String, Object> p : pitanja) {
-            com.google.firebase.firestore.DocumentReference ref =
-                    db.collection("asocijacije").document();
-            batch.set(ref, p);
-            refs.add(ref);
+        public Asocijacija(String a1, String a2, String a3, String a4, String resA,
+                          String b1, String b2, String b3, String b4, String resB,
+                          String c1, String c2, String c3, String c4, String resC,
+                          String d1, String d2, String d3, String d4, String resD,
+                          String konacno) {
+            this.a1 = a1; this.a2 = a2; this.a3 = a3; this.a4 = a4; this.resA = resA;
+            this.b1 = b1; this.b2 = b2; this.b3 = b3; this.b4 = b4; this.resB = resB;
+            this.c1 = c1; this.c2 = c2; this.c3 = c3; this.c4 = c4; this.resC = resC;
+            this.d1 = d1; this.d2 = d2; this.d3 = d3; this.d4 = d4; this.resD = resD;
+            this.konacno = konacno;
         }
-
-        batch.commit()
-                .addOnSuccessListener(v -> {
-                    // Uzmi prvo pitanje (ili nasumično)
-                    com.google.firebase.firestore.DocumentReference izabrani =
-                            refs.get(new Random().nextInt(refs.size()));
-                    izabrani.get()
-                            .addOnSuccessListener(doc -> {
-                                if (!doc.exists()) {
-                                    mainHandler.post(() -> onGreska.onGreska("Greška pri seed-u!"));
-                                    return;
-                                }
-                                Asocijacija pitanje = doc.toObject(Asocijacija.class);
-                                pitanje.setId(doc.getId());
-                                mainHandler.post(() -> onUcitano.onUcitano(pitanje));
-                            })
-                            .addOnFailureListener(e ->
-                                    mainHandler.post(() -> onGreska.onGreska(e.getMessage())));
-                })
-                .addOnFailureListener(e ->
-                        mainHandler.post(() -> onGreska.onGreska(e.getMessage())));
     }
 
-    private List<Map<String, Object>> napraviHardkodovanaPitanja() {
-        List<Map<String, Object>> lista = new ArrayList<>();
-
-        // Tema: ZEMLJA (planeta)
-        Map<String, Object> p1 = new HashMap<>();
-        p1.put("poljeA1", "Azija"); p1.put("poljeA2", "Afrika");
-        p1.put("poljeA3", "Amerika"); p1.put("poljeA4", "Australija");
-        p1.put("poljeB1", "Tihi"); p1.put("poljeB2", "Atlantski");
-        p1.put("poljeB3", "Indijski"); p1.put("poljeB4", "Arktički");
-        p1.put("poljeC1", "Himalaji"); p1.put("poljeC2", "Andi");
-        p1.put("poljeC3", "Alpi"); p1.put("poljeC4", "Kavkaz");
-        p1.put("poljeD1", "Nil"); p1.put("poljeD2", "Amazon");
-        p1.put("poljeD3", "Dunav"); p1.put("poljeD4", "Tisa");
-        p1.put("rjesenjeA", "Kontinenti"); p1.put("rjesenjeB", "Okeani");
-        p1.put("rjesenjeC", "Planine"); p1.put("rjesenjeD", "Reke");
-        p1.put("konacnoRjesenje", "Zemlja");
-        lista.add(p1);
-
-        // Tema: HRANA
-        Map<String, Object> p2 = new HashMap<>();
-        p2.put("poljeA1", "Jabuka"); p2.put("poljeA2", "Kruška");
-        p2.put("poljeA3", "Šljiva"); p2.put("poljeA4", "Trešnja");
-        p2.put("poljeB1", "Paradajz"); p2.put("poljeB2", "Paprika");
-        p2.put("poljeB3", "Krastavac"); p2.put("poljeB4", "Tikvica");
-        p2.put("poljeC1", "Pšenica"); p2.put("poljeC2", "Kukuruz");
-        p2.put("poljeC3", "Ječam"); p2.put("poljeC4", "Raž");
-        p2.put("poljeD1", "Mleko"); p2.put("poljeD2", "Sir");
-        p2.put("poljeD3", "Jogurt"); p2.put("poljeD4", "Kajmak");
-        p2.put("rjesenjeA", "Voće"); p2.put("rjesenjeB", "Povrće");
-        p2.put("rjesenjeC", "Žitarice"); p2.put("rjesenjeD", "Mlečni proizvodi");
-        p2.put("konacnoRjesenje", "Hrana");
-        lista.add(p2);
-
-        // Tema: MUZIKA
-        Map<String, Object> p3 = new HashMap<>();
-        p3.put("poljeA1", "Gitara"); p3.put("poljeA2", "Bubnjevi");
-        p3.put("poljeA3", "Klavir"); p3.put("poljeA4", "Violina");
-        p3.put("poljeB1", "Bach"); p3.put("poljeB2", "Betoven");
-        p3.put("poljeB3", "Mocart"); p3.put("poljeB4", "Šopen");
-        p3.put("poljeC1", "Pop"); p3.put("poljeC2", "Rok");
-        p3.put("poljeC3", "Džez"); p3.put("poljeC4", "Klasika");
-        p3.put("poljeD1", "Do"); p3.put("poljeD2", "Re");
-        p3.put("poljeD3", "Mi"); p3.put("poljeD4", "Fa");
-        p3.put("rjesenjeA", "Instrumenti"); p3.put("rjesenjeB", "Kompozitori");
-        p3.put("rjesenjeC", "Žanrovi"); p3.put("rjesenjeD", "Note");
-        p3.put("konacnoRjesenje", "Muzika");
-        lista.add(p3);
-
-        return lista;
+    public List<Asocijacija> getMockAsocijacije() {
+        List<Asocijacija> list = new ArrayList<>();
+        list.add(new Asocijacija(
+            "VUK", "OVCA", "MESO", "PASTIR", "ČOPOR",
+            "CRVEN", "PLAV", "ZELEN", "BOJA", "SPEKTAR",
+            "REKA", "JEZERO", "MORE", "OKEAN", "VODA",
+            "KAPA", "ŠAL", "RUKAVICE", "SNEG", "ZIMA",
+            "PRIRODA"
+        ));
+        list.add(new Asocijacija(
+            "BROJ", "CIFRA", "ZBIR", "RAZLIKA", "MATEMATIKA",
+            "DRŽAVA", "NAROD", "GRANICA", "ZASTAVA", "ZEMLJA",
+            "ŠKOLA", "UČENIK", "KNJIGA", "ZADATAK", "OBRAZOVANJE",
+            "REČ", "SLOVO", "JEZIK", "PISMO", "KOMUNIKACIJA",
+            "ZNANJE"
+        ));
+        return list;
     }
 }

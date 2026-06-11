@@ -10,8 +10,11 @@
     <string name="btn_change_avatar">Promeni avatar</string>
     <string name="btn_logout">Odjavi se</string>
     <string name="title_statistics">Statistika</string>
-    <string name="stat_games_played">Odigrano igara:</string>
-    <string name="stat_wins">Pobeda:</string>
+    <string name="stat_games_played">Odigrano igara: %1$d</string>
+    <string name="stat_wins">Pobede: %1$d (%2$.1f%%)</string>
+    <string name="stat_quiz_accuracy">Ko zna zna tačnost: %1$.1f%%</string>
+    <string name="stat_matching_accuracy">Spojnice uspešnost: %1$.1f%%</string>
+    <string name="stat_avg_score">Prosečni bodovi: %1$.1f</string>
     <string name="label_qr_code">QR Kod:</string>
 
     <string name="title_ko_zna_zna">Ko zna zna</string>
@@ -28,6 +31,26 @@
     <string name="btn_next_round">SLEDEĆA RUNDA</string>
 
     <string name="btn_profile">Profil</string>
+    <string name="label_me">Ja</string>
+    <string name="label_opponent">Protivnik</string>
+    <string name="label_score_format">%1$d bodova</string>
+    <string name="btn_back_home">Nazad na početnu</string>
+    <string name="btn_scan_qr">Skeniraj QR kod</string>
+    <string name="msg_friend_added">Prijatelj dodat!</string>
+    <string name="btn_friends">Prijatelji</string>
+    <string name="btn_regions">Regioni</string>
+    <string name="title_friends">Lista prijatelja</string>
+    <string name="title_regions">Mapa regiona</string>
+    <string name="label_search_users">Pretraga korisnika</string>
+    <string name="msg_league_up">Čestitamo! Napredovali ste u ligu: %1$s</string>
+    <string name="msg_league_down">Nazadovali ste u ligu: %1$s</string>
+    <string name="label_league_rank">Ligaški rang: %1$s</string>
+    <string name="btn_invite">Pozovi na partiju</string>
+    <string name="msg_invite_sent">Poziv poslat!</string>
+    <string name="msg_invite_received">Poziv od %1$s za prijateljsku partiju</string>
+    <string name="btn_accept">Prihvati</string>
+    <string name="btn_decline">Odbij</string>
+    <string name="google_maps_key" translatable="false">UNESI_MAPS_API_KLJUC</string>
     <string name="btn_ko_zna_zna">Ko zna zna</string>
     <string name="btn_spojnice">Spojnice</string>
 

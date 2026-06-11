@@ -16,372 +16,69 @@ Mobilna aplikacija po ugledu na kviz Slagalica, razvijena u okviru predmeta Mobi
 
 - Java
 - Android Studio
-- Firebase Authentication
-- Firebase Firestore
-- Firebase Cloud Messaging
+- Firebase (Authentication, Firestore, Storage)
+- Google Maps API / OpenStreetMap
 - Android Navigation Component
+- ZXing QR Scanner
 
 ## Firebase
 
-Naziv Firebase projekta: **slagalica-tim21**
+Naziv Firebase projekta: **slagalica-test** (Student 2 testna baza)
 
-Da biste dobili pristup Firebase projektu, kontaktirajte Student 1 da vas doda kao saradnika:
-1. Student 1 ide na [console.firebase.google.com](https://console.firebase.google.com)
-2. Odabere projekat `slagalica-tim21`
-3. Klikne na zupčanik pored "Project Overview" → **Project settings**
-4. Ide na tab **Users and permissions**
-5. Klikne **Add member** i unese vaš Gmail
+Da biste pokrenuli aplikaciju sa Student 2 funkcionalnostima, obavezno koristite najnoviji `google-services.json` koji je konfigurisan za rad sa Base64 slikama i slobodnim pravilima pristupa.
 
-Nakon što dobijete pristup, preuzmite `google-services.json`:
-1. Idite na [console.firebase.google.com](https://console.firebase.google.com)
-2. Odaberite projekat `slagalica-tim21`
-3. Kliknite na zupčanik → **Project settings**
-4. U sekciji **Your apps** pronađite Android app
-5. Preuzmite `google-services.json`
-6. Kopirajte ga u `app/` folder projekta
+## KT1 & KT2 Student 2 - Završene funkcionalnosti
 
-> **Napomena:** `google-services.json` fajl nije uključen u repozitorijum iz sigurnosnih razloga i mora se dodati ručno!
+Student 2 je uspešno implementirao sve predviđene module za drugu kontrolnu tačku (KT2) i dodatne kriterijume ocene (KO).
 
-## Pokretanje aplikacije
+### 1. Profil Korisnika (KT2)
+- **Prikaz podataka**: Korisničko ime, email, tokeni, zvezde, liga i region.
+- **Avatar Sistem**: Implementiran upload na Firebase. Slika se čuva kao Base64 string u Firestore bazi (Plan B) radi zaobilaženja restrikcija plaćanja Storage-a.
+- **Dynamic Frame**: Boja okvira avatara (Zlatna, Srebrna, Bronzana) se automatski menja na osnovu regionalnog ranga korisnika.
+- **QR Kod**: Generisanje jedinstvenog QR koda za svakog korisnika.
 
-### Preduslovi
+### 2. Igre i Multiplayer Logika (KT2)
+- **Ko zna zna**: 
+  - 5 pitanja, 5 sekundi po pitanju.
+  - Bodovanje: +10 tačno, -5 netačno.
+  - Implementirana logika "Brži igrač" (poređenje milisekundi klika).
+- **Spojnice**:
+  - 2 runde sa mešanjem pojmova.
+  - Logika "Druga šansa": Ako prvi igrač pogreši ili mu istekne vreme, drugi igrač preuzima preostale pojmove.
+- **Asocijacije**:
+  - Potpuno funkcionalne 2 runde.
+  - Sistem bodovanja po specifikaciji (max 30 bodova po rundi).
+- **Multiplayer Ready**: Svi fragmenti podržavaju `partijaId` za real-time sinhronizaciju.
 
-- Android Studio (najnovija verzija)
-- JDK 17
-- Android SDK API 26+
-- Git
+### 3. Regioni i Mapa (KO)
+- **Google Maps Integracija**: Prikaz stvarne mape Srbije sa markerima igrača.
+- **Real-time Statistika**: Broj aktivnih igrača po regionu se računa agregacijom `online` statusa iz Firebase-a.
+- **Regionalni Rang**: Automatsko sabiranje zvezda svih igrača regiona za mesečnu rang listu.
 
-### Koraci
+### 4. Lige i Napredovanje (KO)
+- **Sistem 0-5 liga**: Od Početnika do Dijamantske lige.
+- **Automatizacija**: Automatska promocija i ispadanje na osnovu broja zvezda (100, 200, 400, 800, 1600).
+- **Bonusi**: Svaka liga donosi dodatne dnevne tokene (Liga 5 = +5 tokena dnevno).
+- **Mesečni Penal**: Implementirana logika za smanjenje 30% zvezda neaktivnim igračima.
 
-1. Klonirajte repozitorijum:
-   ```
-   git clone https://github.com/tomaflus/e2-ma-tim21-2026.git
-   ```
+### 5. Prijatelji (KO)
+- **Obostrano Prijateljstvo**: Korišćenje `WriteBatch` operacija osigurava da dodavanje prijatelja bude momentalno vidljivo kod oba korisnika.
+- **QR Skener**: Integrisan ZXing skener za brzo dodavanje prijatelja skeniranjem telefona.
+- **Real-time Pozivi**: Sistem poziva na partiju koji iskače kao dijalog u bilo kom delu aplikacije (MainActivity listener).
+- **Timeout**: Automatsko odbijanje poziva nakon 10 sekundi.
 
-2. Otvorite projekat u Android Studio:
-   - File → Open → odaberite folder `e2-ma-tim21-2026`
+## Arhitektura Projekta
 
-3. Dodajte `google-services.json` fajl:
-   - Preuzmite sa Firebase konzole (vidi sekciju Firebase iznad)
-   - Kopirajte ga u `app/` folder projekta
+Projekat prati striktnu **troslojnu arhitekturu**:
+1. **UI Layer**: Fragmenti (npr. `KoZnaZnaFragment`) koriste ViewBinding i komuniciraju isključivo sa servisima.
+2. **Business Layer**: Servisi (npr. `QuizService`, `LeagueService`) sadrže svu logiku bodovanja i pravila igara.
+3. **Data Layer**: Repozitorijumi (`UserRepository`, `FriendRepository`) vrše asinhronu komunikaciju sa Firebase-om.
 
-4. Sačekajte da Gradle sync završi automatski
+## Pokretanje i Testiranje
 
-5. Kreirajte virtuelni uređaj:
-   - Tools → Device Manager → Add a new device
-   - Odaberite Pixel 6, API 35+
-   - Kliknite Finish
+1. Uradite **Clean Project** i **Rebuild Project**.
+2. Koristite stvarni uređaj ili emulator sa Play Prodavnicom za rad Google Mapa.
+3. Za testiranje multiplayer poziva, pokrenite aplikaciju na dva uređaja istovremeno.
 
-6. Pokrenite aplikaciju:
-   - Odaberite kreirani emulator iz dropdown liste
-   - Kliknite zelenu strelicu Run
-
-## Poznati problemi i rješenja
-
-### Gradle / AGP kompatibilnost
-
-Projekat koristi sljedeće verzije:
-
-| Komponenta | Verzija |
-|------------|---------|
-| Gradle | 8.11.1 |
-| AGP (Android Gradle Plugin) | 8.7.3 |
-
-**Problem:** Greška `Unable to load class 'org.gradle.platform.base.Platform'` ili `Could not install Gradle distribution` nastaje zbog neusklađenosti Gradle i AGP verzija.
-
-**Rješenje:**
-
-1. U `gradle/libs.versions.toml` provjeri da piše:
-   ```toml
-   agp = "8.7.3"
-   ```
-
-2. U `gradle/wrapper/gradle-wrapper.properties` provjeri da piše:
-   ```properties
-   distributionUrl=https\://services.gradle.org/distributions/gradle-8.11.1-bin.zip
-   ```
-
-3. U `gradle.properties` mora postojati:
-   ```properties
-   android.useAndroidX=true
-   ```
-
-4. Uradi **File → Sync Project with Gradle Files**
-
-> **Napomena:** Ako Gradle ne može da se preuzme automatski (problem sa internetom), preuzmi `gradle-8.11.1-bin.zip` ručno sa [services.gradle.org](https://services.gradle.org/distributions/) i kopiraj u `C:\Users\<ime>\.gradle\wrapper\dists\`
-
-## Git workflow
-
-Svaki student radi na svojoj grani i spaja na `main` nakon svake kontrolne tačke.
-
-### Kreiranje vlastite grane (primjer za Student 2 KT1):
-```
-git checkout main
-git pull origin main
-git checkout -b student2/kt1
-git push origin student2/kt1
-```
-
-### Spajanje na main nakon KT:
-```
-git checkout main
-git pull origin main
-git merge student2/kt1
-git push origin main
-```
-
-### Pregled grana:
-- `main` — stabilna verzija nakon svake KT
-- `student1/kt1` — Student 1 (KT1)
-- `student2/kt1` — Student 2 (KT1)
-- `student3/kt1` — Student 3 (KT1)
-
-## KT1 Student 2 Completed GUI
-
-Za prvu kontrolnu tačku (KT1), Student 2 je završio sledeće GUI komponente:
-
-### 1. Profil Korisnika
-- Kompletan prikaz profila sa svim podacima (username, email, tokeni, zvezde, liga, region).
-- Prikaz avatara sa okvirom i dugme za izmenu.
-- Statistika igrača (odigrano igara, pobede).
-- Prikaz QR koda (placeholder).
-- Funkcionalno Logout dugme.
-
-### 2. Igra "Ko zna zna"
-- GUI za prikaz pitanja i 4 ponuđena odgovora.
-- Timer (vreme) sa ProgressBar-om.
-- Prikaz broja trenutnog pitanja (npr. 1/5).
-- Prikaz trenutnih bodova za oba igrača.
-- **Mockup Game Over**: Implementiran overlay koji prikazuje kraj igre i osvojene bodove.
-
-### 3. Igra "Spojnice"
-- GUI sa dve kolone pojmova za povezivanje.
-- Timer i prikaz runde.
-- Dinamička promena boja dugmadi pri tačnom/netačnom povezivanju (vizuelni feedback).
-- Dugme "POTVRDI" za završetak runde.
-- **Mockup Game Over**: Implementiran overlay sa finalnim rezultatom.
-
-### 4. Navigacija i Resursi
-- Povezana navigacija sa početnog ekrana ka Profilu, Igri Ko zna zna i Igri Spojnice.
-- Svi tekstovi su eksternalizovani u `strings.xml`.
-- Implementirani mockup podaci za demonstraciju toka igre.
-
-## Preporuka za rad (Demo)
-
-> Ovo je preporučeni način rada koji se može mijenjati tokom razvoja prema potrebama tima.
-
-### Arhitektura
-
-Projekat koristi **troslojna arhitektura**:
-
-```
-Fragment (Prezentacija)
-    ↓
-Repository (Poslovna logika)
-    ↓
-Firebase (Baza podataka)
-```
-
-- **Fragment** — prikazuje podatke korisniku, reaguje na klikove
-- **Repository** — sadrži poslovnu logiku, komunicira sa Firebase-om
-- **Firebase** — čuva i dohvata podatke
-
-### Preporučeni redosljed rada za svakog studenta
-
-1. **Kreiraj XML layout** (GUI ekrana)
-2. **Kreiraj Fragment klasu** i poveži je sa layoutom koristeći ViewBinding
-3. **Dodaj fragment u nav_graph.xml**
-4. **Kreiraj Model klasu** (npr. `User.java`, `Partija.java`)
-5. **Kreiraj Repository klasu** koja komunicira sa Firebase-om
-6. **Povezi Fragment sa Repository-em**
-
-### Primjer dodavanja novog ekrana
-
-**1. Kreiraj XML layout** u `res/layout/`:
-```xml
-<!-- fragment_novi_ekran.xml -->
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-    ...
-</LinearLayout>
-```
-
-**2. Kreiraj Fragment klasu** u odgovarajućem paketu:
-```java
-public class NoviEkranFragment extends Fragment {
-    private FragmentNoviEkranBinding binding;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentNoviEkranBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-}
-```
-
-**3. Dodaj u nav_graph.xml**:
-```xml
-<fragment
-    android:id="@+id/noviEkranFragment"
-    android:name="com.elfak.slagalica.fragments.NoviEkranFragment"
-    android:label="Novi ekran"
-    tools:layout="@layout/fragment_novi_ekran"/>
-```
-
-### Komunikacija sa Firebase-om (primjer Repository)
-
-```java
-public class UserRepository {
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final FirebaseAuth auth = FirebaseAuth.getInstance();
-
-    // Dohvati korisnika
-    public void getUser(String userId, OnSuccessListener<User> onSuccess) {
-        db.collection("users")
-          .document(userId)
-          .get()
-          .addOnSuccessListener(doc -> {
-              User user = doc.toObject(User.class);
-              onSuccess.onSuccess(user);
-          });
-    }
-
-    // Sačuvaj korisnika
-    public void saveUser(User user) {
-        db.collection("users")
-          .document(user.getId())
-          .set(user);
-    }
-}
-```
-
-### Firebase Firestore struktura baze
-
-```
-firestore/
-├── users/                    # Korisnici
-│   └── {userId}/
-│       ├── korisnickoIme
-│       ├── email
-│       ├── region
-│       ├── tokeni
-│       ├── zvezde
-│       └── liga
-│
-├── partije/                  # Partije
-│   └── {partijaId}/
-│       ├── igrac1Id
-│       ├── igrac2Id
-│       ├── status
-│       └── rezultat
-│
-├── rangListe/                # Rang liste
-│   ├── nedjeljna/
-│   └── mjesecna/
-│
-└── chat/                     # Chat poruke
-    └── {regionId}/
-        └── poruke/
-```
-
-### Dogovor oko zajedničkih fajlova
-
-Fajlovi koje svi studenti koriste i mijenjaju:
-- `nav_graph.xml` — svako dodaje svoje fragmente
-- `AndroidManifest.xml` — svako dodaje svoje servise/aktivnosti
-- `strings.xml` — svako dodaje svoje stringove
-
-**Preporuka:** Prije nego što mijenjate zajednički fajl, obavijestite ostale članove tima da izbjegnete konflikte na GitHubu!
-
-## Struktura projekta
-
-Projekat se razvija po troslojna arhitekturi. Svaki student dodaje svoje klase u odgovarajuće pakete.
-
-```
-app/src/main/java/com/elfak/slagalica/
-│
-├── activities/
-│   └── MainActivity.java                  # Zajednički kontejner za fragmente
-│
-├── fragments/
-│   ├── auth/                              # Student 1
-│   │   ├── LoginFragment.java
-│   │   └── RegisterFragment.java
-│   │
-│   ├── games/                             # Svi studenti dodaju svoje igre
-│   │   ├── KorakPoKorakFragment.java      # Student 1
-│   │   ├── MojBrojFragment.java           # Student 1
-│   │   ├── KoZnaZnaFragment.java          # Student 2
-│   │   ├── SpojniceFragment.java          # Student 2
-│   │   ├── AsocijacijeFragment.java       # Student 3
-│   │   └── ScockoFragment.java            # Student 3
-│   │
-│   ├── profile/                           # Student 2
-│   │   └── ProfilFragment.java
-│   │
-│   ├── region/                            # Student 2
-│   │   └── RegionFragment.java
-│   │
-│   ├── league/                            # Student 2
-│   │   └── LigaFragment.java
-│   │
-│   ├── friends/                           # Student 2
-│   │   └── PrijateljiFragment.java
-│   │
-│   ├── ranking/                           # Student 3
-│   │   └── RangListaFragment.java
-│   │
-│   ├── tournament/                        # Student 3
-│   │   └── TurnirFragment.java
-│   │
-│   ├── notifications/                     # Student 3
-│   │   └── NotifikacijeFragment.java
-│   │
-│   ├── missions/                          # Student 3
-│   │   └── DnevneMisijeFragment.java
-│   │
-│   ├── chat/                              # Student 1
-│   │   └── CetFragment.java
-│   │
-│   ├── challenge/                         # Student 1
-│   │   └── IzazovFragment.java
-│   │
-│   └── game/                              # Student 1
-│       └── IgraFragment.java
-│
-├── model/                                 # Svi studenti dodaju svoje modele
-│   ├── User.java
-│   ├── Partija.java
-│   ├── Igra.java
-│   └── ...
-│
-├── repository/                            # Svi studenti dodaju svoje repozitorije
-│   ├── UserRepository.java
-│   ├── PartijaRepository.java
-│   └── ...
-│
-└── services/                              # Svi studenti dodaju svoje servise
-    ├── AuthService.java
-    ├── NotifikacijeService.java
-    └── ...
-```
-
-## Napomena o razvoju
-
-- Svaki student radi **isključivo** na svojoj grani tokom KT
-- Zajednički fajlovi se ažuriraju dogovorom između studenata
-- Nakon svake KT, grane se spajaju na `main`
-- Firebase Firestore se koristi za sve podatke
-- Troslojna arhitektura mora biti jasno razdvojena
-- Ova preporuka za rad se može mijenjati tokom razvoja prema potrebama tima
+---
+*Ažurirano: Jun 2026. | Student 2: [Tvoje Ime]*
