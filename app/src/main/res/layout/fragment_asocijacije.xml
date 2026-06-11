@@ -1,419 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/pozadinaBoja">
 
-    <!-- Sadržaj igre -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/pozadinaBoja"
-        android:padding="8dp">
+        android:padding="16dp">
 
-        <!-- Status + tajmer (jedan red) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text=""
-                android:textColor="#FFD700"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:visibility="gone"/>
-
-            <TextView
-                android:id="@+id/tvTajmer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⏱ 2:00"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"/>
-
-        </LinearLayout>
-
-        <!-- Gornji red: Kolone A i B -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <!-- Kolona A: A4, A3, A2, A1, oval-A -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="3dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnA4"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="A4"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnA3"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="A3"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnA2"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="A2"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnA1"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="6dp"
-                    android:text="A1"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRezA"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="A"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="50dp"/>
-
-            </LinearLayout>
-
-            <!-- Kolona B: B4, B3, B2, B1, oval-B -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="3dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnB4"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="B4"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnB3"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="B3"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnB2"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="B2"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnB1"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="6dp"
-                    android:text="B1"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRezB"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="B"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="50dp"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Konačno rješenje -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnKonacno"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
-            android:text="\???"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#12205A"
-            app:backgroundTint="#A8D0EC"
-            app:cornerRadius="50dp"/>
-
-        <!-- Predaj potez dugme (multiplayer) -->
-        <Button
-            android:id="@+id/btnPredajPotez"
+        <TextView
+            android:id="@+id/tvRound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Predaj potez"
-            android:textSize="13sp"
-            android:visibility="gone"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"/>
+            android:text="Runda: 1/2"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
 
-        <!-- Donji red: Kolone C i D -->
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ja: 0"
+            android:textColor="@color/zlatnaZvezde" />
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vreme: 120s"
+            android:textColor="@color/crvenaDugme" />
+
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:layout_marginTop="16dp">
 
-            <!-- Kolona C: oval-C, C1, C2, C3, C4 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="3dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRezC"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="6dp"
-                    android:text="C"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="50dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnC1"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="C1"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnC2"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="C2"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnC3"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="C3"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnC4"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="C4"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
+            <!-- Kolona A -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:padding="4dp">
+                <Button android:id="@+id/btnA1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A1" android:textSize="10sp"/>
+                <Button android:id="@+id/btnA2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A2" android:textSize="10sp"/>
+                <Button android:id="@+id/btnA3" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A3" android:textSize="10sp"/>
+                <Button android:id="@+id/btnA4" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A4" android:textSize="10sp"/>
+                <EditText android:id="@+id/etA" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Rešenje A" android:textSize="12sp" android:textColor="@color/white"/>
             </LinearLayout>
 
-            <!-- Kolona D: oval-D, D1, D2, D3, D4 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="3dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRezD"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="6dp"
-                    android:text="D"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="50dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnD1"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="D1"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnD2"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="D2"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnD3"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="3dp"
-                    android:text="D3"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnD4"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="D4"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#12205A"
-                    app:backgroundTint="#A8D0EC"
-                    app:cornerRadius="6dp"/>
-
+            <!-- Kolona B -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:padding="4dp">
+                <Button android:id="@+id/btnB1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="B1" android:textSize="10sp"/>
+                <Button android:id="@+id/btnB2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="B2" android:textSize="10sp"/>
+                <Button android:id="@+id/btnB3" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="B3" android:textSize="10sp"/>
+                <Button android:id="@+id/btnB4" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="B4" android:textSize="10sp"/>
+                <EditText android:id="@+id/etB" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Rešenje B" android:textSize="12sp" android:textColor="@color/white"/>
             </LinearLayout>
 
-        </LinearLayout>
+            <!-- Kolona C -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:padding="4dp">
+                <Button android:id="@+id/btnC1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="C1" android:textSize="10sp"/>
+                <Button android:id="@+id/btnC2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="C2" android:textSize="10sp"/>
+                <Button android:id="@+id/btnC3" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="C3" android:textSize="10sp"/>
+                <Button android:id="@+id/btnC4" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="C4" android:textSize="10sp"/>
+                <EditText android:id="@+id/etC" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Rešenje C" android:textSize="12sp" android:textColor="@color/white"/>
+            </LinearLayout>
+
+            <!-- Kolona D -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:padding="4dp">
+                <Button android:id="@+id/btnD1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="D1" android:textSize="10sp"/>
+                <Button android:id="@+id/btnD2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="D2" android:textSize="10sp"/>
+                <Button android:id="@+id/btnD3" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="D3" android:textSize="10sp"/>
+                <Button android:id="@+id/btnD4" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="D4" android:textSize="10sp"/>
+                <EditText android:id="@+id/etD" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Rešenje D" android:textSize="12sp" android:textColor="@color/white"/>
+            </LinearLayout>
+
+        </GridLayout>
+
+        <EditText
+            android:id="@+id/etKonacno"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="KONAČNO REŠENJE"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/white"
+            android:background="@color/headerBoja"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="POTVRDI"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
-
-    <!-- Overlay dok protivnik igra — intercepts klikove, providno da se vidi tabla -->
-    <FrameLayout
-        android:id="@+id/overlayProtivnik"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80000000"
-        android:visibility="gone"
-        android:clickable="true"
-        android:focusable="true"/>
-
-</FrameLayout>
+</ScrollView>
