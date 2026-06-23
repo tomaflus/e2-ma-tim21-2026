@@ -16,12 +16,14 @@ import com.elfak.slagalica.databinding.FragmentCekanjeBinding;
 import com.elfak.slagalica.model.StatusPartije;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
+import com.elfak.slagalica.repository.UserRepository;
 
 public class CekanjeFragment extends Fragment {
 
     private FragmentCekanjeBinding binding;
     private PartijaRepository partijaRepository;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
     private String partijaId;
     private boolean napustio = false;
 
@@ -40,16 +42,18 @@ public class CekanjeFragment extends Fragment {
 
         partijaRepository = new PartijaRepository();
         authRepository = new AuthRepository();
+        userRepository = new UserRepository();
 
-        String korisnickoIme = authRepository.trenutniKorisnik() != null
-                ? authRepository.trenutniKorisnik().getEmail()
-                : "Nepoznat";
-
-        traziPartiju(korisnickoIme);
+        userRepository.dohvatiKorisnika(
+                user -> traziPartiju(user.getKorisnickoIme()),
+                err -> traziPartiju(authRepository.trenutniKorisnik() != null
+                        ? authRepository.trenutniKorisnik().getEmail()
+                        : "Nepoznat"));
 
         // Klik na Odustani
         binding.btnOdustani.setOnClickListener(v -> {
             napustio = true;
+            userRepository.vratiToken();
             if (partijaId != null) {
                 partijaRepository.napustiPartiju(partijaId,
                         authRepository.trenutniKorisnik().getUid(),
@@ -111,6 +115,7 @@ public class CekanjeFragment extends Fragment {
                         String status = snapshot.getString("status");
                         if (status != null && status.equals("CEKANJE")) {
                             napustio = true;
+                            userRepository.vratiToken();
                             partijaRepository.napustiPartiju(partijaId,
                                     authRepository.trenutniKorisnik().getUid(),
                                     () -> {}, poruka -> {});

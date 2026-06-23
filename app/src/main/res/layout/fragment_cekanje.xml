@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp"
-    android:background="@color/white">
+    android:background="@color/pozadinaBoja">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,6 +13,7 @@
         android:text="Trazenje protivnika..."
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:layout_marginBottom="32dp"/>
 
     <ProgressBar
@@ -26,6 +27,7 @@
         android:layout_height="wrap_content"
         android:text="Cekanje na protivnika..."
         android:textSize="16sp"
+        android:textColor="#AAAACC"
         android:layout_marginBottom="32dp"/>
 
     <Button

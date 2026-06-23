@@ -37,6 +37,7 @@ public class IgraFragment extends Fragment {
     private String izazovId;
     private boolean jeIzazov = false;
     private int ukupnoBodovi = 0;
+    private int currentIndeksIgre = 0;
 
     private static final String[] IGRE = {
             "Ko zna zna",
@@ -118,7 +119,7 @@ public class IgraFragment extends Fragment {
                     public void handleOnBackPressed() {
                         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                                 .setTitle("Napustiti igru?")
-                                .setMessage("Ako napustite, izgubiti cete partiju!")
+                                .setMessage("Ako napustite izgubićete partiju i bićete penalizovani žetonima!")
                                 .setPositiveButton("Napusti", (dialog, which) -> {
                                     if (partijaId != null && !jeIzazov) {
                                         String mojiId = authRepository
@@ -147,13 +148,11 @@ public class IgraFragment extends Fragment {
     }
 
     private void azurirajUI(Partija partija) {
-        binding.tvIgrac1.setText(
-                (partija.getIgrac1Ime() != null ? partija.getIgrac1Ime() : "Igrac 1")
-                        + ": " + partija.getBodovi1());
-        binding.tvIgrac2.setText(
-                (partija.getIgrac2Ime() != null ? partija.getIgrac2Ime() : "Igrac 2")
-                        + ": " + partija.getBodovi2());
-        binding.tvIgra.setText("Igra " + (partija.getTrenutnaIgra() + 1) + "/6");
+        binding.tvIgrac1Ime.setText(partija.getIgrac1Ime() != null ? partija.getIgrac1Ime() : "Igrac 1");
+        binding.tvIgrac1Bodovi.setText(partija.getBodovi1() + " bodova");
+        binding.tvIgrac2Ime.setText(partija.getIgrac2Ime() != null ? partija.getIgrac2Ime() : "Igrac 2");
+        binding.tvIgrac2Bodovi.setText(partija.getBodovi2() + " bodova");
+        binding.tvIgra.setText("Igra " + (currentIndeksIgre + 1) + "/6: " + IGRE[currentIndeksIgre]);
     }
 
     private void pokrniIzazovIgru(int indeksIgre) {
@@ -171,6 +170,22 @@ public class IgraFragment extends Fragment {
 
         Fragment igra;
         switch (indeksIgre) {
+            case 0:
+                igra = new com.elfak.slagalica.fragments.games.KoZnaZnaFragment();
+                igra.setArguments(args);
+                break;
+            case 1:
+                igra = new com.elfak.slagalica.fragments.games.SpojniceFragment();
+                igra.setArguments(args);
+                break;
+            case 2:
+                igra = new com.elfak.slagalica.fragments.games.AsocijacijeFragment();
+                igra.setArguments(args);
+                break;
+            case 3:
+                igra = new com.elfak.slagalica.fragments.games.SkockoFragment();
+                igra.setArguments(args);
+                break;
             case 4:
                 igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
                 igra.setArguments(args);
@@ -192,6 +207,34 @@ public class IgraFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.gameContainer, igra)
                 .commit();
+
+        getChildFragmentManager().setFragmentResultListener(
+                "koZnaZnaZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "spojniceZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "asocijacijeZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "skockoZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    ukupnoBodovi += result.getInt("bodovi");
+                    pokrniIzazovIgru(indeksIgre + 1);
+                });
 
         getChildFragmentManager().setFragmentResultListener(
                 "korakPoKorakZavrsen", getViewLifecycleOwner(),
@@ -228,14 +271,37 @@ public class IgraFragment extends Fragment {
             return;
         }
 
+        currentIndeksIgre = indeksIgre;
         binding.tvIgra.setText("Igra " + (indeksIgre + 1) + "/6: " + IGRE[indeksIgre]);
 
         Bundle args = new Bundle();
         args.putString("partijaId", partijaId);
         args.putBoolean("jeIgrac1", jeIgrac1);
+        if (trenutnaPartija != null) {
+            int sc = jeIgrac1 ? trenutnaPartija.getBodovi1() : trenutnaPartija.getBodovi2();
+            args.putInt("startingScore", sc);
+            args.putInt("startingScore1", trenutnaPartija.getBodovi1());
+            args.putInt("startingScore2", trenutnaPartija.getBodovi2());
+        }
 
         Fragment igra;
         switch (indeksIgre) {
+            case 0:
+                igra = new com.elfak.slagalica.fragments.games.KoZnaZnaFragment();
+                igra.setArguments(args);
+                break;
+            case 1:
+                igra = new com.elfak.slagalica.fragments.games.SpojniceFragment();
+                igra.setArguments(args);
+                break;
+            case 2:
+                igra = new com.elfak.slagalica.fragments.games.AsocijacijeFragment();
+                igra.setArguments(args);
+                break;
+            case 3:
+                igra = new com.elfak.slagalica.fragments.games.SkockoFragment();
+                igra.setArguments(args);
+                break;
             case 4:
                 igra = new com.elfak.slagalica.fragments.games.KorakPoKorakFragment();
                 igra.setArguments(args);
@@ -257,6 +323,44 @@ public class IgraFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.gameContainer, igra)
                 .commit();
+
+        getChildFragmentManager().setFragmentResultListener(
+                "koZnaZnaZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "spojniceZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
+
+        final boolean[] asocijacijeBrojano = {false};
+        getChildFragmentManager().setFragmentResultListener(
+                "asocijacijeZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    if (asocijacijeBrojano[0]) return;
+                    asocijacijeBrojano[0] = true;
+                    // AsocijacijeFragment already wrote bodovi1/bodovi2 to Firestore in real time
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
+
+        getChildFragmentManager().setFragmentResultListener(
+                "skockoZavrsen", getViewLifecycleOwner(),
+                (key, result) -> {
+                    int bodovi = result.getInt("bodovi");
+                    azurirajBodovePartije(bodovi, indeksIgre);
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                });
 
         getChildFragmentManager().setFragmentResultListener(
                 "korakPoKorakZavrsen", getViewLifecycleOwner(),

@@ -1,4 +1,4 @@
-package com.elfak.slagalica.fragments.games;
+package com.elfak.slagalica.viewModels.games;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class SkockoViewModel extends ViewModel {
 
-    static final String[] SIMBOLI = {"😀", "🟥", "🔵", "❤️", "🔺", "⭐"};
+    public static final String[] SIMBOLI = {"😀", "🟥", "🔵", "❤️", "🔺", "⭐"};
 
     public enum Faza { IGRAC, PROTIVNIK, ZAVRSENO }
 

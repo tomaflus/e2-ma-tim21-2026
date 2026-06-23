@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/pozadinaBoja">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,6 +23,7 @@
                 android:text="Dobrodošli!"
                 android:textSize="32sp"
                 android:textStyle="bold"
+                android:textColor="#FFFFFF"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
@@ -31,6 +32,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="14sp"
+                android:textColor="#AAAACC"
                 android:gravity="center"
                 android:layout_marginBottom="8dp"/>
 
@@ -41,6 +43,7 @@
                 android:text="Tokeni: - | Zvezde: -"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                android:textColor="#FFD700"
                 android:gravity="center"
                 android:layout_marginBottom="32dp"/>
 
@@ -81,48 +84,11 @@
                 android:text="@string/btn_spojnice"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- Student 1 Igre -->
-            <Button
-                android:id="@+id/btnKorakPoKorak"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TEST - Korak po korak"
-                android:layout_marginBottom="8dp"/>
-
-            <Button
-                android:id="@+id/btnMojBroj"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TEST - Moj broj"
-                android:layout_marginBottom="8dp"/>
-
-            <!-- Student 3 Igre -->
-            <Button
-                android:id="@+id/btnAsocijacije"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TEST - Asocijacije"
-                android:layout_marginBottom="8dp"/>
-
-            <Button
-                android:id="@+id/btnSkocko"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TEST - Skočko"
-                android:layout_marginBottom="8dp"/>
-
             <Button
                 android:id="@+id/btnNotifikacije"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Notifikacije"
-                android:layout_marginBottom="8dp"/>
-
-            <Button
-                android:id="@+id/btnTestNotifikacija"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TEST - Pošalji čet notifikaciju"
                 android:layout_marginBottom="16dp"/>
 
             <Button

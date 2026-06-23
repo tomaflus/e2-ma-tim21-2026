@@ -1,46 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:background="@color/pozadinaBoja">
+
+    <!-- Header (Consistent with fragment_igra.xml) -->
+    <LinearLayout
+        android:id="@+id/llHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@color/headerBoja"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_me"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+            <TextView
+                android:id="@+id/tvScorePlayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="0 bodova"
+                android:textSize="12sp"
+                android:textColor="@color/zlatnaZvezde"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:text="@string/btn_ko_zna_zna"
+            android:textSize="13sp"
+            android:textColor="@color/textSekundarna"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="end">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_opponent"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+            <TextView
+                android:id="@+id/tvScoreOpponent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="0 bodova"
+                android:textSize="12sp"
+                android:textColor="@color/zlatnaZvezde"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/dividerBoja"
+        app:layout_constraintTop_toBottomOf="@id/llHeader"/>
 
     <!-- Game Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clGameContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:id="@+id/tvScorePlayer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_score_player"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvScoreOpponent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_score_opponent"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_height="0dp"
+        android:padding="24dp"
+        app:layout_constraintTop_toBottomOf="@id/vDivider"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/tvTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_timer"
+            tools:text="Vreme: 5s"
             android:textSize="20sp"
-            android:textColor="#FF0000"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvScorePlayer"
+            android:textColor="@color/crvenaDugme"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -58,9 +111,9 @@
             android:id="@+id/tvQuestionNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_question_count"
+            tools:text="Pitanje: 1/5"
             android:textSize="16sp"
-            android:textColor="#212121"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/pbTimer"
@@ -71,8 +124,9 @@
             android:id="@+id/tvQuestion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/mock_question"
+            tools:text="Glavni grad Srbije je?"
             android:textSize="22sp"
+            android:textColor="@color/white"
             android:gravity="center"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/tvQuestionNumber" />
@@ -89,28 +143,32 @@
                 android:id="@+id/btnAnswer1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mock_ans1"
+                android:textColor="@color/white"
+                tools:text="Beograd"
                 android:layout_marginBottom="8dp" />
 
             <Button
                 android:id="@+id/btnAnswer2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mock_ans2"
+                android:textColor="@color/white"
+                tools:text="Niš"
                 android:layout_marginBottom="8dp" />
 
             <Button
                 android:id="@+id/btnAnswer3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mock_ans3"
+                android:textColor="@color/white"
+                tools:text="Novi Sad"
                 android:layout_marginBottom="8dp" />
 
             <Button
                 android:id="@+id/btnAnswer4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mock_ans4"
+                android:textColor="@color/white"
+                tools:text="Kragujevac"
                 android:layout_marginBottom="8dp" />
 
         </LinearLayout>
@@ -120,22 +178,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="SIMULIRAJ KRAJ"
-            android:alpha="0.8"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Game Over Overlay (Mockup) -->
+    <!-- Game Over Overlay -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clGameOver"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#DDFFFFFF"
+        android:background="@color/pozadinaBoja"
         android:visibility="gone"
         android:elevation="10dp"
-        android:gravity="center">
+        android:padding="32dp">
 
         <TextView
             android:id="@+id/tvGameOverTitle"
@@ -144,7 +202,7 @@
             android:text="@string/game_over"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="#FF5252"
+            android:textColor="@color/crvenaDugme"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -155,7 +213,8 @@
             android:id="@+id/tvFinalScore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/score_won"
+            tools:text="Osvojeno bodova: 50"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/tvGameOverTitle"
@@ -164,9 +223,9 @@
 
         <Button
             android:id="@+id/btnBackToHome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nazad na početnu"
+            android:text="@string/btn_back_home"
             android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/tvFinalScore"
             app:layout_constraintStart_toStartOf="parent"

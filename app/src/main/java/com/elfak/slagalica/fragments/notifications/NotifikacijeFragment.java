@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentNotifikacijeBinding;
 import com.elfak.slagalica.databinding.ItemNotifikacijaBinding;
+import com.elfak.slagalica.model.Notifikacija;
+import com.elfak.slagalica.viewModels.notifications.NotifikacijeViewModel;
 
 import java.util.ArrayList;
 import java.util.List;

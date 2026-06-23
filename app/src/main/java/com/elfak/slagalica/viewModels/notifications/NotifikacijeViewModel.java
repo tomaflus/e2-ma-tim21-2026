@@ -1,8 +1,10 @@
-package com.elfak.slagalica.fragments.notifications;
+package com.elfak.slagalica.viewModels.notifications;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.elfak.slagalica.model.Notifikacija;
 
 import java.util.ArrayList;
 import java.util.List;
