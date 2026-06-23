@@ -7,6 +7,8 @@ public class Notifikacija {
     public String datumVrijeme;
     public boolean procitana;
 
+    public Notifikacija() {}
+
     public Notifikacija(String ikona, String naslov, String sadrzaj,
                         String datumVrijeme, boolean procitana) {
         this.ikona = ikona;

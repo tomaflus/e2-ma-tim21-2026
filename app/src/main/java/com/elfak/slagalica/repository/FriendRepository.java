@@ -17,6 +17,7 @@ public class FriendRepository {
 
     public interface OnFriendsLoaded { void onLoaded(List<User> friends); }
     public interface OnSearchFinished { void onFound(List<User> users); }
+    public interface OnInviteSent { void onSent(String inviteId); }
 
     public void addFriendMutual(String friendId, UserRepository.OnSuccessListener listener) {
         if (auth.getCurrentUser() == null) return;
@@ -62,10 +63,15 @@ public class FriendRepository {
         });
     }
 
-    public void createInvite(String receiverId, String senderName) {
+    public void createInvite(String receiverId, String senderName, String gameId,
+                             OnInviteSent onSent, UserRepository.OnErrorListener onError) {
         if (auth.getCurrentUser() == null) return;
         String senderId = auth.getCurrentUser().getUid();
         FriendInvite invite = new FriendInvite(senderId, senderName, receiverId);
-        db.collection("invites").add(invite);
+        invite.setGameId(gameId);
+        db.collection("invites")
+                .add(invite)
+                .addOnSuccessListener(ref -> { if (onSent != null) onSent.onSent(ref.getId()); })
+                .addOnFailureListener(e -> { if (onError != null) onError.onError(e.getMessage()); });
     }
 }

@@ -31,6 +31,10 @@ public class PartijaRepository {
         void onError(String poruka);
     }
 
+    public interface OnCreatedListener {
+        void onCreated(String gameId);
+    }
+
     // Kreiraj novu partiju i čekaj protivnika
     public void kreirajPartiju(String korisnickoIme,
                                OnPartijaListener onPartija,
@@ -157,6 +161,35 @@ public class PartijaRepository {
                 .update(
                         "status", StatusPartije.NAPUSTENA.name(),
                         "napustioId", igracId
+                )
+                .addOnSuccessListener(unused ->
+                        mainHandler.post(onSuccess::onSuccess))
+                .addOnFailureListener(e ->
+                        mainHandler.post(() -> onError.onError(e.getMessage())));
+    }
+
+    public void kreirajPrijateljskuPartiju(String korisnickoIme,
+                                           OnCreatedListener onCreated,
+                                           OnErrorListener onError) {
+        String igracId = auth.getCurrentUser().getUid();
+        Partija partija = new Partija(igracId, korisnickoIme, true);
+        db.collection("partije")
+                .add(partija)
+                .addOnSuccessListener(ref ->
+                        mainHandler.post(() -> onCreated.onCreated(ref.getId())))
+                .addOnFailureListener(e ->
+                        mainHandler.post(() -> onError.onError(e.getMessage())));
+    }
+
+    public void pridruziSePrijateljskojPartiji(String partijaId, String igracId,
+                                               String korisnickoIme,
+                                               OnSuccessListener onSuccess,
+                                               OnErrorListener onError) {
+        db.collection("partije").document(partijaId)
+                .update(
+                        "igrac2Id", igracId,
+                        "igrac2Ime", korisnickoIme,
+                        "status", StatusPartije.U_TOKU.name()
                 )
                 .addOnSuccessListener(unused ->
                         mainHandler.post(onSuccess::onSuccess))

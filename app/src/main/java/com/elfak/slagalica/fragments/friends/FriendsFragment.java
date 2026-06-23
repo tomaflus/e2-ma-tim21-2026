@@ -17,6 +17,7 @@ import com.elfak.slagalica.databinding.FragmentFriendsBinding;
 import com.elfak.slagalica.model.User;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.FriendRepository;
+import com.elfak.slagalica.repository.PartijaRepository;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -26,7 +27,9 @@ public class FriendsFragment extends Fragment {
     private FragmentFriendsBinding binding;
     private FriendRepository friendRepository;
     private AuthRepository authRepository;
+    private PartijaRepository partijaRepository;
     private FriendsAdapter adapter;
+    private String mojeIme = "";
 
     // Inicijalizacija skenera
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
@@ -48,10 +51,35 @@ public class FriendsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         friendRepository = new FriendRepository();
         authRepository = new AuthRepository();
+        partijaRepository = new PartijaRepository();
 
-        adapter = new FriendsAdapter(new ArrayList<>(), user -> {
-            Toast.makeText(getContext(), "Poziv poslat: " + user.getKorisnickoIme(), Toast.LENGTH_SHORT).show();
-            // Ovde mozes dodati friendRepository.createInvite(...) ako zelis realne pozive
+        adapter = new FriendsAdapter(new ArrayList<>(), receiver -> {
+            if (authRepository.trenutniKorisnik() == null || getContext() == null) return;
+            String ime = mojeIme.isEmpty() ? "Igrač" : mojeIme;
+            partijaRepository.kreirajPrijateljskuPartiju(
+                ime,
+                gameId -> friendRepository.createInvite(
+                    receiver.getId(), ime, gameId,
+                    inviteId -> {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(),
+                                getString(R.string.msg_invite_sent), Toast.LENGTH_SHORT).show();
+                        }
+                    },
+                    err -> {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(),
+                                "Greška pri slanju poziva", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                ),
+                err -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(),
+                            "Greška pri kreiranju partije", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            );
         });
 
         binding.rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -89,6 +117,7 @@ public class FriendsFragment extends Fragment {
         if (authRepository.trenutniKorisnik() == null) return;
         authRepository.getKorisnikPodaci(authRepository.trenutniKorisnik().getUid(), user -> {
             if (user != null && binding != null) {
+                if (user.getKorisnickoIme() != null) mojeIme = user.getKorisnickoIme();
                 friendRepository.loadFriends(user.getPrijateljiIds(), friends -> adapter.updateData(friends));
             }
         });

@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,21 +19,26 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.helpers.NotifikacijaHelper;
 import com.elfak.slagalica.model.FriendInvite;
+import com.elfak.slagalica.model.Notifikacija;
+import com.elfak.slagalica.repository.PartijaRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int KOD_DOZVOLE_NOTIFIKACIJA = 100;
     private ListenerRegistration inviteListener;
     private ListenerRegistration acceptedListener;
+    private ListenerRegistration rejectedListener;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private AlertDialog currentInviteDialog;
+    private boolean isInForeground = false;
+    private String lastShownInviteId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isInForeground = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isInForeground = false;
+        updateOnlineStatus(false);
+    }
+
     private void updateOnlineStatus(boolean online) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -78,14 +97,22 @@ public class MainActivity extends AppCompatActivity {
     private void startInviteListeners() {
         if (inviteListener != null) return;
         String myId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        
+
         inviteListener = FirebaseFirestore.getInstance().collection("invites")
                 .whereEqualTo("receiverId", myId)
                 .whereEqualTo("status", "PENDING")
                 .addSnapshotListener((snapshots, e) -> {
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        FriendInvite invite = snapshots.getDocuments().get(0).toObject(FriendInvite.class);
-                        if (invite != null) showInviteDialog(invite, snapshots.getDocuments().get(0).getId());
+                    if (snapshots == null || snapshots.isEmpty()) return;
+                    String docId = snapshots.getDocuments().get(0).getId();
+                    if (docId.equals(lastShownInviteId)) return;
+                    FriendInvite invite = snapshots.getDocuments().get(0).toObject(FriendInvite.class);
+                    if (invite == null) return;
+                    lastShownInviteId = docId;
+                    if (isInForeground) {
+                        showInviteDialog(invite, docId);
+                    } else {
+                        NotifikacijaHelper.prikaziNotifikacijuPoziv(this, invite.getSenderName());
+                        sacuvajNotifikacijuUBazu(myId, invite.getSenderName());
                     }
                 });
 
@@ -93,19 +120,32 @@ public class MainActivity extends AppCompatActivity {
                 .whereEqualTo("senderId", myId)
                 .whereEqualTo("status", "ACCEPTED")
                 .addSnapshotListener((snapshots, e) -> {
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        String gameId = snapshots.getDocuments().get(0).getString("gameId");
-                        if (gameId != null) {
-                            FirebaseFirestore.getInstance().collection("invites").document(snapshots.getDocuments().get(0).getId()).delete();
-                            navigateToGame(gameId);
-                        }
+                    if (snapshots == null || snapshots.isEmpty()) return;
+                    String docId = snapshots.getDocuments().get(0).getId();
+                    String gameId = snapshots.getDocuments().get(0).getString("gameId");
+                    if (gameId != null) {
+                        FirebaseFirestore.getInstance().collection("invites").document(docId).delete();
+                        navigateToGame(gameId, true);
                     }
+                });
+
+        rejectedListener = FirebaseFirestore.getInstance().collection("invites")
+                .whereEqualTo("senderId", myId)
+                .whereEqualTo("status", "REJECTED")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (snapshots == null || snapshots.isEmpty()) return;
+                    String docId = snapshots.getDocuments().get(0).getId();
+                    FirebaseFirestore.getInstance().collection("invites").document(docId).delete();
+                    runOnUiThread(() ->
+                        Toast.makeText(this, "Poziv je odbijen", Toast.LENGTH_SHORT).show()
+                    );
                 });
     }
 
     private void stopInviteListeners() {
         if (inviteListener != null) { inviteListener.remove(); inviteListener = null; }
         if (acceptedListener != null) { acceptedListener.remove(); acceptedListener = null; }
+        if (rejectedListener != null) { rejectedListener.remove(); rejectedListener = null; }
     }
 
     private void showInviteDialog(FriendInvite invite, String docId) {
@@ -113,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
 
         currentInviteDialog = new AlertDialog.Builder(this)
                 .setTitle("Poziv na partiju")
-                .setMessage("Poziv od " + invite.getSenderName() + " za prijateljsku partiju")
+                .setMessage(invite.getSenderName() + " te poziva na prijateljsku partiju")
                 .setPositiveButton("Prihvati", (d, w) -> acceptInvite(invite, docId))
-                .setNegativeButton("Odbij", (d, w) -> rejectInvite(docId))
+                .setNegativeButton("Odbij", (d, w) -> rejectInvite(invite, docId))
                 .setCancelable(false)
                 .create();
 
@@ -123,43 +163,68 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(() -> {
             if (currentInviteDialog != null && currentInviteDialog.isShowing()) {
                 currentInviteDialog.dismiss();
-                rejectInvite(docId);
+                rejectInvite(invite, docId);
             }
         }, 10000);
     }
 
     private void acceptInvite(FriendInvite invite, String docId) {
-        String partijaId = UUID.randomUUID().toString();
-        Map<String, Object> game = new HashMap<>();
-        game.put("partijaId", partijaId);
-        game.put("player1", invite.getSenderId());
-        game.put("player2", invite.getReceiverId());
-        game.put("status", "STARTED");
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        String myId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String gameId = invite.getGameId();
+        if (gameId == null) return;
 
-        FirebaseFirestore.getInstance().collection("partije").document(partijaId).set(game).addOnSuccessListener(v -> {
-            FirebaseFirestore.getInstance().collection("invites").document(docId).update("status", "ACCEPTED", "gameId", partijaId);
-            navigateToGame(partijaId);
-        });
+        FirebaseFirestore.getInstance().collection("users").document(myId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    String myName = snapshot.getString("korisnickoIme");
+                    if (myName == null || myName.isEmpty()) myName = "Igrač 2";
+                    String finalMyName = myName;
+
+                    new PartijaRepository().pridruziSePrijateljskojPartiji(
+                        gameId, myId, finalMyName,
+                        () -> {
+                            FirebaseFirestore.getInstance().collection("invites")
+                                    .document(docId).update("status", "ACCEPTED");
+                            navigateToGame(gameId, false);
+                        },
+                        err -> Toast.makeText(this, "Greška pri prihvatanju", Toast.LENGTH_SHORT).show()
+                    );
+                });
     }
 
-    private void rejectInvite(String docId) {
-        FirebaseFirestore.getInstance().collection("invites").document(docId).update("status", "REJECTED");
+    private void rejectInvite(FriendInvite invite, String docId) {
+        FirebaseFirestore.getInstance().collection("invites")
+                .document(docId).update("status", "REJECTED");
+        String gameId = invite.getGameId();
+        if (gameId != null) {
+            FirebaseFirestore.getInstance().collection("partije")
+                    .document(gameId).update("status", "NAPUSTENA");
+        }
     }
 
-    private void navigateToGame(String partijaId) {
+    private void navigateToGame(String partijaId, boolean jeIgrac1) {
         Bundle args = new Bundle();
         args.putString("partijaId", partijaId);
-        
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        args.putBoolean("jeIgrac1", jeIgrac1);
+
+        NavHostFragment navHostFragment = (NavHostFragment)
+                getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             navHostFragment.getNavController().navigate(R.id.igraFragment, args);
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateOnlineStatus(false);
+    private void sacuvajNotifikacijuUBazu(String uid, String senderName) {
+        String datumVrijeme = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+                .format(new Date());
+        Notifikacija n = new Notifikacija("poziv", "Poziv na partiju",
+                senderName + " te je pozvao na prijateljsku partiju.",
+                datumVrijeme, false);
+        FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .add(n);
     }
 
     @Override

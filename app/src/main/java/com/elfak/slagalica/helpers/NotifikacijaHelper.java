@@ -34,6 +34,22 @@ public class NotifikacijaHelper {
         mgr.createNotificationChannel(kanal);
     }
 
+    public static void prikaziNotifikacijuPoziv(Context context, String posiljac) {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, KANAL_OSTALO)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Poziv na partiju")
+                        .setContentText(posiljac + " te poziva na prijateljsku partiju!")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true);
+
+        NotificationManager manager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) {
+            manager.notify(notifikacijaId++, builder.build());
+        }
+    }
+
     // Prikaži notifikaciju za novu poruku
     public static void prikaziNotifikacijuCet(Context context,
                                               String posiljac, String poruka) {
