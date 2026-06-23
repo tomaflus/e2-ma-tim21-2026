@@ -50,6 +50,22 @@ public class NotifikacijaHelper {
         }
     }
 
+    public static void prikaziNotifikacijuNagradu(Context context, int tokeni) {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, KANAL_NAGRADE)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Nagrade za rang listu!")
+                        .setContentText("Osvoji ste " + tokeni + " tokena za plasman na rang listi.")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true);
+
+        NotificationManager manager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) {
+            manager.notify(notifikacijaId++, builder.build());
+        }
+    }
+
     // Prikaži notifikaciju za novu poruku
     public static void prikaziNotifikacijuCet(Context context,
                                               String posiljac, String poruka) {

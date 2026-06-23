@@ -9,6 +9,7 @@ import android.util.Base64;
 
 import com.elfak.slagalica.model.League;
 import com.elfak.slagalica.model.User;
+import com.elfak.slagalica.util.CiklusUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -183,17 +184,54 @@ public class UserRepository {
                         noviTokeni += (novoLiga - staroLiga);
                     }
 
+                    final int finalPromjena = promjena;
                     db.collection("users").document(uid)
                             .update(
                                     "zvezde", noveZvezde,
                                     "tokeni", noviTokeni
                             )
                             .addOnSuccessListener(unused ->
-                                    mainHandler.post(onSuccess::onSuccess))
+                                    azurirajCiklusneZvezde(uid, finalPromjena, onSuccess, onError))
                             .addOnFailureListener(e ->
                                     mainHandler.post(() -> onError.onError(e.getMessage())));
                 })
                 .addOnFailureListener(e ->
                         mainHandler.post(() -> onError.onError(e.getMessage())));
+    }
+
+    public void azurirajCiklusneZvezde(String userId, int dodateZvezde,
+                                        OnSuccessListener onSuccess,
+                                        OnErrorListener onError) {
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(snapshot -> {
+                    User user = snapshot.toObject(User.class);
+                    if (user == null) {
+                        mainHandler.post(onSuccess::onSuccess);
+                        return;
+                    }
+                    String noviNedeljaId = CiklusUtil.trenutniNedeljaId();
+                    String noviMesecId = CiklusUtil.trenutniMesecId();
+
+                    int noveNedeljne = noviNedeljaId.equals(user.getNedeljaCiklusId())
+                            ? user.getNedeljneZvezde() : 0;
+                    int noveMesecne = noviMesecId.equals(user.getMesecCiklusId())
+                            ? user.getMesecneZvezde() : 0;
+
+                    noveNedeljne = Math.max(0, noveNedeljne + dodateZvezde);
+                    noveMesecne = Math.max(0, noveMesecne + dodateZvezde);
+
+                    db.collection("users").document(userId)
+                            .update(
+                                    "nedeljneZvezde", noveNedeljne,
+                                    "mesecneZvezde", noveMesecne,
+                                    "nedeljaCiklusId", noviNedeljaId,
+                                    "mesecCiklusId", noviMesecId,
+                                    "rangiranNedelja", true,
+                                    "rangiranMesec", true
+                            )
+                            .addOnSuccessListener(unused -> mainHandler.post(onSuccess::onSuccess))
+                            .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
+                })
+                .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 }

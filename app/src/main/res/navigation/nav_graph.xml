@@ -102,6 +102,12 @@
         <action
             android:id="@+id/action_homeFragment_to_notifikacijeFragment"
             app:destination="@id/notifikacijeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_rangListaFragment"
+            app:destination="@id/rangListaFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_nagradaFragment"
+            app:destination="@id/nagradaFragment"/>
     </fragment>
 
     <fragment
@@ -183,6 +189,18 @@
         <action
         android:id="@+id/action_igraFragment_to_homeFragment"
         app:destination="@id/homeFragment"/>
+
+    <fragment
+        android:id="@+id/nagradaFragment"
+        android:name="com.elfak.slagalica.fragments.rang.NagradaFragment"
+        android:label="Nagrada"
+        tools:layout="@layout/fragment_nagrada"/>
+
+    <fragment
+        android:id="@+id/rangListaFragment"
+        android:name="com.elfak.slagalica.fragments.rang.RangListaFragment"
+        android:label="Rang lista"
+        tools:layout="@layout/fragment_rang_lista"/>
 
     <fragment
         android:id="@+id/cetFragment"

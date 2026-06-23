@@ -14,8 +14,11 @@ import androidx.navigation.Navigation;
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentHomeBinding;
 import com.elfak.slagalica.helpers.NotifikacijaHelper;
+import com.elfak.slagalica.model.NagradaInfo;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.UserRepository;
+import com.elfak.slagalica.service.RewardService;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {
 
@@ -38,6 +41,8 @@ public class HomeFragment extends Fragment {
 
         authRepository = new AuthRepository();
         userRepository = new UserRepository();
+
+        proveriNagrade(view);
 
         // Dodaj dnevne tokene pri svakom otvaranju Home ekrana
         userRepository.dodajDnevneTokene(
@@ -123,7 +128,37 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_spojniceFragment);
         });
-        
+
+        binding.btnRangLista.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_rangListaFragment);
+        });
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (userRepository != null) ucitajTokene();
+    }
+
+    private void proveriNagrade(View view) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        new RewardService().proveriINagradi(requireContext(), uid, info -> {
+            if (info == null || !isAdded()) return;
+            Bundle args = new Bundle();
+            args.putInt("tokeniNedelja", info.tokeniNedelja);
+            args.putInt("pozicijaNedelja", info.pozicijaNedelja);
+            args.putInt("tokeniMesec", info.tokeniMesec);
+            args.putInt("pozicijaMesec", info.pozicijaMesec);
+            view.post(() -> {
+                if (isAdded()) {
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_homeFragment_to_nagradaFragment, args);
+                }
+            });
+        });
     }
 
     private void ucitajTokene() {

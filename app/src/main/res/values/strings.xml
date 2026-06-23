@@ -50,6 +50,14 @@
     <string name="msg_invite_received">Poziv od %1$s za prijateljsku partiju</string>
     <string name="btn_accept">Prihvati</string>
     <string name="btn_decline">Odbij</string>
+    <string name="title_rang_lista">Rang lista</string>
+    <string name="btn_nedeljna">Nedeljna</string>
+    <string name="btn_mesecna">Mesečna</string>
+    <string name="btn_rang_lista">Rang lista</string>
+    <string name="nagrada_cestitamo">Čestitamo!</string>
+    <string name="nagrada_ukupno_tokena">Ukupno nagrađeno: %1$d tokena</string>
+    <string name="btn_zatvori">Zatvori</string>
+    <string name="btn_test_simulacija">[TEST] Simuliraj kraj ciklusa</string>
     <string name="google_maps_key" translatable="false">UNESI_MAPS_API_KLJUC</string>
     <string name="btn_ko_zna_zna">Ko zna zna</string>
     <string name="btn_spojnice">Spojnice</string>

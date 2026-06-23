@@ -15,6 +15,14 @@ public class User {
     private int mesecniBodovi;
     private long zadnjiLoginDatum;
     private boolean online;
+    private int nedeljneZvezde;
+    private int mesecneZvezde;
+    private String nedeljaCiklusId = "";
+    private String mesecCiklusId = "";
+    private boolean rangiranNedelja;
+    private boolean rangiranMesec;
+    private String lastNagradaNedeljaId = "";
+    private String lastNagradaMesecId = "";
     private List<String> prijateljiIds = new ArrayList<>();
 
     public User() {}
@@ -55,4 +63,20 @@ public class User {
     public void setOnline(boolean online) { this.online = online; }
     public long getZadnjiLoginDatum() { return zadnjiLoginDatum; }
     public void setZadnjiLoginDatum(long zadnjiLoginDatum) { this.zadnjiLoginDatum = zadnjiLoginDatum; }
+    public int getNedeljneZvezde() { return nedeljneZvezde; }
+    public void setNedeljneZvezde(int nedeljneZvezde) { this.nedeljneZvezde = nedeljneZvezde; }
+    public int getMesecneZvezde() { return mesecneZvezde; }
+    public void setMesecneZvezde(int mesecneZvezde) { this.mesecneZvezde = mesecneZvezde; }
+    public String getNedeljaCiklusId() { return nedeljaCiklusId; }
+    public void setNedeljaCiklusId(String nedeljaCiklusId) { this.nedeljaCiklusId = nedeljaCiklusId; }
+    public String getMesecCiklusId() { return mesecCiklusId; }
+    public void setMesecCiklusId(String mesecCiklusId) { this.mesecCiklusId = mesecCiklusId; }
+    public boolean isRangiranNedelja() { return rangiranNedelja; }
+    public void setRangiranNedelja(boolean rangiranNedelja) { this.rangiranNedelja = rangiranNedelja; }
+    public boolean isRangiranMesec() { return rangiranMesec; }
+    public void setRangiranMesec(boolean rangiranMesec) { this.rangiranMesec = rangiranMesec; }
+    public String getLastNagradaNedeljaId() { return lastNagradaNedeljaId != null ? lastNagradaNedeljaId : ""; }
+    public void setLastNagradaNedeljaId(String id) { this.lastNagradaNedeljaId = id; }
+    public String getLastNagradaMesecId() { return lastNagradaMesecId != null ? lastNagradaMesecId : ""; }
+    public void setLastNagradaMesecId(String id) { this.lastNagradaMesecId = id; }
 }
