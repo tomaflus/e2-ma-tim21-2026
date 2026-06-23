@@ -11,26 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentSpojniceBinding;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.elfak.slagalica.repository.matching.MatchingRepository;
+import com.elfak.slagalica.service.matching.MatchingService;
+import com.elfak.slagalica.service.stats.StatsService;
 
 public class SpojniceFragment extends Fragment {
-
     private FragmentSpojniceBinding binding;
+    private MatchingService service;
     private CountDownTimer timer;
-    private int playerScore = 0;
-    private int opponentScore = 0;
-    private int currentPairIndex = 0;
-    
-    private List<String> leftItems;
-    private List<String> rightItems;
-    private List<String> correctRightItems;
-    private Button currentLeftButton;
+    private Button selectedLeft;
+    private boolean isGameOver = false;
+    private boolean jeOrkestrirano = false;
 
     @Nullable
     @Override
@@ -42,137 +35,170 @@ public class SpojniceFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadMockData();
-        setupUI();
-        startTimer();
 
-        // KT1 Mockup for demo: Simulate end game
-        binding.btnMockGameOver.setOnClickListener(v -> showGameOver());
+        if (getArguments() != null) {
+            String partijaId = getArguments().getString("partijaId");
+            boolean jeIzazov = getArguments().getBoolean("jeIzazov", false);
+            jeOrkestrirano = (partijaId != null) || jeIzazov;
+        }
 
-        binding.btnBackToHome.setOnClickListener(v -> {
-            Navigation.findNavController(v).popBackStack();
-        });
-
+        service = new MatchingService(new MatchingRepository(), new StatsService(requireContext()));
+        
+        binding.btnMockGameOver.setOnClickListener(v -> finishGame());
+        binding.btnBackToHome.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         binding.btnConfirm.setOnClickListener(v -> {
-            // Mock functionality for KT1
-            showGameOver();
-        });
-    }
-
-    private void loadMockData() {
-        leftItems = new ArrayList<>();
-        leftItems.add("Srbija");
-        leftItems.add("Francuska");
-        leftItems.add("Nemačka");
-        leftItems.add("Italija");
-        leftItems.add("Španija");
-
-        correctRightItems = new ArrayList<>();
-        correctRightItems.add("Beograd");
-        correctRightItems.add("Pariz");
-        correctRightItems.add("Berlin");
-        correctRightItems.add("Rim");
-        correctRightItems.add("Madrid");
-
-        rightItems = new ArrayList<>(correctRightItems);
-        Collections.shuffle(rightItems);
-    }
-
-    private void setupUI() {
-        binding.tvScorePlayer.setText(getString(R.string.label_score_player, playerScore));
-        binding.tvScoreOpponent.setText(getString(R.string.label_score_opponent, opponentScore));
-        binding.tvRound.setText(getString(R.string.label_round, 1));
-
-        binding.btnLeft1.setText(leftItems.get(0));
-        binding.btnLeft2.setText(leftItems.get(1));
-        binding.btnLeft3.setText(leftItems.get(2));
-        binding.btnLeft4.setText(leftItems.get(3));
-        binding.btnLeft5.setText(leftItems.get(4));
-
-        binding.btnRight1.setText(rightItems.get(0));
-        binding.btnRight2.setText(rightItems.get(1));
-        binding.btnRight3.setText(rightItems.get(2));
-        binding.btnRight4.setText(rightItems.get(3));
-        binding.btnRight5.setText(rightItems.get(4));
-
-        View.OnClickListener leftClickListener = v -> {
-            if (currentLeftButton != null) {
-                currentLeftButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
-            }
-            currentLeftButton = (Button) v;
-            currentLeftButton.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light, null));
-        };
-
-        binding.btnLeft1.setOnClickListener(leftClickListener);
-        binding.btnLeft2.setOnClickListener(leftClickListener);
-        binding.btnLeft3.setOnClickListener(leftClickListener);
-        binding.btnLeft4.setOnClickListener(leftClickListener);
-        binding.btnLeft5.setOnClickListener(leftClickListener);
-
-        View.OnClickListener rightClickListener = v -> {
-            if (currentLeftButton == null) return;
-
-            Button rightButton = (Button) v;
-            String leftText = currentLeftButton.getText().toString();
-            String rightText = rightButton.getText().toString();
-
-            int leftIdx = leftItems.indexOf(leftText);
-            if (correctRightItems.get(leftIdx).equals(rightText)) {
-                rightButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light, null));
-                currentLeftButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light, null));
-                playerScore += 5;
+             if (service.getRound() < 2) {
+                service.loadRound(2);
+                render();
             } else {
-                rightButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light, null));
-                currentLeftButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light, null));
-                opponentScore += 2;
+                finishGame();
             }
+        });
 
-            currentLeftButton.setEnabled(false);
-            rightButton.setEnabled(false);
-            currentLeftButton = null;
-            
-            binding.tvScorePlayer.setText(getString(R.string.label_score_player, playerScore));
-            binding.tvScoreOpponent.setText(getString(R.string.label_score_opponent, opponentScore));
-
-            currentPairIndex++;
-            if (currentPairIndex == 5) {
-                showGameOver();
-            }
-        };
-
-        binding.btnRight1.setOnClickListener(rightClickListener);
-        binding.btnRight2.setOnClickListener(rightClickListener);
-        binding.btnRight3.setOnClickListener(rightClickListener);
-        binding.btnRight4.setOnClickListener(rightClickListener);
-        binding.btnRight5.setOnClickListener(rightClickListener);
+        setup(); 
+        render();
     }
 
-    private void startTimer() {
-        timer = new CountDownTimer(30000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                binding.tvTimer.setText(getString(R.string.label_timer, (int) (millisUntilFinished / 1000)));
+    private void setup() {
+        View.OnClickListener leftL = v -> {
+            if (selectedLeft != null) {
+                selectedLeft.setBackgroundColor(getResources().getColor(R.color.sivaNeaktivno, null));
             }
+            selectedLeft = (Button) v;
+            selectedLeft.setBackgroundColor(getResources().getColor(R.color.plavaSelektovano, null));
+        };
+        binding.btnLeft1.setOnClickListener(leftL);
+        binding.btnLeft2.setOnClickListener(leftL);
+        binding.btnLeft3.setOnClickListener(leftL);
+        binding.btnLeft4.setOnClickListener(leftL);
+        binding.btnLeft5.setOnClickListener(leftL);
 
-            @Override
-            public void onFinish() {
-                binding.tvTimer.setText(getString(R.string.label_timer, 0));
-                showGameOver();
+        View.OnClickListener rightL = v -> {
+            if (selectedLeft == null) return;
+            Button rightB = (Button) v;
+            if (service.check(selectedLeft.getText().toString(), rightB.getText().toString())) {
+                selectedLeft.setBackgroundColor(getResources().getColor(R.color.zelenaTacno, null));
+                rightB.setBackgroundColor(getResources().getColor(R.color.zelenaTacno, null));
+                selectedLeft.setEnabled(false); 
+                rightB.setEnabled(false);
+                selectedLeft = null;
+                updateScores();
+                if (service.isRoundOver()) {
+                    binding.btnConfirm.setVisibility(View.VISIBLE);
+                }
+            } else {
+                rightB.setBackgroundColor(getResources().getColor(R.color.crvenaNetacno, null));
+                rightB.postDelayed(() -> {
+                    if (binding != null) {
+                        rightB.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+                    }
+                }, 500);
+            }
+        };
+        binding.btnRight1.setOnClickListener(rightL);
+        binding.btnRight2.setOnClickListener(rightL);
+        binding.btnRight3.setOnClickListener(rightL);
+        binding.btnRight4.setOnClickListener(rightL);
+        binding.btnRight5.setOnClickListener(rightL);
+    }
+
+    private void render() {
+        if (binding == null) return;
+        selectedLeft = null;
+        binding.btnConfirm.setVisibility(View.GONE);
+        
+        updateScores();
+        
+        binding.btnLeft1.setText(service.getPairs().get(0).getLeftTerm());
+        binding.btnLeft2.setText(service.getPairs().get(1).getLeftTerm());
+        binding.btnLeft3.setText(service.getPairs().get(2).getLeftTerm());
+        binding.btnLeft4.setText(service.getPairs().get(3).getLeftTerm());
+        binding.btnLeft5.setText(service.getPairs().get(4).getLeftTerm());
+
+        binding.btnRight1.setText(service.getShuffledRight().get(0));
+        binding.btnRight2.setText(service.getShuffledRight().get(1));
+        binding.btnRight3.setText(service.getShuffledRight().get(2));
+        binding.btnRight4.setText(service.getShuffledRight().get(3));
+        binding.btnRight5.setText(service.getShuffledRight().get(4));
+        
+        binding.btnLeft1.setEnabled(true);
+        binding.btnLeft2.setEnabled(true);
+        binding.btnLeft3.setEnabled(true);
+        binding.btnLeft4.setEnabled(true);
+        binding.btnLeft5.setEnabled(true);
+        binding.btnRight1.setEnabled(true);
+        binding.btnRight2.setEnabled(true);
+        binding.btnRight3.setEnabled(true);
+        binding.btnRight4.setEnabled(true);
+        binding.btnRight5.setEnabled(true);
+
+        resetButtonColors();
+        
+        binding.tvRound.setText(getString(R.string.label_round, service.getRound()));
+        startTimer();
+    }
+
+    private void updateScores() {
+        binding.tvScorePlayer.setText(getString(R.string.label_score_format, service.getScore()));
+        binding.tvScoreOpponent.setText(getString(R.string.label_score_format, 0));
+    }
+
+    private void resetButtonColors() {
+        int leftC = getResources().getColor(R.color.sivaNeaktivno, null);
+        int rightC = getResources().getColor(R.color.purple_500, null);
+        
+        binding.btnLeft1.setBackgroundColor(leftC);
+        binding.btnLeft2.setBackgroundColor(leftC);
+        binding.btnLeft3.setBackgroundColor(leftC);
+        binding.btnLeft4.setBackgroundColor(leftC);
+        binding.btnLeft5.setBackgroundColor(leftC);
+        
+        binding.btnRight1.setBackgroundColor(rightC);
+        binding.btnRight2.setBackgroundColor(rightC);
+        binding.btnRight3.setBackgroundColor(rightC);
+        binding.btnRight4.setBackgroundColor(rightC);
+        binding.btnRight5.setBackgroundColor(rightC);
+    }
+    
+    private void startTimer() {
+        if (timer != null) timer.cancel();
+        timer = new CountDownTimer(30000, 1000) {
+            public void onTick(long m) { 
+                if (binding != null) binding.tvTimer.setText(getString(R.string.label_timer, m / 1000)); 
+            }
+            public void onFinish() { 
+                if (binding != null) {
+                    if (service.getRound() < 2) {
+                        service.loadRound(2);
+                        render();
+                    } else {
+                        finishGame();
+                    }
+                }
             }
         }.start();
     }
 
-    private void showGameOver() {
+    private void finishGame() {
+        if (isGameOver || binding == null) return;
+        isGameOver = true;
         if (timer != null) timer.cancel();
+        if (jeOrkestrirano) {
+            Bundle b = new Bundle();
+            b.putInt("bodovi", service.getScore());
+            if (isAdded()) getParentFragmentManager().setFragmentResult("spojniceZavrsen", b);
+            return;
+        }
+        service.save();
         binding.clGameContent.setVisibility(View.GONE);
         binding.clGameOver.setVisibility(View.VISIBLE);
-        binding.tvFinalScore.setText(getString(R.string.score_won, playerScore));
+        binding.tvFinalScore.setText(getString(R.string.score_won, service.getScore()));
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (timer != null) timer.cancel();
+    public void onDestroyView() { 
+        super.onDestroyView(); 
+        if (timer != null) timer.cancel(); 
         binding = null;
     }
 }

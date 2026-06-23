@@ -6,39 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentKoZnaZnaBinding;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.elfak.slagalica.model.quiz.Question;
+import com.elfak.slagalica.repository.quiz.QuizRepository;
+import com.elfak.slagalica.service.quiz.QuizService;
+import com.elfak.slagalica.service.stats.StatsService;
 
 public class KoZnaZnaFragment extends Fragment {
-
     private FragmentKoZnaZnaBinding binding;
-    private int currentQuestionIndex = 0;
-    private int playerScore = 0;
-    private int opponentScore = 0;
+    private QuizService service;
     private CountDownTimer timer;
-
-    private static class Question {
-        String text;
-        String[] answers;
-        int correctAnswerIndex;
-
-        Question(String text, String[] answers, int correctAnswerIndex) {
-            this.text = text;
-            this.answers = answers;
-            this.correctAnswerIndex = correctAnswerIndex;
-        }
-    }
-
-    private List<Question> questions;
+    private boolean isGameOver = false;
+    private boolean jeOrkestrirano = false;
 
     @Nullable
     @Override
@@ -50,114 +34,115 @@ public class KoZnaZnaFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadMockQuestions();
-        updateUI();
 
-        View.OnClickListener answerClickListener = v -> {
-            if (timer != null) timer.cancel();
-            Button clickedButton = (Button) v;
-            int clickedIndex = -1;
-            if (v.getId() == R.id.btnAnswer1) clickedIndex = 0;
-            else if (v.getId() == R.id.btnAnswer2) clickedIndex = 1;
-            else if (v.getId() == R.id.btnAnswer3) clickedIndex = 2;
-            else if (v.getId() == R.id.btnAnswer4) clickedIndex = 3;
+        if (getArguments() != null) {
+            String partijaId = getArguments().getString("partijaId");
+            boolean jeIzazov = getArguments().getBoolean("jeIzazov", false);
+            jeOrkestrirano = (partijaId != null) || jeIzazov;
+        }
 
-            if (clickedIndex == questions.get(currentQuestionIndex).correctAnswerIndex) {
-                clickedButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light, null));
-                playerScore += 10;
-            } else {
-                clickedButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light, null));
-                opponentScore += 5;
-            }
-            
-            v.postDelayed(this::nextQuestion, 1000);
+        service = new QuizService(new QuizRepository(), new StatsService(requireContext()));
+
+        View.OnClickListener listener = v -> {
+            int i = (v.getId() == R.id.btnAnswer1) ? 0 : (v.getId() == R.id.btnAnswer2) ? 1 : (v.getId() == R.id.btnAnswer3) ? 2 : 3;
+            processAnswer(i, (Button) v);
         };
+        binding.btnAnswer1.setOnClickListener(listener);
+        binding.btnAnswer2.setOnClickListener(listener);
+        binding.btnAnswer3.setOnClickListener(listener);
+        binding.btnAnswer4.setOnClickListener(listener);
 
-        binding.btnAnswer1.setOnClickListener(answerClickListener);
-        binding.btnAnswer2.setOnClickListener(answerClickListener);
-        binding.btnAnswer3.setOnClickListener(answerClickListener);
-        binding.btnAnswer4.setOnClickListener(answerClickListener);
+        binding.btnMockGameOver.setOnClickListener(v -> finishGame());
+        binding.btnBackToHome.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
-        // KT1 Mockup for demo: Simulate end game
-        binding.btnMockGameOver.setOnClickListener(v -> showGameOver());
+        render();
+    }
 
-        binding.btnBackToHome.setOnClickListener(v -> {
-            Navigation.findNavController(v).popBackStack();
-        });
+    private void processAnswer(int i, Button b) {
+        if (timer != null) timer.cancel();
+        setButtonsEnabled(false);
+        int points = service.answer(i);
+        boolean ok = points > 0;
+        b.setBackgroundColor(getResources().getColor(ok ? R.color.zelenaTacno : R.color.crvenaNetacno, null));
+        b.postDelayed(this::render, 1000);
+    }
 
+    private void render() {
+        if (binding == null) return;
+        if (service.isOver()) {
+            finishGame();
+            return;
+        }
+        Question q = service.getCurrent();
+        binding.tvQuestion.setText(q.getText());
+        binding.btnAnswer1.setText(q.getAnswers()[0]);
+        binding.btnAnswer2.setText(q.getAnswers()[1]);
+        binding.btnAnswer3.setText(q.getAnswers()[2]);
+        binding.btnAnswer4.setText(q.getAnswers()[3]);
+
+        binding.tvQuestionNumber.setText(getString(R.string.label_question_count, service.getIndex() + 1));
+        binding.tvScorePlayer.setText(getString(R.string.label_score_format, service.getScore()));
+        binding.tvScoreOpponent.setText(getString(R.string.label_score_format, 0));
+        
+        resetButtons();
+        setButtonsEnabled(true);
         startTimer();
     }
 
-    private void loadMockQuestions() {
-        questions = new ArrayList<>();
-        questions.add(new Question("Glavni grad Srbije je?", new String[]{"Beograd", "Novi Sad", "Niš", "Kragujevac"}, 0));
-        questions.add(new Question("Koja planeta je najbliža Suncu?", new String[]{"Venera", "Mars", "Merkur", "Zemlja"}, 2));
-        questions.add(new Question("Koliko kontinenata postoji?", new String[]{"5", "6", "7", "8"}, 2));
-        questions.add(new Question("Ko je napisao 'Na Drini ćuprija'?", new String[]{"Mesa Selimović", "Ivo Andrić", "Branko Ćopić", "Desanka Maksimović"}, 1));
-        questions.add(new Question("Koji je hemijski simbol za zlato?", new String[]{"Ag", "Fe", "Au", "Cu"}, 2));
+    private void setButtonsEnabled(boolean enabled) {
+        binding.btnAnswer1.setEnabled(enabled);
+        binding.btnAnswer2.setEnabled(enabled);
+        binding.btnAnswer3.setEnabled(enabled);
+        binding.btnAnswer4.setEnabled(enabled);
     }
 
-    private void updateUI() {
-        Question q = questions.get(currentQuestionIndex);
-        binding.tvQuestion.setText(q.text);
-        binding.btnAnswer1.setText(q.answers[0]);
-        binding.btnAnswer2.setText(q.answers[1]);
-        binding.btnAnswer3.setText(q.answers[2]);
-        binding.btnAnswer4.setText(q.answers[3]);
-        
-        binding.tvQuestionNumber.setText(getString(R.string.label_question_count, currentQuestionIndex + 1));
-        binding.tvScorePlayer.setText(getString(R.string.label_score_player, playerScore));
-        binding.tvScoreOpponent.setText(getString(R.string.label_score_opponent, opponentScore));
-
-        // Reset colors (assuming purple_500 is defined)
-        int defaultColor = getResources().getColor(android.R.color.holo_purple, null);
-        binding.btnAnswer1.setBackgroundColor(defaultColor);
-        binding.btnAnswer2.setBackgroundColor(defaultColor);
-        binding.btnAnswer3.setBackgroundColor(defaultColor);
-        binding.btnAnswer4.setBackgroundColor(defaultColor);
+    private void resetButtons() {
+        int c = getResources().getColor(R.color.purple_500, null);
+        binding.btnAnswer1.setBackgroundColor(c);
+        binding.btnAnswer2.setBackgroundColor(c);
+        binding.btnAnswer3.setBackgroundColor(c);
+        binding.btnAnswer4.setBackgroundColor(c);
     }
 
     private void startTimer() {
         if (timer != null) timer.cancel();
         timer = new CountDownTimer(5000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int seconds = (int) (millisUntilFinished / 1000);
-                binding.tvTimer.setText(getString(R.string.label_timer, seconds));
-                binding.pbTimer.setProgress(seconds);
+            public void onTick(long m) { 
+                if (binding != null) {
+                    binding.tvTimer.setText(getString(R.string.label_timer, m / 1000)); 
+                    binding.pbTimer.setProgress((int)(m/1000));
+                }
             }
-
-            @Override
-            public void onFinish() {
-                binding.tvTimer.setText(getString(R.string.label_timer, 0));
-                binding.pbTimer.setProgress(0);
-                opponentScore += 5;
-                nextQuestion();
+            public void onFinish() { 
+                if (binding != null) {
+                    setButtonsEnabled(false);
+                    service.skip(); 
+                    render(); 
+                }
             }
         }.start();
     }
 
-    private void nextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < questions.size()) {
-            updateUI();
-            startTimer();
+    private void finishGame() {
+        if (isGameOver || binding == null) return;
+        isGameOver = true;
+        if (timer != null) timer.cancel();
+        if (jeOrkestrirano) {
+            Bundle b = new Bundle();
+            b.putInt("bodovi", service.getScore());
+            if (isAdded()) getParentFragmentManager().setFragmentResult("koZnaZnaZavrsen", b);
         } else {
-            showGameOver();
+            service.save();
+            binding.clGameContent.setVisibility(View.GONE);
+            binding.clGameOver.setVisibility(View.VISIBLE);
+            binding.tvFinalScore.setText(getString(R.string.score_won, service.getScore()));
         }
     }
 
-    private void showGameOver() {
-        if (timer != null) timer.cancel();
-        binding.clGameContent.setVisibility(View.GONE);
-        binding.clGameOver.setVisibility(View.VISIBLE);
-        binding.tvFinalScore.setText(getString(R.string.score_won, playerScore));
-    }
-
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (timer != null) timer.cancel();
+    public void onDestroyView() { 
+        super.onDestroyView(); 
+        if (timer != null) timer.cancel(); 
         binding = null;
     }
 }

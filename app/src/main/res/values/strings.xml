@@ -30,6 +30,10 @@
     <string name="btn_profile">Profil</string>
     <string name="btn_ko_zna_zna">Ko zna zna</string>
     <string name="btn_spojnice">Spojnice</string>
+    <string name="label_me">Ja</string>
+    <string name="label_opponent">Protivnik</string>
+    <string name="label_score_format">%1$d bodova</string>
+    <string name="btn_back_home">Nazad na početnu</string>
 
     <string name="mock_question">Glavni grad Srbije je?</string>
     <string name="mock_ans1">Beograd</string>
