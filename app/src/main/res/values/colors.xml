@@ -5,15 +5,23 @@
     <color name="pozadinaBoja">#12122A</color>
     <color name="headerBoja">#1A1A3A</color>
     <color name="dividerBoja">#4444AA</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="textSekundarna">#AAAACC</color>
+    <color name="textLink">#AAAAFF</color>
     <color name="crvenaDugme">#FF5252</color>
     <color name="zlatnaZvezde">#FFD700</color>
     <color name="zelenaTacno">#4CAF50</color>
     <color name="crvenaNetacno">#F44336</color>
     <color name="plavaSelektovano">#2196F3</color>
     <color name="sivaNeaktivno">#9E9E9E</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="bronze">#CD7F32</color>
+    <color name="silver">#C0C0C0</color>
+    <color name="gold">#FFD700</color>
+    <color name="no_rank">#4444AA</color>
+    <color name="platinum">#E5E4E2</color>
+    <color name="diamond">#B9F2FF</color>
+    <color name="region_highlight">#40FFFF00</color>
 </resources>

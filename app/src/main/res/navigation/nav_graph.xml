@@ -112,7 +112,34 @@
         <action
             android:id="@+id/action_profilFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_profilFragment_to_friendsFragment"
+            app:destination="@id/friendsFragment" />
+        <action
+            android:id="@+id/action_profilFragment_to_regionsFragment"
+            app:destination="@id/regionsFragment" />
+        <action
+            android:id="@+id/action_profilFragment_to_leaguesFragment"
+            app:destination="@id/leaguesFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/leaguesFragment"
+        android:name="com.elfak.slagalica.fragments.profile.LeaguesFragment"
+        android:label="Lige"
+        tools:layout="@layout/fragment_leagues" />
+
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.elfak.slagalica.fragments.friends.FriendsFragment"
+        android:label="Prijatelji"
+        tools:layout="@layout/fragment_friends" />
+
+    <fragment
+        android:id="@+id/regionsFragment"
+        android:name="com.elfak.slagalica.fragments.region.RegionsFragment"
+        android:label="Regioni"
+        tools:layout="@layout/fragment_regions" />
 
     <fragment
         android:id="@+id/koZnaZnaFragment"
@@ -146,7 +173,13 @@
         android:id="@+id/igraFragment"
         android:name="com.elfak.slagalica.fragments.game.IgraFragment"
         android:label="Igra"
-        tools:layout="@layout/fragment_igra"/>
+        tools:layout="@layout/fragment_igra">
+        <argument
+            android:name="partijaId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
         <action
         android:id="@+id/action_igraFragment_to_homeFragment"
         app:destination="@id/homeFragment"/>

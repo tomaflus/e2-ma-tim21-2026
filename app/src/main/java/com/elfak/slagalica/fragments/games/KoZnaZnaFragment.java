@@ -83,7 +83,7 @@ public class KoZnaZnaFragment extends Fragment {
         binding.tvQuestionNumber.setText(getString(R.string.label_question_count, service.getIndex() + 1));
         binding.tvScorePlayer.setText(getString(R.string.label_score_format, service.getScore()));
         binding.tvScoreOpponent.setText(getString(R.string.label_score_format, 0));
-        
+
         resetButtons();
         setButtonsEnabled(true);
         startTimer();
@@ -107,17 +107,17 @@ public class KoZnaZnaFragment extends Fragment {
     private void startTimer() {
         if (timer != null) timer.cancel();
         timer = new CountDownTimer(5000, 1000) {
-            public void onTick(long m) { 
+            public void onTick(long m) {
                 if (binding != null) {
-                    binding.tvTimer.setText(getString(R.string.label_timer, m / 1000)); 
+                    binding.tvTimer.setText(getString(R.string.label_timer, m / 1000));
                     binding.pbTimer.setProgress((int)(m/1000));
                 }
             }
-            public void onFinish() { 
+            public void onFinish() {
                 if (binding != null) {
                     setButtonsEnabled(false);
-                    service.skip(); 
-                    render(); 
+                    service.skip();
+                    render();
                 }
             }
         }.start();
@@ -140,9 +140,9 @@ public class KoZnaZnaFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() { 
-        super.onDestroyView(); 
-        if (timer != null) timer.cancel(); 
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (timer != null) timer.cancel();
         binding = null;
     }
 }
