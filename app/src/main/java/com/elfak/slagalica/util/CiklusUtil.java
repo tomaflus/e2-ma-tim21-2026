@@ -7,6 +7,10 @@ import java.util.Locale;
 
 public class CiklusUtil {
 
+    public static String trenutniDanId() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    }
+
     public static String trenutniNedeljaId() {
         Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);

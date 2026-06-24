@@ -20,6 +20,7 @@ import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.IzazovRepository;
 import com.elfak.slagalica.repository.PartijaRepository;
 import com.elfak.slagalica.repository.UserRepository;
+import com.elfak.slagalica.service.DnevneMisijeService;
 
 public class IgraFragment extends Fragment {
 
@@ -432,6 +433,9 @@ public class IgraFragment extends Fragment {
                             "Izgubili ste! -zvezde";
                     Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
 
+                    // Dnevne misije — DODATAK, ne mijenja postojeću logiku
+                    okiniMisijuPartije(jePobjedio);
+
                     if (isAdded() && getView() != null) {
                         Navigation.findNavController(requireView())
                                 .navigate(R.id.action_igraFragment_to_homeFragment);
@@ -444,6 +448,28 @@ public class IgraFragment extends Fragment {
                     }
                 }
         );
+    }
+
+    private void okiniMisijuPartije(boolean jePobjedio) {
+        if (authRepository.trenutniKorisnik() == null || trenutnaPartija == null) return;
+        String uid = authRepository.trenutniKorisnik().getUid();
+        android.content.Context appCtx = requireContext().getApplicationContext();
+        DnevneMisijeService service = new DnevneMisijeService();
+        if (trenutnaPartija.isPrijateljska()) {
+            service.oznaciMisiju(uid, DnevneMisijeService.TipMisije.PRIJATELJSKA,
+                    (z, t, sve) -> {
+                        if (z > 0) Toast.makeText(appCtx,
+                                "Misija: Prijateljska partija! +" + z + " ★", Toast.LENGTH_SHORT).show();
+                    });
+        } else if (jePobjedio) {
+            service.oznaciMisiju(uid, DnevneMisijeService.TipMisije.POBEDA,
+                    (z, t, sve) -> {
+                        if (z > 0) Toast.makeText(appCtx,
+                                "Misija: Pobeda u partiji! +" + z + " ★", Toast.LENGTH_SHORT).show();
+                        if (sve) Toast.makeText(appCtx,
+                                "Sve misije! +" + t + " tokena bonus!", Toast.LENGTH_LONG).show();
+                    });
+        }
     }
 
     private void prikaziRezultat(Partija partija) {

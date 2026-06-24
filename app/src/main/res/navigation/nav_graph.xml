@@ -108,6 +108,9 @@
         <action
             android:id="@+id/action_homeFragment_to_nagradaFragment"
             app:destination="@id/nagradaFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_dnevneMisijeFragment"
+            app:destination="@id/dnevneMisijeFragment"/>
     </fragment>
 
     <fragment
@@ -201,6 +204,12 @@
         android:name="com.elfak.slagalica.fragments.rang.RangListaFragment"
         android:label="Rang lista"
         tools:layout="@layout/fragment_rang_lista"/>
+
+    <fragment
+        android:id="@+id/dnevneMisijeFragment"
+        android:name="com.elfak.slagalica.fragments.misije.DnevneMisijeFragment"
+        android:label="Dnevne misije"
+        tools:layout="@layout/fragment_dnevne_misije"/>
 
     <fragment
         android:id="@+id/cetFragment"

@@ -134,6 +134,11 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_rangListaFragment);
         });
 
+        binding.btnDnevneMisije.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_dnevneMisijeFragment);
+        });
+
     }
 
     @Override

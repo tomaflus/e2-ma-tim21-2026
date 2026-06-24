@@ -16,6 +16,7 @@ import com.elfak.slagalica.databinding.FragmentCetBinding;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.CetRepository;
 import com.elfak.slagalica.repository.UserRepository;
+import com.elfak.slagalica.service.DnevneMisijeService;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -98,6 +99,19 @@ public class CetFragment extends Fragment {
                                 binding.etPoruka.setText("");
                                 binding.btnPosalji.setEnabled(true);
                             });
+                        }
+                        // Dnevna misija — DODATAK
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            new DnevneMisijeService().oznaciMisiju(uid,
+                                    DnevneMisijeService.TipMisije.PORUKA_CET,
+                                    (z, t, sve) -> {
+                                        if (z > 0 && getContext() != null) {
+                                            Toast.makeText(getContext(),
+                                                    "Misija: Poruka u četu! +" + z + " ★",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
                     },
                     poruka -> {
