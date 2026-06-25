@@ -24,7 +24,10 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -98,35 +101,92 @@ public class RegionsFragment extends Fragment {
     private void addUserPoint(GeoPoint point, String username) {
         Marker marker = new Marker(binding.mapView);
         marker.setPosition(point);
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        marker.setIcon(getResources().getDrawable(android.R.drawable.presence_online)); // small dot
-        marker.setAlpha(0.6f);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        // Using a distinct dot icon with high contrast
+        marker.setIcon(getResources().getDrawable(android.R.drawable.presence_online)); 
+        marker.setAlpha(1.0f); // High visibility
         marker.setTitle(username);
         binding.mapView.getOverlays().add(marker);
     }
 
     private void loadRegionMarkers() {
         for (Region r : Region.values()) {
-            addRegionMarker(new GeoPoint(r.getCenterLat(), r.getCenterLon()), r);
+            drawRegionPolygon(r);
+            addRegionCenterIcon(new GeoPoint(r.getCenterLat(), r.getCenterLon()), r);
         }
     }
 
-    private void addRegionMarker(GeoPoint point, Region region) {
-        Marker marker = new Marker(binding.mapView);
-        marker.setPosition(point);
-        marker.setTitle(region.getFullName());
-        marker.setIcon(getResources().getDrawable(region.getIconRes()));
-        
-        // Highlight player's region
+    private void drawRegionPolygon(Region region) {
+        Polygon polygon = new Polygon();
+        List<GeoPoint> pts = getRegionPoints(region);
+        polygon.setPoints(pts);
+
+        int fillColor = Color.argb(40, 255, 255, 255); // Default white transparent
+        int outlineColor = Color.WHITE;
+        float outlineWidth = 2.0f;
+
         if (region.getFullName().equalsIgnoreCase(currentUserRegion)) {
-            marker.setImage(getResources().getDrawable(R.drawable.map_serbia_regions));
+            fillColor = Color.argb(80, 255, 215, 0); // Gold highlight
+            outlineColor = Color.YELLOW;
+            outlineWidth = 5.0f;
         }
 
+        polygon.getFillPaint().setColor(fillColor);
+        polygon.getOutlinePaint().setColor(outlineColor);
+        polygon.getOutlinePaint().setStrokeWidth(outlineWidth);
+
+        polygon.setOnClickListener((poly, map, eventPos) -> {
+            prikaziRegion(region);
+            return true;
+        });
+
+        binding.mapView.getOverlays().add(polygon);
+    }
+
+    private void addRegionCenterIcon(GeoPoint point, Region region) {
+        Marker marker = new Marker(binding.mapView);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        marker.setIcon(getResources().getDrawable(region.getIconRes()));
+        marker.setTitle(region.getFullName());
         marker.setOnMarkerClickListener((m, mapView) -> {
             prikaziRegion(region);
             return true;
         });
         binding.mapView.getOverlays().add(marker);
+    }
+
+    private List<GeoPoint> getRegionPoints(Region r) {
+        // Simplified but recognizable boundaries for Serbia's 5 regions
+        switch (r) {
+            case VOJVODINA:
+                return Arrays.asList(
+                    new GeoPoint(46.2, 18.8), new GeoPoint(46.2, 21.5),
+                    new GeoPoint(44.8, 21.5), new GeoPoint(44.8, 18.8)
+                );
+            case BEOGRAD:
+                return Arrays.asList(
+                    new GeoPoint(44.9, 20.2), new GeoPoint(44.9, 20.7),
+                    new GeoPoint(44.6, 20.7), new GeoPoint(44.6, 20.2)
+                );
+            case SUMADIJA:
+                return Arrays.asList(
+                    new GeoPoint(44.6, 19.0), new GeoPoint(44.6, 21.0),
+                    new GeoPoint(43.0, 21.0), new GeoPoint(43.0, 19.0)
+                );
+            case ISTOCNA:
+                return Arrays.asList(
+                    new GeoPoint(44.6, 21.0), new GeoPoint(44.6, 23.0),
+                    new GeoPoint(42.5, 23.0), new GeoPoint(42.5, 21.5),
+                    new GeoPoint(43.3, 21.0)
+                );
+            case KOSOVO:
+                return Arrays.asList(
+                    new GeoPoint(43.3, 20.5), new GeoPoint(43.3, 21.5),
+                    new GeoPoint(41.8, 21.5), new GeoPoint(41.8, 20.5)
+                );
+            default: return new ArrayList<>();
+        }
     }
 
     private void prikaziRegion(Region r) {

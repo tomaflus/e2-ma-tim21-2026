@@ -10,6 +10,7 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class CycleManager {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -80,9 +81,46 @@ public class CycleManager {
     }
 
     private double[] generateRandomCoords(com.elfak.slagalica.model.Region r) {
-        java.util.Random random = new java.util.Random();
+        Random random = new Random();
         double lat = r.getCenterLat() + (random.nextDouble() - 0.5) * r.getRadius();
         double lon = r.getCenterLon() + (random.nextDouble() - 0.5) * r.getRadius();
         return new double[]{lat, lon};
+    }
+
+    /**
+     * DEBUG-ONLY: Seeds test data for Student 2 KO verification.
+     * Call this manually from a debug button or initialization block.
+     */
+    public void seedTestData(String currentUid) {
+        WriteBatch batch = db.batch();
+        Random random = new Random();
+
+        // 1. Create test users for all 5 regions to populate leaderboard
+        for (com.elfak.slagalica.model.Region r : com.elfak.slagalica.model.Region.values()) {
+            for (int i = 1; i <= 3; i++) {
+                String testId = "test_user_" + r.name() + "_" + i;
+                Map<String, Object> u = new HashMap<>();
+                u.put("korisnickoIme", "Test " + r.getShortName() + " " + i);
+                u.put("region", r.getFullName());
+                u.put("mesecneZvezde", random.nextInt(500));
+                u.put("zvezde", random.nextInt(2000));
+                u.put("mesecCiklusId", CiklusUtil.trenutniMesecId());
+                double[] coords = generateRandomCoords(r);
+                u.put("latitude", coords[0]);
+                u.put("longitude", coords[1]);
+                u.put("liga", com.elfak.slagalica.model.League.getByStars((int)u.get("zvezde")).ordinal());
+                
+                batch.set(db.collection("users").document(testId), u);
+            }
+        }
+
+        // 2. Set current user stats for specific tests
+        Map<String, Object> me = new HashMap<>();
+        me.put("previousCycleRegionRank", 1); // For gold frame
+        me.put("lastTokenBonusTimestamp", 0); // Make bonus available
+        me.put("zvezde", 99); // For threshold testing
+        batch.update(db.collection("users").document(currentUid), me);
+
+        batch.commit().addOnSuccessListener(v -> Log.d(TAG, "Test data seeded successfully"));
     }
 }

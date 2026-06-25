@@ -70,6 +70,14 @@ public class ProfilFragment extends Fragment {
         ucitajPodatke();
         updateStats();
 
+        binding.btnDailyBonus.setOnClickListener(v -> {
+            auth.getKorisnikPodaci(auth.trenutniKorisnik().getUid(), user -> {
+                if (user != null) {
+                    new com.elfak.slagalica.service.LeagueService(requireContext()).claimDailyBonus(user);
+                    ucitajPodatke();
+                }
+            });
+        });
         binding.btnFriends.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_profilFragment_to_friendsFragment));
         binding.btnRegions.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_profilFragment_to_regionsFragment));
         binding.btnLeagues.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_profilFragment_to_leaguesFragment));
@@ -101,7 +109,16 @@ public class ProfilFragment extends Fragment {
 
                     League league = League.getByStars(user.getZvezde());
                     binding.tvLiga.setText(league.getName());
-                    
+
+                    long now = System.currentTimeMillis();
+                    if (now - user.getLastTokenBonusTimestamp() < 24 * 60 * 60 * 1000) {
+                        binding.btnDailyBonus.setEnabled(false);
+                        binding.btnDailyBonus.setText("Dnevni bonus preuzet");
+                    } else {
+                        binding.btnDailyBonus.setEnabled(true);
+                        binding.btnDailyBonus.setText("Preuzmi dnevni bonus (+" + (5 + league.ordinal()) + ")");
+                    }
+
                     updateAvatarFrame(Region.getByName(user.getRegion()));
                 }
             });
