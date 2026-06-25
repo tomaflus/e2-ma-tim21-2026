@@ -38,8 +38,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
         holder.binding.tvUsername.setText(user.getKorisnickoIme());
-        holder.binding.tvLeague.setText("Liga: " + user.getLiga());
+        com.elfak.slagalica.model.League league = com.elfak.slagalica.model.League.values()[user.getLiga()];
+        holder.binding.tvLeague.setText(league.getName());
+        holder.binding.tvStarsAndRank.setText("Zvezde: " + user.getZvezde() + " | Mesečni rang: " + (user.getMesecniBodovi() > 0 ? user.getMesecniBodovi() : "/"));
         holder.binding.btnInvite.setOnClickListener(v -> listener.onInvite(user));
+        
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+            // Placeholder for image loading (Glide/Picasso)
+        }
     }
 
     @Override

@@ -24,6 +24,12 @@ public class User {
     private String lastNagradaNedeljaId = "";
     private String lastNagradaMesecId = "";
     private List<String> prijateljiIds = new ArrayList<>();
+    
+    // Student 2 KO fields
+    private double latitude;
+    private double longitude;
+    private long lastTokenBonusTimestamp;
+    private int previousCycleRegionRank; // 1, 2, or 3 for avatar frames
 
     public User() {}
 
@@ -79,4 +85,13 @@ public class User {
     public void setLastNagradaNedeljaId(String id) { this.lastNagradaNedeljaId = id; }
     public String getLastNagradaMesecId() { return lastNagradaMesecId != null ? lastNagradaMesecId : ""; }
     public void setLastNagradaMesecId(String id) { this.lastNagradaMesecId = id; }
+
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public long getLastTokenBonusTimestamp() { return lastTokenBonusTimestamp; }
+    public void setLastTokenBonusTimestamp(long lastTokenBonusTimestamp) { this.lastTokenBonusTimestamp = lastTokenBonusTimestamp; }
+    public int getPreviousCycleRegionRank() { return previousCycleRegionRank; }
+    public void setPreviousCycleRegionRank(int previousCycleRegionRank) { this.previousCycleRegionRank = previousCycleRegionRank; }
 }

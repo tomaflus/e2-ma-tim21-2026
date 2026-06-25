@@ -65,12 +65,6 @@ public class FriendsFragment extends Fragment {
                             Toast.makeText(getContext(),
                                 getString(R.string.msg_invite_sent), Toast.LENGTH_SHORT).show();
                         }
-                    },
-                    err -> {
-                        if (getContext() != null) {
-                            Toast.makeText(getContext(),
-                                "Greška pri slanju poziva", Toast.LENGTH_SHORT).show();
-                        }
                     }
                 ),
                 err -> {

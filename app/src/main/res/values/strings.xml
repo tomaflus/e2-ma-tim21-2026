@@ -68,6 +68,10 @@
     <string name="google_maps_key" translatable="false">UNESI_MAPS_API_KLJUC</string>
     <string name="btn_ko_zna_zna">Ko zna zna</string>
     <string name="btn_spojnice">Spojnice</string>
+    <string name="label_monthly_region_leaderboard">Mesečna rang lista regiona</string>
+    <string name="label_region_active_players">Aktivni igrači: %1$d</string>
+    <string name="label_region_total_players">Ukupno korisnika: %1$d</string>
+    <string name="label_region_top3_stats">Top 3 mesta: 1.%1$dx, 2.%2$dx, 3.%3$dx</string>
 
     <string name="mock_question">Glavni grad Srbije je?</string>
     <string name="mock_ans1">Beograd</string>
