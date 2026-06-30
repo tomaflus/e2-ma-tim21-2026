@@ -29,20 +29,30 @@ public class AsocijacijeRepository {
 
     public void dohvatiNasumicnoPitanje(OnUcitanoListener onUcitano,
                                          OnGreskaListener onGreska) {
+        dohvatiNasumicnoPitanjeIzuzimajuci(null, onUcitano, onGreska);
+    }
+
+    public void dohvatiNasumicnoPitanjeIzuzimajuci(String excludeId,
+                                                    OnUcitanoListener onUcitano,
+                                                    OnGreskaListener onGreska) {
         db.collection("asocijacije")
                 .get()
                 .addOnSuccessListener(query -> {
                     if (query.isEmpty()) {
-                        // Kolekcija prazna — seeduj Firebase pa vrati jedno pitanje
                         seedujIVrati(onUcitano, onGreska);
                         return;
                     }
 
-                    List<QueryDocumentSnapshot> dokumenti = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : query) dokumenti.add(doc);
+                    List<QueryDocumentSnapshot> svi = new ArrayList<>();
+                    List<QueryDocumentSnapshot> filtrirani = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : query) {
+                        svi.add(doc);
+                        if (!doc.getId().equals(excludeId)) filtrirani.add(doc);
+                    }
 
+                    List<QueryDocumentSnapshot> kandidati = filtrirani.isEmpty() ? svi : filtrirani;
                     QueryDocumentSnapshot nasumicni =
-                            dokumenti.get(new Random().nextInt(dokumenti.size()));
+                            kandidati.get(new Random().nextInt(kandidati.size()));
                     Asocijacija pitanje = nasumicni.toObject(Asocijacija.class);
                     pitanje.setId(nasumicni.getId());
                     mainHandler.post(() -> onUcitano.onUcitano(pitanje));

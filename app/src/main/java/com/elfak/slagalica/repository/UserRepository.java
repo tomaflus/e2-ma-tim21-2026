@@ -202,36 +202,49 @@ public class UserRepository {
     public void azurirajCiklusneZvezde(String userId, int dodateZvezde,
                                         OnSuccessListener onSuccess,
                                         OnErrorListener onError) {
-        db.collection("users").document(userId).get()
-                .addOnSuccessListener(snapshot -> {
-                    User user = snapshot.toObject(User.class);
-                    if (user == null) {
-                        mainHandler.post(onSuccess::onSuccess);
-                        return;
-                    }
-                    String noviNedeljaId = CiklusUtil.trenutniNedeljaId();
-                    String noviMesecId = CiklusUtil.trenutniMesecId();
+        // Uvijek čitamo aktivne rang liste da dobijemo tekući ciklusId,
+        // jer simulacija može promijeniti ciklus unutar istog kalendarskog perioda.
+        db.collection("rangListe").whereEqualTo("tip", "nedeljna").whereEqualTo("aktivna", true)
+                .limit(1).get()
+                .addOnSuccessListener(nedSnaps ->
+            db.collection("rangListe").whereEqualTo("tip", "mesecna").whereEqualTo("aktivna", true)
+                    .limit(1).get()
+                    .addOnSuccessListener(mesSnaps -> {
+                        String nedId = nedSnaps.isEmpty()
+                                ? CiklusUtil.trenutniNedeljaId() + "-1"
+                                : nedSnaps.getDocuments().get(0).getString("ciklusId");
+                        String mesId = mesSnaps.isEmpty()
+                                ? CiklusUtil.trenutniMesecId() + "-1"
+                                : mesSnaps.getDocuments().get(0).getString("ciklusId");
 
-                    int noveNedeljne = noviNedeljaId.equals(user.getNedeljaCiklusId())
-                            ? user.getNedeljneZvezde() : 0;
-                    int noveMesecne = noviMesecId.equals(user.getMesecCiklusId())
-                            ? user.getMesecneZvezde() : 0;
+                        db.collection("users").document(userId).get()
+                                .addOnSuccessListener(snapshot -> {
+                                    User user = snapshot.toObject(User.class);
+                                    if (user == null) { mainHandler.post(onSuccess::onSuccess); return; }
 
-                    noveNedeljne = Math.max(0, noveNedeljne + dodateZvezde);
-                    noveMesecne = Math.max(0, noveMesecne + dodateZvezde);
+                                    int noveNedeljne = nedId.equals(user.getNedeljaCiklusId())
+                                            ? Math.max(0, user.getNedeljneZvezde() + dodateZvezde)
+                                            : Math.max(0, dodateZvezde);
+                                    int noveMesecne = mesId.equals(user.getMesecCiklusId())
+                                            ? Math.max(0, user.getMesecneZvezde() + dodateZvezde)
+                                            : Math.max(0, dodateZvezde);
 
-                    db.collection("users").document(userId)
-                            .update(
-                                    "nedeljneZvezde", noveNedeljne,
-                                    "mesecneZvezde", noveMesecne,
-                                    "nedeljaCiklusId", noviNedeljaId,
-                                    "mesecCiklusId", noviMesecId,
-                                    "rangiranNedelja", true,
-                                    "rangiranMesec", true
-                            )
-                            .addOnSuccessListener(unused -> mainHandler.post(onSuccess::onSuccess))
-                            .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
-                })
-                .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
+                                    db.collection("users").document(userId)
+                                            .update(
+                                                    "nedeljneZvezde", noveNedeljne,
+                                                    "mesecneZvezde", noveMesecne,
+                                                    "nedeljaCiklusId", nedId,
+                                                    "mesecCiklusId", mesId,
+                                                    "rangiranNedelja", true,
+                                                    "rangiranMesec", true
+                                            )
+                                            .addOnSuccessListener(u -> mainHandler.post(onSuccess::onSuccess))
+                                            .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
+                                })
+                                .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
+                    })
+                    .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())))
+        )
+        .addOnFailureListener(e -> mainHandler.post(() -> onError.onError(e.getMessage())));
     }
 }

@@ -16,7 +16,9 @@ import android.widget.Toast;
 
 import com.elfak.slagalica.adapters.RangAdapter;
 import com.elfak.slagalica.databinding.FragmentRangListaBinding;
+import com.elfak.slagalica.model.RangLista;
 import com.elfak.slagalica.model.User;
+import com.elfak.slagalica.service.RewardService;
 import com.elfak.slagalica.util.CiklusUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,6 +34,7 @@ public class RangListaFragment extends Fragment {
     private RangAdapter adapter;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private RangAdapter.Tip trenutniTip = RangAdapter.Tip.NEDELJNA;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private final Runnable autoRefresh = new Runnable() {
         @Override
@@ -63,39 +66,14 @@ public class RangListaFragment extends Fragment {
         binding.btnNedeljna.setOnClickListener(v -> prikaziNedeljnu());
         binding.btnMesecna.setOnClickListener(v -> prikaziMesecnu());
 
-        // TEST: simulacija kraja ciklusa — ukloniti prije produkcije
+        // TEST: obrađuje nagrade za sve rangirane korisnike i resetuje listu
         binding.btnTestSimulacija.setOnClickListener(v -> simulirajKrajCiklusa());
 
         handler.post(autoRefresh);
     }
 
-    // TEST: postavlja stari ciklusId da proveriINagradi smatra da je ciklus završen
-    private void simulirajKrajCiklusa() {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        java.util.Map<String, Object> updates = new java.util.HashMap<>();
-        updates.put("nedeljaCiklusId", "2020-W01");
-        updates.put("mesecCiklusId", "2020-01");
-        updates.put("nedeljneZvezde", 42);
-        updates.put("mesecneZvezde", 42);
-        updates.put("rangiranNedelja", true);
-        updates.put("rangiranMesec", true);
-        updates.put("lastNagradaNedeljaId", "");
-        updates.put("lastNagradaMesecId", "");
-        FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update(updates)
-                .addOnSuccessListener(v ->
-                        Toast.makeText(getContext(),
-                                "Ciklus simuliran! Idi na Home da preuzmeš nagradu.",
-                                Toast.LENGTH_LONG).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), "Greška: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show());
-    }
-
     private void prikaziNedeljnu() {
         trenutniTip = RangAdapter.Tip.NEDELJNA;
-        binding.tvOpseg.setText(CiklusUtil.opsegNedelje());
         binding.btnNedeljna.setAlpha(1f);
         binding.btnMesecna.setAlpha(0.5f);
         ucitajListu();
@@ -103,43 +81,89 @@ public class RangListaFragment extends Fragment {
 
     private void prikaziMesecnu() {
         trenutniTip = RangAdapter.Tip.MESECNA;
-        binding.tvOpseg.setText(CiklusUtil.opsegMeseca());
         binding.btnNedeljna.setAlpha(0.5f);
         binding.btnMesecna.setAlpha(1f);
         ucitajListu();
     }
 
     private void ucitajListu() {
-        String ciklusPolje = trenutniTip == RangAdapter.Tip.NEDELJNA
-                ? "nedeljaCiklusId" : "mesecCiklusId";
-        String trenutniId = trenutniTip == RangAdapter.Tip.NEDELJNA
-                ? CiklusUtil.trenutniNedeljaId() : CiklusUtil.trenutniMesecId();
-        String zvezdePolje = trenutniTip == RangAdapter.Tip.NEDELJNA
-                ? "nedeljneZvezde" : "mesecneZvezde";
-
+        String tipStr = trenutniTip == RangAdapter.Tip.NEDELJNA ? "nedeljna" : "mesecna";
         final RangAdapter.Tip tipSnapshot = trenutniTip;
 
-        FirebaseFirestore.getInstance().collection("users")
-                .whereEqualTo(ciklusPolje, trenutniId)
+        db.collection("rangListe")
+                .whereEqualTo("tip", tipStr)
+                .whereEqualTo("aktivna", true)
+                .limit(1)
                 .get()
-                .addOnSuccessListener(snapshots -> {
+                .addOnSuccessListener(snaps -> {
                     if (binding == null) return;
-                    List<User> lista = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : snapshots) {
-                        User u = doc.toObject(User.class);
-                        u.setId(doc.getId());
-                        lista.add(u);
+
+                    if (snaps.isEmpty()) {
+                        // Nema aktivne rang liste — kreiraj je
+                        kreirajRangListuAkoNema(tipStr, () -> ucitajListu());
+                        return;
                     }
-                    Collections.sort(lista, (a, b) -> {
-                        int va = tipSnapshot == RangAdapter.Tip.NEDELJNA
-                                ? a.getNedeljneZvezde() : a.getMesecneZvezde();
-                        int vb = tipSnapshot == RangAdapter.Tip.NEDELJNA
-                                ? b.getNedeljneZvezde() : b.getMesecneZvezde();
-                        return vb - va;
-                    });
-                    if (lista.size() > 10) lista = lista.subList(0, 10);
-                    adapter.updateData(lista, tipSnapshot);
+
+                    RangLista rl = snaps.getDocuments().get(0).toObject(RangLista.class);
+                    if (rl == null) return;
+
+                    binding.tvOpseg.setText(rl.getOpseg());
+
+                    String ciklusPolje = tipSnapshot == RangAdapter.Tip.NEDELJNA
+                            ? "nedeljaCiklusId" : "mesecCiklusId";
+
+                    db.collection("users")
+                            .whereEqualTo(ciklusPolje, rl.getCiklusId())
+                            .get()
+                            .addOnSuccessListener(userSnaps -> {
+                                if (binding == null) return;
+                                List<User> lista = new ArrayList<>();
+                                for (QueryDocumentSnapshot doc : userSnaps) {
+                                    User u = doc.toObject(User.class);
+                                    u.setId(doc.getId());
+                                    // prikaži samo korisnike koji su stvarno igrali u ovom ciklusu
+                                    boolean rangiran = tipSnapshot == RangAdapter.Tip.NEDELJNA
+                                            ? u.isRangiranNedelja() : u.isRangiranMesec();
+                                    if (rangiran) lista.add(u);
+                                }
+                                Collections.sort(lista, (a, b) -> {
+                                    int va = tipSnapshot == RangAdapter.Tip.NEDELJNA
+                                            ? a.getNedeljneZvezde() : a.getMesecneZvezde();
+                                    int vb = tipSnapshot == RangAdapter.Tip.NEDELJNA
+                                            ? b.getNedeljneZvezde() : b.getMesecneZvezde();
+                                    return vb - va;
+                                });
+                                if (lista.size() > 10) lista = lista.subList(0, 10);
+                                adapter.updateData(lista, tipSnapshot);
+                            });
                 });
+    }
+
+    private void kreirajRangListuAkoNema(String tip, Runnable onKreirano) {
+        String ciklusId = tip.equals("nedeljna")
+                ? CiklusUtil.trenutniNedeljaId() + "-1"
+                : CiklusUtil.trenutniMesecId() + "-1";
+        String opseg = tip.equals("nedeljna")
+                ? CiklusUtil.opsegNedelje()
+                : CiklusUtil.opsegMeseca();
+
+        RangLista rl = new RangLista(tip, ciklusId, opseg, true);
+        db.collection("rangListe").add(rl)
+                .addOnSuccessListener(ref -> { if (onKreirano != null) onKreirano.run(); });
+    }
+
+    // TEST: obrađuje nagrade za sve rangirane korisnike tekuće sedmice i mjeseca
+    private void simulirajKrajCiklusa() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        binding.btnTestSimulacija.setEnabled(false);
+        new RewardService().obradiKrajCiklusa(requireContext(), () -> {
+            if (!isAdded()) return;
+            binding.btnTestSimulacija.setEnabled(true);
+            ucitajListu();
+            Toast.makeText(getContext(),
+                    "Kraj ciklusa obrađen. Nagrade dodijeljene. Idi na Home.",
+                    Toast.LENGTH_LONG).show();
+        });
     }
 
     @Override

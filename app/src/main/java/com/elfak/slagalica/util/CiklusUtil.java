@@ -22,6 +22,32 @@ public class CiklusUtil {
         return new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
     }
 
+    // "2026-06-1" → "2026-06", "2026-W26-1" → "2026-W26", "2026-06" → "2026-06"
+    public static String kalendarskiDio(String ciklusId) {
+        long dashes = ciklusId.chars().filter(c -> c == '-').count();
+        if (dashes < 2) return ciklusId;
+        int lastDash = ciklusId.lastIndexOf('-');
+        try {
+            Integer.parseInt(ciklusId.substring(lastDash + 1));
+            return ciklusId.substring(0, lastDash);
+        } catch (NumberFormatException e) {
+            return ciklusId;
+        }
+    }
+
+    // "2026-W26" → "2026-W26-1", "2026-06-1" → "2026-06-2"
+    public static String sledeceCiklusId(String ciklusId) {
+        long dashes = ciklusId.chars().filter(c -> c == '-').count();
+        if (dashes < 2) return ciklusId + "-1";
+        int lastDash = ciklusId.lastIndexOf('-');
+        try {
+            int counter = Integer.parseInt(ciklusId.substring(lastDash + 1));
+            return ciklusId.substring(0, lastDash) + "-" + (counter + 1);
+        } catch (NumberFormatException e) {
+            return ciklusId + "-1";
+        }
+    }
+
     public static String opsegNedelje() {
         Calendar c = Calendar.getInstance();
         c.setFirstDayOfWeek(Calendar.MONDAY);

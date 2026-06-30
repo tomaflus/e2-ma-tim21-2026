@@ -46,8 +46,17 @@ public class NotifikacijeFragment extends Fragment {
         binding.rvNotifikacije.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvNotifikacije.setAdapter(adapter);
 
+        String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null
+                ? com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
+
         viewModel.getFiltrirane().observe(getViewLifecycleOwner(),
                 stavke -> adapter.postaviStavke(stavke));
+
+        adapter.setOnItemKlikListener(notifikacija -> {
+            if (!notifikacija.procitana) {
+                viewModel.markirajKaoProcitanu(uid, notifikacija.dokumentId);
+            }
+        });
 
         binding.chipGroupFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) return;
@@ -77,10 +86,19 @@ public class NotifikacijeFragment extends Fragment {
 
     static class NotifikacijeAdapter extends RecyclerView.Adapter<NotifikacijeAdapter.ViewHolder> {
 
+        interface OnItemKlikListener {
+            void onKlik(Notifikacija notifikacija);
+        }
+
         private final List<Notifikacija> stavke;
+        private OnItemKlikListener onItemKlikListener;
 
         NotifikacijeAdapter(List<Notifikacija> stavke) {
             this.stavke = stavke;
+        }
+
+        void setOnItemKlikListener(OnItemKlikListener listener) {
+            this.onItemKlikListener = listener;
         }
 
         void postaviStavke(List<Notifikacija> novoStavke) {
@@ -99,7 +117,11 @@ public class NotifikacijeFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.bind(stavke.get(position));
+            Notifikacija n = stavke.get(position);
+            holder.bind(n);
+            holder.itemView.setOnClickListener(v -> {
+                if (onItemKlikListener != null) onItemKlikListener.onKlik(n);
+            });
         }
 
         @Override

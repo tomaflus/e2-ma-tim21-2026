@@ -20,6 +20,7 @@ import androidx.navigation.Navigation;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentNagradaBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class NagradaFragment extends Fragment {
 
@@ -66,8 +67,12 @@ public class NagradaFragment extends Fragment {
         binding.ivNagrada.post(this::animiraNagradu);
         pustitiZvukIVibraciju();
 
-        binding.btnZatvori.setOnClickListener(v ->
-                Navigation.findNavController(view).popBackStack());
+        String uid = args.getString("uid", "");
+        String docId = args.getString("docId", "");
+        binding.btnZatvori.setOnClickListener(v -> {
+            oznacNagraduKaoProcitanu(uid, docId);
+            Navigation.findNavController(view).popBackStack();
+        });
     }
 
     private void animiraNagradu() {
@@ -80,6 +85,15 @@ public class NagradaFragment extends Fragment {
                 .setDuration(600)
                 .setInterpolator(new OvershootInterpolator(2.5f))
                 .start();
+    }
+
+    private void oznacNagraduKaoProcitanu(String uid, String docId) {
+        if (uid.isEmpty() || docId.isEmpty()) return;
+        FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .document(docId)
+                .update("procitana", true);
     }
 
     private void pustitiZvukIVibraciju() {
