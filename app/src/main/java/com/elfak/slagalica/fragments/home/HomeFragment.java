@@ -125,16 +125,6 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_profilFragment);
         });
 
-        binding.btnKoZnaZna.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_koZnaZnaFragment);
-        });
-
-        binding.btnSpojnice.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_spojniceFragment);
-        });
-
         binding.btnRangLista.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_rangListaFragment);
