@@ -114,6 +114,11 @@ public class MatchingRepository {
         allSets.add(set11);
     }
 
+    public List<MatchingPair> getSetByIndex(int idx) {
+        if (idx < 0 || idx >= allSets.size()) return new ArrayList<>();
+        return allSets.get(idx);
+    }
+
     public List<MatchingPair> getRandomSet() {
         if (allSets.isEmpty()) return new ArrayList<>();
         return allSets.get(new Random().nextInt(allSets.size()));
