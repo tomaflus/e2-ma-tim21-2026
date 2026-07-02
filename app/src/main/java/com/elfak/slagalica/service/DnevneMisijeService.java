@@ -1,7 +1,10 @@
 package com.elfak.slagalica.service;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+
+import com.elfak.slagalica.helpers.NotifikacijaHelper;
 
 import com.elfak.slagalica.model.DnevneMisije;
 import com.elfak.slagalica.util.CiklusUtil;
@@ -54,7 +57,7 @@ public class DnevneMisijeService {
                 .addOnFailureListener(e -> mainHandler.post(() -> onLoaded.onLoaded(noviDan())));
     }
 
-    public void oznaciMisiju(String uid, TipMisije tip, OnOznaciResult onResult) {
+    public void oznaciMisiju(Context context, String uid, TipMisije tip, OnOznaciResult onResult) {
         DocumentReference misijeRef = getMisijeRef(uid);
         DocumentReference userRef = db.collection("users").document(uid);
 
@@ -99,12 +102,27 @@ public class DnevneMisijeService {
             return new int[]{zvezdeDodati, tokeniDodati, bonusFlag};
         }).addOnSuccessListener(result -> {
             if (result != null) {
+                if (result[0] > 0) {
+                    boolean sveMisije = result[2] == 1;
+                    NotifikacijaHelper.prikaziNotifikacijuMisiju(
+                            context.getApplicationContext(), getNazivMisije(tip), result[0], sveMisije);
+                }
                 mainHandler.post(() -> onResult.onResult(result[0], result[1], result[2] == 1));
             }
         }).addOnFailureListener(e -> mainHandler.post(() -> onResult.onResult(0, 0, false)));
     }
 
-    // TODO: Pozovi oznaciMisiju(uid, TipMisije.TURNIR_POBEDA, callback) iz TurnirFragment-a kad se implementira.
+    // TODO: Pozovi oznaciMisiju(ctx, uid, TipMisije.TURNIR_POBEDA, callback) iz TurnirFragment-a kad se implementira.
+
+    private String getNazivMisije(TipMisije tip) {
+        switch (tip) {
+            case POBEDA:        return "Pobeda u partiji";
+            case PORUKA_CET:    return "Poruka u četu";
+            case PRIJATELJSKA:  return "Prijateljska partija";
+            case TURNIR_POBEDA: return "Pobeda u turniru";
+            default:            return "Misija";
+        }
+    }
 
     private DnevneMisije noviDan() {
         DnevneMisije m = new DnevneMisije();

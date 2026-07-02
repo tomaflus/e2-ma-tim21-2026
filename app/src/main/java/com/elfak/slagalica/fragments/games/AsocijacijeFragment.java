@@ -331,8 +331,8 @@ public class AsocijacijeFragment extends Fragment {
         }, err -> Toast.makeText(getContext(), "Greška: " + err, Toast.LENGTH_SHORT).show());
     }
 
-    private void inicijalizujRunda2KaoIgrac2() {
-        asocRepo.dohvatiNasumicnoPitanje(pitanje -> {
+    private void inicijalizujRunda2KaoIgrac2(String r1Id) {
+        asocRepo.dohvatiNasumicnoPitanjeIzuzimajuci(r1Id, pitanje -> {
             if (!isAdded()) return;
             lokalnoPitanjeR2 = pitanje;
             long timerEnd = System.currentTimeMillis() + TRAJANJE_RUNDE;
@@ -565,7 +565,7 @@ public class AsocijacijeFragment extends Fragment {
                             prikaziStatusMulti("Priprema 2. runde...");
                             if (!jeIgrac1) {
                                 resetBoardMulti();
-                                inicijalizujRunda2KaoIgrac2();
+                                inicijalizujRunda2KaoIgrac2(snapshot.getString("pitanjeAsocijacijeIdR1"));
                             }
                             break;
 
@@ -687,6 +687,7 @@ public class AsocijacijeFragment extends Fragment {
             prikaziPauzu(
                     jeR1 ? "Priprema 2. runde" : "Kraj Asocijacija",
                     jeR1 ? "do početka 2. runde" : "do sledeće igre",
+                    jeR1 ? 5 : 7,
                     () -> {
                         if (jeR1) {
                             if (jeIgrac1)
@@ -769,7 +770,7 @@ public class AsocijacijeFragment extends Fragment {
                 : (jeIgrac1 ? "🔵 Protivnik na potezu" : "🔴 Protivnik na potezu"));
     }
 
-    private void prikaziPauzu(String naslov, String poruka, Runnable poslijePauze) {
+    private void prikaziPauzu(String naslov, String poruka, int sekunde, Runnable poslijePauze) {
         if (odbrojavanjeAktivno) return;
         odbrojavanjeAktivno = true;
 
@@ -813,7 +814,7 @@ public class AsocijacijeFragment extends Fragment {
             oznaciKonacnoBoja(pitanje.getKonacnoRjesenje(), bojaKon);
         }
 
-        final int[] sek = {5};
+        final int[] sek = {sekunde};
         Handler h = new Handler(Looper.getMainLooper());
         Runnable tick = new Runnable() {
             @Override public void run() {

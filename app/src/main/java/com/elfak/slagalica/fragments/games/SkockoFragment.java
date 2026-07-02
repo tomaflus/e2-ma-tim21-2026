@@ -501,7 +501,7 @@ public class SkockoFragment extends Fragment {
                                     }
                                 }
                             }
-                            prikaziPauzu("Priprema 2. runde", "do početka 2. runde", () -> {
+                            prikaziPauzu("Priprema 2. runde", "do početka 2. runde", 5, () -> {
                                 if (jeIgrac1)
                                     db.collection("partije").document(partijaId)
                                       .update("statusSkocko", RUNDA2_IGRAC2_IGRA);
@@ -575,7 +575,7 @@ public class SkockoFragment extends Fragment {
                                     }
                                 }
                             }
-                            prikaziPauzu("Kraj Skočka", "do sledeće igre", () -> {
+                            prikaziPauzu("Kraj Skočka", "do sledeće igre", 7, () -> {
                                 if (jeIgrac1)
                                     db.collection("partije").document(partijaId)
                                       .update("statusSkocko", ZAVRSENA);
@@ -769,7 +769,7 @@ public class SkockoFragment extends Fragment {
         }.start();
     }
 
-    private void prikaziPauzu(String naslov, String poruka, Runnable callback) {
+    private void prikaziPauzu(String naslov, String poruka, int sekunde, Runnable callback) {
         if (odbrojavanjeAktivno) return;
         odbrojavanjeAktivno = true;
         if (tajmer != null) { tajmer.cancel(); tajmer = null; }
@@ -777,7 +777,7 @@ public class SkockoFragment extends Fragment {
         setSimboliEnabled(false);
         binding.btnPotvrdaPokusaja.setEnabled(false);
 
-        final int[] sek = {5};
+        final int[] sek = {sekunde};
         Handler h = new Handler(Looper.getMainLooper());
         Runnable tick = new Runnable() {
             @Override public void run() {

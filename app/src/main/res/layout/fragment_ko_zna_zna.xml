@@ -6,76 +6,35 @@
     android:layout_height="match_parent"
     android:background="@color/pozadinaBoja">
 
-    <!-- Header (Consistent with fragment_igra.xml) -->
+    <!-- Standard game header row -->
     <LinearLayout
         android:id="@+id/llHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="@color/headerBoja"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_me"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-            <TextView
-                android:id="@+id/tvScorePlayer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0 bodova"
-                android:textSize="12sp"
-                android:textColor="@color/zlatnaZvezde"/>
-        </LinearLayout>
+            android:visibility="gone"
+            android:textColor="#FFD700"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            tools:text="Ko Zna Zna počinje za 5s" />
 
         <TextView
-            android:layout_width="0dp"
+            android:id="@+id/tvTajmer"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:text="@string/btn_ko_zna_zna"
-            android:textSize="13sp"
-            android:textColor="@color/textSekundarna"
-            android:gravity="center"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="end">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_opponent"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-            <TextView
-                android:id="@+id/tvScoreOpponent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0 bodova"
-                android:textSize="12sp"
-                android:textColor="@color/zlatnaZvezde"/>
-        </LinearLayout>
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            tools:text="⏱ 5s" />
     </LinearLayout>
-
-    <View
-        android:id="@+id/vDivider"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/dividerBoja"
-        app:layout_constraintTop_toBottomOf="@id/llHeader"/>
 
     <!-- Game Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,29 +42,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="24dp"
-        app:layout_constraintTop_toBottomOf="@id/vDivider"
+        app:layout_constraintTop_toBottomOf="@id/llHeader"
         app:layout_constraintBottom_toBottomOf="parent">
-
-        <TextView
-            android:id="@+id/tvTimer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Vreme: 5s"
-            android:textSize="20sp"
-            android:textColor="@color/crvenaDugme"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/pbTimer"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="5"
-            android:progress="5"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTimer" />
 
         <TextView
             android:id="@+id/tvQuestionNumber"
@@ -115,8 +53,7 @@
             android:textSize="16sp"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@id/pbTimer"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -173,19 +110,24 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnMockGameOver"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tvFeedback"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SIMULIRAJ KRAJ"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:textColor="#FFD700"
+            android:textSize="17sp"
+            android:textStyle="bold"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llAnswers"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Tačan odgovor! +10 poena" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Game Over Overlay -->
+    <!-- Game Over Overlay (solo mode only) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clGameOver"
         android:layout_width="match_parent"

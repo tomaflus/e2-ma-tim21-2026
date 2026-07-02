@@ -11,14 +11,20 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.databinding.FragmentHomeBinding;
-import com.elfak.slagalica.helpers.NotifikacijaHelper;
-import com.elfak.slagalica.model.NagradaInfo;
+import com.elfak.slagalica.model.Notifikacija;
 import com.elfak.slagalica.repository.AuthRepository;
 import com.elfak.slagalica.repository.UserRepository;
 import com.elfak.slagalica.service.RewardService;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -42,7 +48,7 @@ public class HomeFragment extends Fragment {
         authRepository = new AuthRepository();
         userRepository = new UserRepository();
 
-        proveriNagrade(view);
+        prikaziNeprocitaneToast();
 
         // Dodaj dnevne tokene pri svakom otvaranju Home ekrana
         userRepository.dodajDnevneTokene(
@@ -119,16 +125,6 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_profilFragment);
         });
 
-        binding.btnKoZnaZna.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_koZnaZnaFragment);
-        });
-
-        binding.btnSpojnice.setOnClickListener(v -> {
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_homeFragment_to_spojniceFragment);
-        });
-
         binding.btnRangLista.setOnClickListener(v -> {
             Navigation.findNavController(view)
                     .navigate(R.id.action_homeFragment_to_rangListaFragment);
@@ -145,25 +141,87 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (userRepository != null) ucitajTokene();
+        proveriNagrade();
     }
 
-    private void proveriNagrade(View view) {
+    private void proveriNagrade() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null || !isAdded()) return;
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .whereEqualTo("tip", "nagrade")
+                .whereEqualTo("procitana", false)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots.isEmpty() || !isAdded()) return;
+                    com.google.firebase.firestore.DocumentSnapshot doc =
+                            snapshots.getDocuments().get(0);
+                    Notifikacija n = doc.toObject(Notifikacija.class);
+                    if (n == null) return;
+
+                    Bundle args = new Bundle();
+                    args.putInt("tokeniNedelja", n.tokeniNedelja);
+                    args.putInt("pozicijaNedelja", n.pozicijaNedelja);
+                    args.putInt("tokeniMesec", n.tokeniMesec);
+                    args.putInt("pozicijaMesec", n.pozicijaMesec);
+                    args.putString("uid", uid);
+                    args.putString("docId", doc.getId());
+
+                    requireView().post(() -> {
+                        if (isAdded()) {
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_homeFragment_to_nagradaFragment, args);
+                        }
+                    });
+                });
+    }
+
+    private void prikaziNeprocitaneToast() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        new RewardService().proveriINagradi(requireContext(), uid, info -> {
-            if (info == null || !isAdded()) return;
-            Bundle args = new Bundle();
-            args.putInt("tokeniNedelja", info.tokeniNedelja);
-            args.putInt("pozicijaNedelja", info.pozicijaNedelja);
-            args.putInt("tokeniMesec", info.tokeniMesec);
-            args.putInt("pozicijaMesec", info.pozicijaMesec);
-            view.post(() -> {
-                if (isAdded()) {
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_homeFragment_to_nagradaFragment, args);
-                }
-            });
-        });
+        FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .whereEqualTo("procitana", false)
+                .get()
+                .addOnSuccessListener(snaps -> {
+                    if (snaps.isEmpty() || !isAdded()) return;
+
+                    List<com.google.firebase.firestore.DocumentSnapshot> nagrade = new ArrayList<>();
+                    List<com.google.firebase.firestore.DocumentSnapshot> ostale = new ArrayList<>();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snaps.getDocuments()) {
+                        String tip = doc.getString("tip");
+                        if ("nagrade".equals(tip)) nagrade.add(doc);
+                        else ostale.add(doc);
+                    }
+
+                    // Nagrade: prikaži svaku posebno u nizu
+                    Handler h = new Handler(Looper.getMainLooper());
+                    for (int i = 0; i < nagrade.size(); i++) {
+                        com.google.firebase.firestore.DocumentSnapshot doc = nagrade.get(i);
+                        String sadrzaj = doc.getString("sadrzaj");
+                        String naslov = doc.getString("naslov");
+                        final String poruka = (naslov != null ? naslov : "Nagrada") +
+                                (sadrzaj != null && !sadrzaj.isEmpty() ? ": " + sadrzaj : "");
+                        h.postDelayed(() -> {
+                            if (isAdded()) Toast.makeText(getContext(), poruka, Toast.LENGTH_LONG).show();
+                        }, (long) i * 3500);
+                    }
+
+                    // Ostale notifikacije: sažeto
+                    if (!ostale.isEmpty()) {
+                        long delay = (long) nagrade.size() * 3500;
+                        String poruka = ostale.size() > 3
+                                ? "Imate " + ostale.size() + " nepročitanih obavještenja."
+                                : "Imate " + ostale.size() + " nepročitano" + (ostale.size() > 1 ? "h" : "") + " obavještenje.";
+                        h.postDelayed(() -> {
+                            if (isAdded()) Toast.makeText(getContext(), poruka, Toast.LENGTH_SHORT).show();
+                        }, delay);
+                    }
+                });
     }
 
     private void ucitajTokene() {

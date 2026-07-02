@@ -340,7 +340,7 @@ public class IgraFragment extends Fragment {
                     int bodovi = result.getInt("bodovi");
                     azurirajBodovePartije(bodovi, indeksIgre);
                     new android.os.Handler(android.os.Looper.getMainLooper())
-                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 2000);
+                            .postDelayed(() -> pokrniIgru(indeksIgre + 1), 300);
                 });
 
         final boolean[] asocijacijeBrojano = {false};
@@ -456,13 +456,13 @@ public class IgraFragment extends Fragment {
         android.content.Context appCtx = requireContext().getApplicationContext();
         DnevneMisijeService service = new DnevneMisijeService();
         if (trenutnaPartija.isPrijateljska()) {
-            service.oznaciMisiju(uid, DnevneMisijeService.TipMisije.PRIJATELJSKA,
+            service.oznaciMisiju(appCtx, uid, DnevneMisijeService.TipMisije.PRIJATELJSKA,
                     (z, t, sve) -> {
                         if (z > 0) Toast.makeText(appCtx,
                                 "Misija: Prijateljska partija! +" + z + " ★", Toast.LENGTH_SHORT).show();
                     });
         } else if (jePobjedio) {
-            service.oznaciMisiju(uid, DnevneMisijeService.TipMisije.POBEDA,
+            service.oznaciMisiju(appCtx, uid, DnevneMisijeService.TipMisije.POBEDA,
                     (z, t, sve) -> {
                         if (z > 0) Toast.makeText(appCtx,
                                 "Misija: Pobeda u partiji! +" + z + " ★", Toast.LENGTH_SHORT).show();

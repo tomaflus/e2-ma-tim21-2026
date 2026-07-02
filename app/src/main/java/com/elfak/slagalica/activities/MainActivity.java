@@ -1,6 +1,7 @@
 package com.elfak.slagalica.activities;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +19,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.elfak.slagalica.R;
 import com.elfak.slagalica.helpers.NotifikacijaHelper;
+import com.elfak.slagalica.service.CiklusWorker;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import com.elfak.slagalica.model.FriendInvite;
 import com.elfak.slagalica.model.Notifikacija;
 import com.elfak.slagalica.repository.PartijaRepository;
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ListenerRegistration inviteListener;
     private ListenerRegistration acceptedListener;
     private ListenerRegistration rejectedListener;
+    private ListenerRegistration nagradeListener;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private AlertDialog currentInviteDialog;
     private boolean isInForeground = false;
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         NotifikacijaHelper.kreirajKanale(this);
+        zakaziCiklusProverу();
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat insetsController =
@@ -64,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        handleNavigationIntent(getIntent());
+
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             if (firebaseAuth.getCurrentUser() != null) {
                 updateOnlineStatus(true);
@@ -73,6 +82,24 @@ public class MainActivity extends AppCompatActivity {
                 stopInviteListeners();
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNavigationIntent(intent);
+    }
+
+    private void handleNavigationIntent(Intent intent) {
+        if (intent == null || !"dnevneMisije".equals(intent.getStringExtra("navigateTo"))) return;
+        intent.removeExtra("navigateTo");
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        NavHostFragment navHost = (NavHostFragment)
+                getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (navHost == null) return;
+        try {
+            navHost.getNavController().navigate(R.id.dnevneMisijeFragment);
+        } catch (Exception ignored) {}
     }
 
     @Override
@@ -97,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
     private void startInviteListeners() {
         if (inviteListener != null) return;
         String myId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        startNagradeListener(myId);
 
         inviteListener = FirebaseFirestore.getInstance().collection("invites")
                 .whereEqualTo("receiverId", myId)
@@ -142,10 +170,48 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void zakaziCiklusProverу() {
+        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
+                CiklusWorker.class, 1, java.util.concurrent.TimeUnit.HOURS)
+                .build();
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "ciklus_provjera",
+                ExistingPeriodicWorkPolicy.KEEP,
+                request);
+    }
+
+    private void startNagradeListener(String uid) {
+        if (nagradeListener != null) return;
+        boolean[] prvaVatara = {true};
+        nagradeListener = FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .whereEqualTo("tip", "nagrade")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (snapshots == null) return;
+                    if (prvaVatara[0]) {
+                        // Preskačemo inicijalni load — reagiramo samo na nove dokumente
+                        prvaVatara[0] = false;
+                        return;
+                    }
+                    for (com.google.firebase.firestore.DocumentChange dc : snapshots.getDocumentChanges()) {
+                        if (dc.getType() == com.google.firebase.firestore.DocumentChange.Type.ADDED) {
+                            Integer tokeni = dc.getDocument().getLong("tokeniNedelja") != null
+                                    ? dc.getDocument().getLong("tokeniNedelja").intValue() : 0;
+                            Integer tokeniMes = dc.getDocument().getLong("tokeniMesec") != null
+                                    ? dc.getDocument().getLong("tokeniMesec").intValue() : 0;
+                            int ukupno = tokeni + tokeniMes;
+                            NotifikacijaHelper.prikaziNotifikacijuNagradu(this, ukupno > 0 ? ukupno : 1);
+                        }
+                    }
+                });
+    }
+
     private void stopInviteListeners() {
         if (inviteListener != null) { inviteListener.remove(); inviteListener = null; }
         if (acceptedListener != null) { acceptedListener.remove(); acceptedListener = null; }
         if (rejectedListener != null) { rejectedListener.remove(); rejectedListener = null; }
+        if (nagradeListener != null) { nagradeListener.remove(); nagradeListener = null; }
     }
 
     private void showInviteDialog(FriendInvite invite, String docId) {

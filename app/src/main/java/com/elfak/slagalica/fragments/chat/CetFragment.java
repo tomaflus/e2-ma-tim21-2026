@@ -103,7 +103,7 @@ public class CetFragment extends Fragment {
                         // Dnevna misija — DODATAK
                         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                            new DnevneMisijeService().oznaciMisiju(uid,
+                            new DnevneMisijeService().oznaciMisiju(requireContext().getApplicationContext(), uid,
                                     DnevneMisijeService.TipMisije.PORUKA_CET,
                                     (z, t, sve) -> {
                                         if (z > 0 && getContext() != null) {
