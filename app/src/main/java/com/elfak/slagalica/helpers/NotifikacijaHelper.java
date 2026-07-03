@@ -19,6 +19,7 @@ public class NotifikacijaHelper {
     public static final String KANAL_NAGRADE   = "kanal_nagrade";
     public static final String KANAL_MISIJE    = "kanal_misije";
     public static final String KANAL_OSTALO    = "kanal_ostalo";
+    public static final String KANAL_TURNIR    = "kanal_turnir";
 
     private static int notifikacijaId = 0;
 
@@ -31,6 +32,7 @@ public class NotifikacijaHelper {
         kreirajKanal(mgr, KANAL_NAGRADE,    "Nagrade",   "Obavještenja o nagradama i prelasku u ligu",   NotificationManager.IMPORTANCE_HIGH);
         kreirajKanal(mgr, KANAL_MISIJE,     "Dnevne misije", "Obavještenja o ispunjenim dnevnim misijama", NotificationManager.IMPORTANCE_HIGH);
         kreirajKanal(mgr, KANAL_OSTALO,     "Ostalo",    "Ostala sistemska obavještenja",                NotificationManager.IMPORTANCE_LOW);
+        kreirajKanal(mgr, KANAL_TURNIR,    "Turnir",    "Obavještenja o turnirima",                     NotificationManager.IMPORTANCE_HIGH);
     }
 
     private static void kreirajKanal(NotificationManager mgr, String id, String naziv, String opis, int vaznost) {
@@ -101,6 +103,28 @@ public class NotifikacijaHelper {
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(naslov)
                         .setContentText(tekst)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true);
+        NotificationManager manager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) manager.notify(notifikacijaId++, builder.build());
+    }
+
+    public static void prikaziNotifikacijuTurnir(Context context, String naslov, String sadrzaj, String turnirId) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("navigateTo", "turnir");
+        if (turnirId != null) intent.putExtra("turnirId", turnirId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, notifikacijaId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, KANAL_TURNIR)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(naslov)
+                        .setContentText(sadrzaj)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true);

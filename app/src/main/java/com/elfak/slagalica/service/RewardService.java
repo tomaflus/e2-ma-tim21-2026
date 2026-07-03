@@ -232,7 +232,7 @@ public class RewardService {
                     .append(info.tokeniMesec).append(" tokena.");
         }
         Notifikacija n = new Notifikacija(
-                "🏆", "nagrade", "Nagrade za rang listu",
+                "⭐", "nagrade", "Nagrade za rang listu",
                 sadrzaj.toString().trim(), datumVrijeme, false,
                 info.tokeniNedelja, info.pozicijaNedelja,
                 info.tokeniMesec, info.pozicijaMesec);

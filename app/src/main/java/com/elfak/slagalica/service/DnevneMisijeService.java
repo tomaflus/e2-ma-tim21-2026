@@ -7,6 +7,11 @@ import android.os.Looper;
 import com.elfak.slagalica.helpers.NotifikacijaHelper;
 
 import com.elfak.slagalica.model.DnevneMisije;
+import com.elfak.slagalica.model.Notifikacija;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import com.elfak.slagalica.util.CiklusUtil;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -104,12 +109,26 @@ public class DnevneMisijeService {
             if (result != null) {
                 if (result[0] > 0) {
                     boolean sveMisije = result[2] == 1;
+                    String naziv = getNazivMisije(tip);
                     NotifikacijaHelper.prikaziNotifikacijuMisiju(
-                            context.getApplicationContext(), getNazivMisije(tip), result[0], sveMisije);
+                            context.getApplicationContext(), naziv, result[0], sveMisije);
+                    sacuvajNotifikacijuMisije(uid, naziv, result[0], sveMisije);
                 }
                 mainHandler.post(() -> onResult.onResult(result[0], result[1], result[2] == 1));
             }
         }).addOnFailureListener(e -> mainHandler.post(() -> onResult.onResult(0, 0, false)));
+    }
+
+    private void sacuvajNotifikacijuMisije(String uid, String naziv, int zvezde, boolean sveMisije) {
+        String datum = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(new Date());
+        String naslov = sveMisije ? "Sve misije ispunjene!" : "Misija ispunjena!";
+        String sadrzaj = sveMisije
+                ? naziv + " — Bonus: +" + zvezde + " ★ i +2 tokena!"
+                : naziv + " — +" + zvezde + " ★";
+        Notifikacija n = new Notifikacija("✅", naslov, sadrzaj, datum, false);
+        n.tip = "misije";
+        db.collection("users").document(uid)
+                .collection("notifikacije").add(n);
     }
 
     // TODO: Pozovi oznaciMisiju(ctx, uid, TipMisije.TURNIR_POBEDA, callback) iz TurnirFragment-a kad se implementira.

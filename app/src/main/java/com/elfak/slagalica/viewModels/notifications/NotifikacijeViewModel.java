@@ -7,11 +7,14 @@ import androidx.lifecycle.ViewModel;
 import com.elfak.slagalica.model.Notifikacija;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class NotifikacijeViewModel extends ViewModel {
 
@@ -34,7 +37,6 @@ public class NotifikacijeViewModel extends ViewModel {
 
         db.collection("users").document(uid)
                 .collection("notifikacije")
-                .orderBy("datumVrijeme", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null || snapshots == null) return;
                     List<Notifikacija> lista = new ArrayList<>();
@@ -53,10 +55,11 @@ public class NotifikacijeViewModel extends ViewModel {
         if (postojecaIkona != null && !postojecaIkona.isEmpty()) return postojecaIkona;
         if (tip == null) return "🔔";
         switch (tip) {
-            case "nagrade": return "🏆";
+            case "nagrade": return "⭐";
             case "cet": return "💬";
             case "poziv": return "🎮";
             case "liga": return "⭐";
+            case "misije": return "✅";
             default: return "🔔";
         }
     }
@@ -66,6 +69,16 @@ public class NotifikacijeViewModel extends ViewModel {
         db.collection("users").document(uid)
                 .collection("notifikacije").document(docId)
                 .update("procitana", true);
+    }
+
+    public void obrisiNotifikacije(String uid, List<String> docIds) {
+        if (uid == null || uid.isEmpty() || docIds == null || docIds.isEmpty()) return;
+        com.google.firebase.firestore.WriteBatch batch = db.batch();
+        for (String docId : docIds) {
+            batch.delete(db.collection("users").document(uid)
+                    .collection("notifikacije").document(docId));
+        }
+        batch.commit();
     }
 
     public LiveData<List<Notifikacija>> getFiltrirane() {
@@ -81,19 +94,48 @@ public class NotifikacijeViewModel extends ViewModel {
         primijeniFilter();
     }
 
+    private static final SimpleDateFormat DATE_FMT =
+            new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+
+    private void sortDescByTime(List<Notifikacija> lista) {
+        lista.sort((a, b) -> {
+            try {
+                Date da = DATE_FMT.parse(a.datumVrijeme != null ? a.datumVrijeme : "");
+                Date db2 = DATE_FMT.parse(b.datumVrijeme != null ? b.datumVrijeme : "");
+                if (da == null || db2 == null) return 0;
+                return db2.compareTo(da);
+            } catch (ParseException e) {
+                return 0;
+            }
+        });
+    }
+
     private void primijeniFilter() {
         List<Notifikacija> sve = sveNotifikacije.getValue();
         Filter filter = aktivniFilter.getValue();
         if (sve == null) return;
+
         if (filter == Filter.SVE) {
-            filtrirane.setValue(new ArrayList<>(sve));
+            List<Notifikacija> neprocitane = new ArrayList<>();
+            List<Notifikacija> procitane = new ArrayList<>();
+            for (Notifikacija n : sve) {
+                if (!n.procitana) neprocitane.add(n);
+                else procitane.add(n);
+            }
+            sortDescByTime(neprocitane);
+            sortDescByTime(procitane);
+            List<Notifikacija> rezultat = new ArrayList<>(neprocitane);
+            rezultat.addAll(procitane);
+            filtrirane.setValue(rezultat);
             return;
         }
+
         List<Notifikacija> rezultat = new ArrayList<>();
         for (Notifikacija n : sve) {
             if (filter == Filter.NEPROCITANE && !n.procitana) rezultat.add(n);
             else if (filter == Filter.PROCITANE && n.procitana) rezultat.add(n);
         }
+        sortDescByTime(rezultat);
         filtrirane.setValue(rezultat);
     }
 }

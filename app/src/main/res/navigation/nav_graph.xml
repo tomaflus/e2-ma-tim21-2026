@@ -56,7 +56,20 @@
         android:id="@+id/notifikacijeFragment"
         android:name="com.elfak.slagalica.fragments.notifications.NotifikacijeFragment"
         android:label="Notifikacije"
-        tools:layout="@layout/fragment_notifikacije"/>
+        tools:layout="@layout/fragment_notifikacije">
+        <action
+            android:id="@+id/action_notifikacijeFragment_to_turnirFragment"
+            app:destination="@id/turnirFragment"/>
+        <action
+            android:id="@+id/action_notifikacijeFragment_to_turnirBracketFragment"
+            app:destination="@id/turnirBracketFragment"/>
+        <action
+            android:id="@+id/action_notifikacijeFragment_to_homeFragment"
+            app:destination="@id/homeFragment"/>
+        <action
+            android:id="@+id/action_notifikacijeFragment_to_dnevneMisijeFragment"
+            app:destination="@id/dnevneMisijeFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/homeFragment"
@@ -111,6 +124,9 @@
         <action
             android:id="@+id/action_homeFragment_to_dnevneMisijeFragment"
             app:destination="@id/dnevneMisijeFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_turnirFragment"
+            app:destination="@id/turnirFragment"/>
     </fragment>
 
     <fragment
@@ -210,6 +226,41 @@
         android:name="com.elfak.slagalica.fragments.misije.DnevneMisijeFragment"
         android:label="Dnevne misije"
         tools:layout="@layout/fragment_dnevne_misije"/>
+
+    <fragment
+        android:id="@+id/turnirFragment"
+        android:name="com.elfak.slagalica.fragments.turnir.TurnirFragment"
+        android:label="Turnir"
+        tools:layout="@layout/fragment_turnir">
+        <action
+            android:id="@+id/action_turnirFragment_to_turnirBracketFragment"
+            app:destination="@id/turnirBracketFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/turnirBracketFragment"
+        android:name="com.elfak.slagalica.fragments.turnir.TurnirBracketFragment"
+        android:label="Turnirski žreb"
+        tools:layout="@layout/fragment_turnir_bracket">
+        <argument
+            android:name="turnirId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        <action
+            android:id="@+id/action_turnirBracketFragment_to_turnirCekanjeFragment"
+            app:destination="@id/turnirCekanjeFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/turnirCekanjeFragment"
+        android:name="com.elfak.slagalica.fragments.turnir.TurnirCekanjeFragment"
+        android:label="Čekanje turnir"
+        tools:layout="@layout/fragment_turnir_cekanje">
+        <action
+            android:id="@+id/action_turnirCekanjeFragment_to_igraFragment"
+            app:destination="@id/igraFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/cetFragment"

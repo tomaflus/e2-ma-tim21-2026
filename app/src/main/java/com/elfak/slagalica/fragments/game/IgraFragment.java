@@ -40,6 +40,9 @@ public class IgraFragment extends Fragment {
     private int ukupnoBodovi = 0;
     private int currentIndeksIgre = 0;
 
+    private String turnirId;
+    private String turnirSfPrefix;
+
     private static final String[] IGRE = {
             "Ko zna zna",
             "Spojnice",
@@ -71,6 +74,8 @@ public class IgraFragment extends Fragment {
             jeIgrac1 = getArguments().getBoolean("jeIgrac1", true);
             izazovId = getArguments().getString("izazovId");
             jeIzazov = getArguments().getBoolean("jeIzazov", false);
+            turnirId = getArguments().getString("turnirId");
+            turnirSfPrefix = getArguments().getString("turnirSfPrefix");
         }
 
         if (jeIzazov) {
@@ -91,7 +96,18 @@ public class IgraFragment extends Fragment {
                             String napustioId = partija.getNapustioId();
 
                             if (napustioId != null && napustioId.equals(mojiId)) {
-                                // Ja sam napustio — idi na Home tiho
+                                // Ja sam napustio — protivnik pobjeđuje; upiši u turnir ako treba
+                                if (turnirId != null && turnirSfPrefix != null) {
+                                    int b1 = partija.getBodovi1();
+                                    int b2 = partija.getBodovi2();
+                                    // Osiguraj da protivnik vodi u upisanom rezultatu
+                                    if (jeIgrac1  && b1 >= b2) { b1 = 0; b2 = 20; }
+                                    if (!jeIgrac1 && b2 >= b1) { b2 = 0; b1 = 20; }
+                                    final int eff1 = b1, eff2 = b2;
+                                    new com.elfak.slagalica.repository.TurnirRepository()
+                                            .azurirajRezultatSF(turnirId, turnirSfPrefix, eff1, eff2,
+                                                    () -> {}, err -> {});
+                                }
                                 if (isAdded() && getView() != null) {
                                     Navigation.findNavController(requireView())
                                             .navigate(R.id.action_igraFragment_to_homeFragment);
@@ -101,6 +117,19 @@ public class IgraFragment extends Fragment {
                                 Toast.makeText(getContext(),
                                         "Protivnik je napustio partiju! Pobjedili ste!",
                                         Toast.LENGTH_LONG).show();
+
+                                // Turnir: ako vodim → stvarni rezultat, inače 20:0 za mene
+                                if (turnirId != null && turnirSfPrefix != null) {
+                                    int b1 = partija.getBodovi1();
+                                    int b2 = partija.getBodovi2();
+                                    if (jeIgrac1  && b1 <= b2) { b1 = 20; b2 = 0; }
+                                    if (!jeIgrac1 && b2 <= b1) { b2 = 20; b1 = 0; }
+                                    final int eff1 = b1, eff2 = b2;
+                                    new com.elfak.slagalica.repository.TurnirRepository()
+                                            .azurirajRezultatSF(turnirId, turnirSfPrefix, eff1, eff2,
+                                                    () -> {}, err -> {});
+                                }
+
                                 azurirajZvezdeINaHome(true, jeIgrac1 ?
                                         partija.getBodovi1() : partija.getBodovi2());
                             }
@@ -485,6 +514,13 @@ public class IgraFragment extends Fragment {
                 partija.getPobjednik().equals(mojiId);
         int mojiBodyvi = jeIgrac1 ?
                 partija.getBodovi1() : partija.getBodovi2();
+
+        if (turnirId != null && turnirSfPrefix != null) {
+            new com.elfak.slagalica.repository.TurnirRepository().azurirajRezultatSF(
+                    turnirId, turnirSfPrefix,
+                    partija.getBodovi1(), partija.getBodovi2(),
+                    () -> {}, err -> {});
+        }
 
         azurirajZvezdeINaHome(jePobjedio, mojiBodyvi);
     }
