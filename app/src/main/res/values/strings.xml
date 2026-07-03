@@ -63,7 +63,7 @@
     <string name="misija_pobeda">Pobedi u partiji</string>
     <string name="misija_poruka_cet">Pošalji poruku u četu</string>
     <string name="misija_prijateljska">Odigraj prijateljsku partiju</string>
-    <string name="misija_turnir">Pobedi u turniru (uskoro)</string>
+    <string name="misija_turnir">Pobedi u turniru</string>
     <string name="misija_bonus">Bonus: sve 4 misije!</string>
     <string name="google_maps_key" translatable="false">UNESI_MAPS_API_KLJUC</string>
     <string name="btn_ko_zna_zna">Ko zna zna</string>

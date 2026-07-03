@@ -40,7 +40,7 @@
                 android:id="@+id/tvTokeniZvezde"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tokeni: - | Zvezde: -"
+                android:text="Tokeni: - 🎟   Zvezde: - ★"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/zlatnaZvezde"

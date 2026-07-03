@@ -1,6 +1,7 @@
 package com.elfak.slagalica.fragments.turnir;
 
 import android.app.AlertDialog;
+import java.util.Collections;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -57,8 +58,8 @@ public class TurnirFragment extends Fragment {
         myId = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
 
-        mojiAdapter   = new TurnirAdapter(t -> otvoriDetalje(t));
-        ostaliAdapter = new TurnirAdapter(t -> otvoriDetalje(t));
+        mojiAdapter   = new TurnirAdapter(t -> otvoriDetalje(t), true);
+        ostaliAdapter = new TurnirAdapter(t -> otvoriDetalje(t), false);
 
         binding.rvMojiTurniri.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMojiTurniri.setAdapter(mojiAdapter);
@@ -96,11 +97,23 @@ public class TurnirFragment extends Fragment {
                     ostali.add(t);
                 }
             }
+            Collections.sort(moji, (a, b) -> {
+                int redA = statusRed(a.getStatus());
+                int redB = statusRed(b.getStatus());
+                if (redA != redB) return redA - redB;
+                return Long.compare(b.getCreatedAt(), a.getCreatedAt()); // noviji prvi
+            });
             mojiAdapter.setLista(moji);
             ostaliAdapter.setLista(ostali);
             binding.tvMojiPrazno.setVisibility(moji.isEmpty() ? View.VISIBLE : View.GONE);
             binding.tvOstaliPrazno.setVisibility(ostali.isEmpty() ? View.VISIBLE : View.GONE);
         });
+    }
+
+    private int statusRed(String status) {
+        if ("CEKA".equals(status))    return 0;
+        if ("U_TOKU".equals(status))  return 1;
+        return 2; // GOTOV
     }
 
     private boolean jaUTurniru(Turnir t) {
@@ -123,6 +136,12 @@ public class TurnirFragment extends Fragment {
                     String naziv = et.getText().toString().trim();
                     if (naziv.isEmpty()) {
                         Toast.makeText(getContext(), "Unesite naziv turnira.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (myTokeni < 3) {
+                        Toast.makeText(getContext(),
+                                "Potrebno je najmanje 3 tokena za kreiranje turnira.",
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
                     repo.napraviTurnir(naziv, myId, myIme, myLiga, myAvatarUrl,
