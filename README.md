@@ -67,6 +67,12 @@ Student 2 je uspešno implementirao sve predviđene module za drugu kontrolnu ta
 - **Real-time Pozivi**: Sistem poziva na partiju koji iskače kao dijalog u bilo kom delu aplikacije (MainActivity listener).
 - **Timeout**: Automatsko odbijanje poziva nakon 10 sekundi.
 
+### 6. UI/UX Redizajn i Poliranje (Jun 2026)
+- **Moderni Gaming Interfejs**: Redizajnirani ekrani Prijatelji, Regioni i Lige sa fokusom na vizuelni identitet modernih mobilnih igara (Material CardView, tamne teme, polirani UI elementi).
+- **Napredni Dijalozi**: Implementirani custom dijalozi za pozivnice sa kružnim tajmerom, ispravljenim layout-om dugmadi i podrškom za real-time avatare.
+- **Poboljšana Pretraga**: Search polja sada podržavaju akcije na tastaturi, automatsko skrivanje tastature i preciznije poruke o statusu pretrage.
+- **Statusna Signalizacija**: Uvedena vizuelna indikacija za "U partiji" (narandžasto), "Online" (zeleno) i "Offline" (sivo) statuse prijatelja.
+
 ## Arhitektura Projekta
 
 Projekat prati striktnu **troslojnu arhitekturu**:
