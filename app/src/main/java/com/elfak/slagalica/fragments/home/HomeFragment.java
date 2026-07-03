@@ -241,8 +241,7 @@ public class HomeFragment extends Fragment {
                             if (binding != null) {
                                 binding.tvKorisnik.setText(user.getKorisnickoIme());
                                 binding.tvTokeniZvezde.setText(
-                                        "Tokeni: " + user.getTokeni() +
-                                                " | Zvezde: " + user.getZvezde());
+                                        "Tokeni: " + user.getTokeni() + " 🎟   Zvezde: " + user.getZvezde() + " ★");
                             }
                         });
                     }
@@ -256,4 +255,5 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }

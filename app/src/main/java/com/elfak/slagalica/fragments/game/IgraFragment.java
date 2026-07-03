@@ -128,6 +128,9 @@ public class IgraFragment extends Fragment {
                                     new com.elfak.slagalica.repository.TurnirRepository()
                                             .azurirajRezultatSF(turnirId, turnirSfPrefix, eff1, eff2,
                                                     () -> {}, err -> {});
+                                    if ("final".equals(turnirSfPrefix)) {
+                                        okiniMisijuTurnira();
+                                    }
                                 }
 
                                 azurirajZvezdeINaHome(true, jeIgrac1 ?
@@ -486,6 +489,19 @@ public class IgraFragment extends Fragment {
         );
     }
 
+    private void okiniMisijuTurnira() {
+        if (!isAdded() || authRepository.trenutniKorisnik() == null) return;
+        String uid = authRepository.trenutniKorisnik().getUid();
+        android.content.Context appCtx = requireContext().getApplicationContext();
+        new DnevneMisijeService().oznaciMisiju(appCtx, uid, DnevneMisijeService.TipMisije.TURNIR_POBEDA,
+                (z, t, sve) -> {
+                    if (z > 0) Toast.makeText(appCtx,
+                            "Misija: Pobeda u turniru! +" + z + " ★", Toast.LENGTH_SHORT).show();
+                    if (sve) Toast.makeText(appCtx,
+                            "Sve misije! +" + t + " tokena bonus!", Toast.LENGTH_LONG).show();
+                });
+    }
+
     private void okiniMisijuPartije(boolean jePobjedio) {
         if (authRepository.trenutniKorisnik() == null || trenutnaPartija == null) return;
         String uid = authRepository.trenutniKorisnik().getUid();
@@ -520,6 +536,9 @@ public class IgraFragment extends Fragment {
                     turnirId, turnirSfPrefix,
                     partija.getBodovi1(), partija.getBodovi2(),
                     () -> {}, err -> {});
+            if ("final".equals(turnirSfPrefix) && jePobjedio) {
+                okiniMisijuTurnira();
+            }
         }
 
         azurirajZvezdeINaHome(jePobjedio, mojiBodyvi);
