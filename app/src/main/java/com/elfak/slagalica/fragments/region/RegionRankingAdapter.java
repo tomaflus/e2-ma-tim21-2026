@@ -1,9 +1,9 @@
 package com.elfak.slagalica.fragments.region;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,20 +27,37 @@ public class RegionRankingAdapter extends RecyclerView.Adapter<RegionRankingAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_region_ranking, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Map.Entry<Region, Integer> entry = data.get(position);
-        holder.tvName.setText((position + 1) + ". " + entry.getKey().getFullName());
+        Region region = entry.getKey();
+        
+        holder.tvRank.setText((position + 1) + ".");
+        holder.ivIcon.setImageResource(region.getIconRes());
+        
+        int regionColor = region.getColor();
+        int opaqueColor = android.graphics.Color.rgb(
+                android.graphics.Color.red(regionColor),
+                android.graphics.Color.green(regionColor),
+                android.graphics.Color.blue(regionColor)
+        );
+        holder.vIconBg.getBackground().setTint(opaqueColor);
+
+        holder.tvName.setText(region.getFullName());
         holder.tvStars.setText(entry.getValue() + " zvezda");
 
-        if (entry.getKey().getFullName().equalsIgnoreCase(userRegion)) {
-            holder.itemView.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.region_highlight));
+        String uRegion = userRegion != null ? userRegion.trim() : "";
+        if (region.getFullName().equalsIgnoreCase(uRegion) || 
+            region.getShortName().equalsIgnoreCase(uRegion)) {
+            holder.tvYourRegion.setVisibility(View.VISIBLE);
+            holder.itemView.setBackgroundResource(R.drawable.bg_ranking_item_highlight);
         } else {
-            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+            holder.tvYourRegion.setVisibility(View.GONE);
+            holder.itemView.setBackgroundResource(R.drawable.bg_ranking_item);
         }
     }
 
@@ -48,13 +65,18 @@ public class RegionRankingAdapter extends RecyclerView.Adapter<RegionRankingAdap
     public int getItemCount() { return data.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvStars;
+        TextView tvRank, tvName, tvStars, tvYourRegion;
+        ImageView ivIcon;
+        View vIconBg;
+        
         ViewHolder(View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(android.R.id.text1);
-            tvStars = itemView.findViewById(android.R.id.text2);
-            tvName.setTextColor(Color.WHITE);
-            tvStars.setTextColor(Color.LTGRAY);
+            tvRank = itemView.findViewById(R.id.tvRank);
+            vIconBg = itemView.findViewById(R.id.vIconBg);
+            ivIcon = itemView.findViewById(R.id.ivIcon);
+            tvName = itemView.findViewById(R.id.tvName);
+            tvStars = itemView.findViewById(R.id.tvStars);
+            tvYourRegion = itemView.findViewById(R.id.tvYourRegion);
         }
     }
 }

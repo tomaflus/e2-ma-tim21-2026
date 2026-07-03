@@ -15,6 +15,7 @@ public class User {
     private int mesecniBodovi;
     private long zadnjiLoginDatum;
     private boolean online;
+    private boolean uPartiji;
     private int nedeljneZvezde;
     private int mesecneZvezde;
     private String nedeljaCiklusId = "";
@@ -67,6 +68,8 @@ public class User {
     public void setPrijateljiIds(List<String> prijateljiIds) { this.prijateljiIds = prijateljiIds; }
     public boolean isOnline() { return online; }
     public void setOnline(boolean online) { this.online = online; }
+    public boolean isuPartiji() { return uPartiji; }
+    public void setuPartiji(boolean uPartiji) { this.uPartiji = uPartiji; }
     public long getZadnjiLoginDatum() { return zadnjiLoginDatum; }
     public void setZadnjiLoginDatum(long zadnjiLoginDatum) { this.zadnjiLoginDatum = zadnjiLoginDatum; }
     public int getNedeljneZvezde() { return nedeljneZvezde; }

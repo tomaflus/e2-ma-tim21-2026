@@ -81,10 +81,8 @@ public class CycleManager {
     }
 
     private double[] generateRandomCoords(com.elfak.slagalica.model.Region r) {
-        Random random = new Random();
-        double lat = r.getCenterLat() + (random.nextDouble() - 0.5) * r.getRadius();
-        double lon = r.getCenterLon() + (random.nextDouble() - 0.5) * r.getRadius();
-        return new double[]{lat, lon};
+        org.osmdroid.util.GeoPoint p = com.elfak.slagalica.util.RegionUtil.getRandomPointInRegion(r.getFullName());
+        return new double[]{p.getLatitude(), p.getLongitude()};
     }
 
     /**

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_ranking_item">
+
+    <TextView
+        android:id="@+id/tvRegionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:gravity="center_vertical"
+        android:text="Vojvodina" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dividerBoja"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvPrvoMesto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🥇 Prvo mesto: 12"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvDrugoMesto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🥈 Drugo mesto: 8"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvTreceMesto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🥉 Treće mesto: 5"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvActivePlayers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="👤 Trenutno aktivnih igrača: 18"
+            android:textColor="@color/textSekundarna"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvTotalPlayers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="👥 Ukupno registrovanih igrača: 124"
+            android:textColor="@color/textSekundarna"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ZATVORI"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="@color/white"
+        style="@style/Widget.MaterialComponents.Button" />
+
+</LinearLayout>

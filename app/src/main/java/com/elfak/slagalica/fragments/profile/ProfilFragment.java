@@ -119,26 +119,37 @@ public class ProfilFragment extends Fragment {
                         binding.btnDailyBonus.setText("Preuzmi dnevni bonus (+" + (5 + league.ordinal()) + ")");
                     }
 
-                    updateAvatarFrame(Region.getByName(user.getRegion()));
+                    updateAvatarFrame(user);
                 }
             });
         }
     }
 
-    private void updateAvatarFrame(Region userRegion) {
-        regionService.calculateRegionalRanking(ranking -> {
-            if (binding == null) return;
-            int frameColor = R.color.no_rank;
-            for (int i = 0; i < Math.min(3, ranking.size()); i++) {
-                if (ranking.get(i).getKey() == userRegion) {
-                    if (i == 0) frameColor = R.color.gold;
-                    else if (i == 1) frameColor = R.color.silver;
-                    else frameColor = R.color.bronze;
-                    break;
-                }
-            }
-            binding.ivAvatar.getBackground().setTint(getResources().getColor(frameColor, null));
-        });
+    private void updateAvatarFrame(User user) {
+        if (binding == null) return;
+        int frameColor = R.color.no_rank;
+        String rewardText = "";
+        int rank = user.getPreviousCycleRegionRank();
+        
+        if (rank == 1) {
+            frameColor = R.color.gold;
+            rewardText = "Region reward: Gold";
+        } else if (rank == 2) {
+            frameColor = R.color.silver;
+            rewardText = "Region reward: Silver";
+        } else if (rank == 3) {
+            frameColor = R.color.bronze;
+            rewardText = "Region reward: Bronze";
+        }
+        
+        binding.ivAvatar.getBackground().setTint(getResources().getColor(frameColor, null));
+        
+        if (com.elfak.slagalica.BuildConfig.DEBUG && !rewardText.isEmpty()) {
+            binding.tvDebugRegionReward.setText(rewardText);
+            binding.tvDebugRegionReward.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvDebugRegionReward.setVisibility(View.GONE);
+        }
     }
 
     private void updateStats() {

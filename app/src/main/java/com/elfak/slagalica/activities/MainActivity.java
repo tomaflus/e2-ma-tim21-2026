@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.elfak.slagalica.R;
+import com.elfak.slagalica.databinding.DialogFriendInviteBinding;
 import com.elfak.slagalica.helpers.NotifikacijaHelper;
 import com.elfak.slagalica.service.CiklusWorker;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -217,21 +219,76 @@ public class MainActivity extends AppCompatActivity {
     private void showInviteDialog(FriendInvite invite, String docId) {
         if (currentInviteDialog != null && currentInviteDialog.isShowing()) return;
 
-        currentInviteDialog = new AlertDialog.Builder(this)
-                .setTitle("Poziv na partiju")
-                .setMessage(invite.getSenderName() + " te poziva na prijateljsku partiju")
-                .setPositiveButton("Prihvati", (d, w) -> acceptInvite(invite, docId))
-                .setNegativeButton("Odbij", (d, w) -> rejectInvite(invite, docId))
-                .setCancelable(false)
-                .create();
+        DialogFriendInviteBinding dialogBinding = DialogFriendInviteBinding.inflate(getLayoutInflater());
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        builder.setView(dialogBinding.getRoot());
+        builder.setCancelable(false);
+
+        currentInviteDialog = builder.create();
+        if (currentInviteDialog.getWindow() != null) {
+            currentInviteDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            
+            // Set width to 90%
+            android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = (int) (displayMetrics.widthPixels * 0.9);
+            currentInviteDialog.getWindow().setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        dialogBinding.tvDialogTitle.setText("Poziv na partiju");
+        dialogBinding.tvMessage.setText("Poziv od igrača:");
+        dialogBinding.tvUsername.setText(invite.getSenderName());
+        dialogBinding.tvSubMessage.setText("Želi da odigra partiju sa tobom.");
+        
+        dialogBinding.flCountdown.setVisibility(View.VISIBLE);
+        dialogBinding.btnAction1.setVisibility(View.VISIBLE);
+        dialogBinding.btnAction2.setVisibility(View.VISIBLE);
+        dialogBinding.btnAction1.setText("Prihvati");
+        dialogBinding.btnAction2.setText("Odbij");
+        dialogBinding.btnCancel.setVisibility(View.GONE);
+
+        // Fetch sender data for avatar
+        FirebaseFirestore.getInstance().collection("users").document(invite.getSenderId())
+                .get().addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        String avatarUrl = snapshot.getString("avatarUrl");
+                        if (avatarUrl != null && !avatarUrl.isEmpty() && !isFinishing()) {
+                            com.bumptech.glide.Glide.with(this)
+                                .load(avatarUrl)
+                                .placeholder(R.drawable.ic_profile)
+                                .circleCrop()
+                                .into(dialogBinding.ivAvatar);
+                        } else {
+                            dialogBinding.ivAvatar.setImageResource(R.drawable.ic_profile);
+                        }
+                    }
+                });
+
+        dialogBinding.btnAction1.setOnClickListener(v -> {
+            currentInviteDialog.dismiss();
+            acceptInvite(invite, docId);
+        });
+        
+        dialogBinding.btnAction2.setOnClickListener(v -> {
+            currentInviteDialog.dismiss();
+            rejectInvite(invite, docId);
+        });
 
         currentInviteDialog.show();
-        handler.postDelayed(() -> {
-            if (currentInviteDialog != null && currentInviteDialog.isShowing()) {
-                currentInviteDialog.dismiss();
-                rejectInvite(invite, docId);
+
+        new android.os.CountDownTimer(10000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                int seconds = (int) (millisUntilFinished / 1000);
+                dialogBinding.tvCountdown.setText(String.format(Locale.getDefault(), "%02d", seconds));
+                dialogBinding.pbCountdown.setProgress(seconds);
             }
-        }, 10000);
+            public void onFinish() {
+                if (currentInviteDialog != null && currentInviteDialog.isShowing()) {
+                    currentInviteDialog.dismiss();
+                    rejectInvite(invite, docId);
+                }
+            }
+        }.start();
     }
 
     private void acceptInvite(FriendInvite invite, String docId) {
