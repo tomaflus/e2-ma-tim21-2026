@@ -1,0 +1,859 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/pozadinaBoja">
+
+    <TextView
+        android:id="@+id/tvBracketNaziv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:gravity="center"
+        android:textColor="#FFD700"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:text="Turnir"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dividerBoja"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ══ POLUFINALE 1 ══ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:text="POLUFINALE 1"
+                        android:textColor="#FFD700"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:textStyle="bold"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- SF1 Igrač 1 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarSF1Igrac1"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeSF1Igrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="1"
+                                    android:ellipsize="end"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:text="—"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaSF1Igrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXSF1Igrac1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="vs"
+                            android:textColor="#757575"
+                            android:textSize="12sp"
+                            android:layout_marginHorizontal="8dp"/>
+
+                        <!-- SF1 Igrač 2 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarSF1Igrac2"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeSF1Igrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="1"
+                                    android:ellipsize="end"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:text="—"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaSF1Igrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXSF1Igrac2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#22FFFFFF"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvRezultatSF1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:minHeight="40dp"
+                            android:text="—"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIgraySF1"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|center_vertical"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="Igraj"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            app:backgroundTint="#2E7D32"
+                            app:cornerRadius="8dp"/>
+
+                    </FrameLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="↓"
+                android:textColor="#FFD700"
+                android:textSize="20sp"
+                android:layout_marginVertical="4dp"/>
+
+            <!-- ══ POLUFINALE 2 ══ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:text="POLUFINALE 2"
+                        android:textColor="#FFD700"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.12"
+                        android:textStyle="bold"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- SF2 Igrač 1 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarSF2Igrac1"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeSF2Igrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="1"
+                                    android:ellipsize="end"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:text="—"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaSF2Igrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXSF2Igrac1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="vs"
+                            android:textColor="#757575"
+                            android:textSize="12sp"
+                            android:layout_marginHorizontal="8dp"/>
+
+                        <!-- SF2 Igrač 2 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarSF2Igrac2"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeSF2Igrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="1"
+                                    android:ellipsize="end"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:text="—"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaSF2Igrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXSF2Igrac2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#22FFFFFF"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvRezultatSF2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:minHeight="40dp"
+                            android:text="—"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIgraySF2"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|center_vertical"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="Igraj"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            app:backgroundTint="#2E7D32"
+                            app:cornerRadius="8dp"/>
+
+                    </FrameLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="↓"
+                android:textColor="#FFD700"
+                android:textSize="20sp"
+                android:layout_marginVertical="4dp"/>
+
+            <!-- ══ 3. MESTO ══ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#CD7F32"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:text="🥉  3. MESTO  🥉"
+                        android:textColor="#CD7F32"
+                        android:textSize="13sp"
+                        android:letterSpacing="0.12"
+                        android:textStyle="bold"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- 3. mjesto Igrač 1 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarTreceIgrac1"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"
+                                    android:visibility="invisible"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeTreceIgrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="2"
+                                    android:textColor="#AAFFFFFF"
+                                    android:textSize="12sp"
+                                    android:textStyle="italic"
+                                    android:text="Čeka gubitnika polufinala 1"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaTreceIgrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:visibility="gone"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXTreceIgrac1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="vs"
+                            android:textColor="#CD7F32"
+                            android:textSize="12sp"
+                            android:layout_marginHorizontal="8dp"/>
+
+                        <!-- 3. mjesto Igrač 2 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarTreceIgrac2"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"
+                                    android:visibility="invisible"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeTreceIgrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="2"
+                                    android:textColor="#AAFFFFFF"
+                                    android:textSize="12sp"
+                                    android:textStyle="italic"
+                                    android:text="Čeka gubitnika polufinala 2"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaTreceIgrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:visibility="gone"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXTreceIgrac2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#44CD7F32"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvRezultatTrece"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:minHeight="40dp"
+                            android:text="—"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIgrayTrece"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|center_vertical"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="Igraj"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            app:backgroundTint="#2E7D32"
+                            app:cornerRadius="8dp"/>
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvTreciPobjednik"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:textColor="#CD7F32"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ FINALE ══ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#FFD700"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:text="⭐  FINALE  ⭐"
+                        android:textColor="#FFD700"
+                        android:textSize="13sp"
+                        android:letterSpacing="0.12"
+                        android:textStyle="bold"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- Final Igrač 1 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarFinalIgrac1"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"
+                                    android:visibility="invisible"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeFinalIgrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="2"
+                                    android:textColor="#AAFFFFFF"
+                                    android:textSize="12sp"
+                                    android:textStyle="italic"
+                                    android:text="Čeka pobjednika polufinala 1"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaFinalIgrac1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:visibility="gone"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXFinalIgrac1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="vs"
+                            android:textColor="#FFD700"
+                            android:textSize="12sp"
+                            android:layout_marginHorizontal="8dp"/>
+
+                        <!-- Final Igrač 2 -->
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivAvatarFinalIgrac2"
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/ic_profile"
+                                    android:visibility="invisible"/>
+
+                                <TextView
+                                    android:id="@+id/tvImeFinalIgrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:maxLines="2"
+                                    android:textColor="#AAFFFFFF"
+                                    android:textSize="12sp"
+                                    android:textStyle="italic"
+                                    android:text="Čeka pobjednika polufinala 2"/>
+
+                                <TextView
+                                    android:id="@+id/tvLigaFinalIgrac2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp"
+                                    android:visibility="gone"
+                                    android:text="Liga 1"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvXFinalIgrac2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="✕"
+                                android:textColor="#AAFF3333"
+                                android:textSize="56sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#44FFD700"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvRezultatFinal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:minHeight="40dp"
+                            android:text="—"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIgrayFinal"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|center_vertical"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="Igraj"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            app:backgroundTint="#2E7D32"
+                            app:cornerRadius="8dp"/>
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvPobjednik"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:textColor="#FFD700"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

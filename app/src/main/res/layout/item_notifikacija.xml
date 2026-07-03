@@ -6,6 +6,17 @@
     android:padding="16dp"
     android:gravity="center_vertical">
 
+    <!-- Checkbox za selekciju (vidljiv samo u selekcijskom rezimu) -->
+    <CheckBox
+        android:id="@+id/cbSelektovana"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone"
+        android:buttonTint="#FFFFFF"/>
+
     <!-- Ikona kanala -->
     <TextView
         android:id="@+id/tvIkona"
@@ -53,12 +64,12 @@
 
     </LinearLayout>
 
-    <!-- Indikator nepročitano -->
+    <!-- Indikator nepročitano — bijela kružića -->
     <View
         android:id="@+id/viewNeprocitano"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:background="@color/black"
+        android:background="@drawable/bg_neprocitano_krug"
         android:layout_marginStart="8dp"
         android:visibility="visible"/>
 
