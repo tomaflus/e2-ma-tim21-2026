@@ -1,6 +1,5 @@
 package com.elfak.slagalica.repository;
 
-import com.elfak.slagalica.model.FriendInvite;
 import com.elfak.slagalica.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
@@ -9,7 +8,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FriendRepository {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -17,9 +18,9 @@ public class FriendRepository {
 
     public interface OnFriendsLoaded { void onLoaded(List<User> friends); }
     public interface OnSearchFinished { void onFound(List<User> users); }
-    public interface OnInviteSent { void onSent(String inviteId); }
+    public interface OnSuccessListener { void onSuccess(); }
 
-    public void addFriendMutual(String friendId, UserRepository.OnSuccessListener listener) {
+    public void addFriendMutual(String friendId, OnSuccessListener listener) {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
         if (uid.equals(friendId)) return;
@@ -28,7 +29,9 @@ public class FriendRepository {
         batch.update(db.collection("users").document(uid), "prijateljiIds", FieldValue.arrayUnion(friendId));
         batch.update(db.collection("users").document(friendId), "prijateljiIds", FieldValue.arrayUnion(uid));
 
-        batch.commit().addOnSuccessListener(v -> listener.onSuccess());
+        batch.commit().addOnSuccessListener(v -> {
+            if (listener != null) listener.onSuccess();
+        });
     }
 
     public void searchUsers(String query, OnSearchFinished listener) {
@@ -62,16 +65,39 @@ public class FriendRepository {
             listener.onLoaded(friends);
         });
     }
+    
+    public void addFriendByUsername(String username, OnSuccessListener listener) {
+        db.collection("users").whereEqualTo("korisnickoIme", username).limit(1).get().addOnSuccessListener(snapshots -> {
+            if (!snapshots.isEmpty()) {
+                addFriendMutual(snapshots.getDocuments().get(0).getId(), listener);
+            }
+        });
+    }
 
-    public void createInvite(String receiverId, String senderName, String gameId,
-                             OnInviteSent onSent, UserRepository.OnErrorListener onError) {
+    public interface OnInviteCreatedListener { void onCreated(String inviteId); }
+
+    public void createInvite(String receiverId, String senderName, String gameId, OnInviteCreatedListener listener) {
         if (auth.getCurrentUser() == null) return;
         String senderId = auth.getCurrentUser().getUid();
-        FriendInvite invite = new FriendInvite(senderId, senderName, receiverId);
-        invite.setGameId(gameId);
-        db.collection("invites")
-                .add(invite)
-                .addOnSuccessListener(ref -> { if (onSent != null) onSent.onSent(ref.getId()); })
-                .addOnFailureListener(e -> { if (onError != null) onError.onError(e.getMessage()); });
+        com.elfak.slagalica.model.FriendInvite invite = new com.elfak.slagalica.model.FriendInvite(senderId, senderName, receiverId);
+        if (gameId != null) invite.setGameId(gameId);
+        db.collection("invites").add(invite).addOnSuccessListener(ref -> {
+            if (listener != null) listener.onCreated(ref.getId());
+        });
+    }
+
+    public void cancelInvite(String inviteId, OnSuccessListener listener) {
+        db.collection("invites").document(inviteId).delete().addOnSuccessListener(v -> {
+            if (listener != null) listener.onSuccess();
+        });
+    }
+
+    public void respondToInvite(String inviteId, String status, String gameId, OnSuccessListener listener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", status);
+        if (gameId != null) updates.put("gameId", gameId);
+        db.collection("invites").document(inviteId).update(updates).addOnSuccessListener(v -> {
+            if (listener != null) listener.onSuccess();
+        });
     }
 }

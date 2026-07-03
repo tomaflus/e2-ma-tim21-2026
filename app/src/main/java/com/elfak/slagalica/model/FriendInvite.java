@@ -8,6 +8,7 @@ public class FriendInvite {
     private String status; 
     private String gameId;
     private long timestamp;
+    private long expiresAt;
 
     public FriendInvite() {}
 
@@ -17,6 +18,7 @@ public class FriendInvite {
         this.receiverId = receiverId;
         this.status = "PENDING";
         this.timestamp = System.currentTimeMillis();
+        this.expiresAt = this.timestamp + 10000; // 10 seconds timeout
     }
 
     public String getId() { return id; }
@@ -29,4 +31,6 @@ public class FriendInvite {
     public String getGameId() { return gameId; }
     public void setGameId(String gameId) { this.gameId = gameId; }
     public long getTimestamp() { return timestamp; }
+    public long getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(long expiresAt) { this.expiresAt = expiresAt; }
 }

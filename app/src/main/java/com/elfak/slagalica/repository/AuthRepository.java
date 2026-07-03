@@ -31,6 +31,12 @@ public class AuthRepository {
                             region
                     );
 
+                    // Set random coordinates within region
+                    com.elfak.slagalica.util.RegionUtil.getRandomPointInRegion(region);
+                    org.osmdroid.util.GeoPoint point = com.elfak.slagalica.util.RegionUtil.getRandomPointInRegion(region);
+                    user.setLatitude(point.getLatitude());
+                    user.setLongitude(point.getLongitude());
+
                     db.collection("users")
                             .document(firebaseUser.getUid())
                             .set(user)

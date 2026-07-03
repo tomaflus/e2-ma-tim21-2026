@@ -436,6 +436,13 @@ public class IgraFragment extends Fragment {
                     // Dnevne misije — DODATAK, ne mijenja postojeću logiku
                     okiniMisijuPartije(jePobjedio);
 
+                    // Provjera promjene lige
+                    userRepository.dohvatiKorisnika(user -> {
+                        if (isAdded()) {
+                            new com.elfak.slagalica.service.LeagueService(requireContext()).checkLeagueTransition(user);
+                        }
+                    }, e -> {});
+
                     if (isAdded() && getView() != null) {
                         Navigation.findNavController(requireView())
                                 .navigate(R.id.action_igraFragment_to_homeFragment);

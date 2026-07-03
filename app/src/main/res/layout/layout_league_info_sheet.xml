@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#1A1A2E"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:background="#2E2E4E" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kako funkcionišu lige?"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:lineSpacingExtra="4dp"
+        android:text="• Postoji ukupno 6 liga (0-5).\n• Liga se određuje isključivo prema ukupnom broju sakupljenih zvezda.\n• Svaka viša liga donosi +1 dodatni dnevni token (5 osnovnih + nivo lige).\n• Vaša liga se automatski proverava i ažurira nakon svake odigrane partije.\n• Ako izgubite dovoljno zvezda, možete pasti u nižu ligu.\n• Na kraju svakog meseca, igrači koji se ne nalaze na mesečnoj rang listi gube 30% zvezda, što može dovesti do promene lige.\n• O svakoj promeni ranga bićete obavešteni dijalogom unutar aplikacije."
+        android:textColor="#B0B0B0"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/btnCloseSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#6A1B9A"
+        android:text="RAZUMEM"
+        android:textColor="@color/white" />
+
+</LinearLayout>

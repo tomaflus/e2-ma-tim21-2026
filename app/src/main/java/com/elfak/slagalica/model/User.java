@@ -15,6 +15,7 @@ public class User {
     private int mesecniBodovi;
     private long zadnjiLoginDatum;
     private boolean online;
+    private boolean uPartiji;
     private int nedeljneZvezde;
     private int mesecneZvezde;
     private String nedeljaCiklusId = "";
@@ -24,6 +25,12 @@ public class User {
     private String lastNagradaNedeljaId = "";
     private String lastNagradaMesecId = "";
     private List<String> prijateljiIds = new ArrayList<>();
+    
+    // Student 2 KO fields
+    private double latitude;
+    private double longitude;
+    private long lastTokenBonusTimestamp;
+    private int previousCycleRegionRank; // 1, 2, or 3 for avatar frames
 
     public User() {}
 
@@ -61,6 +68,8 @@ public class User {
     public void setPrijateljiIds(List<String> prijateljiIds) { this.prijateljiIds = prijateljiIds; }
     public boolean isOnline() { return online; }
     public void setOnline(boolean online) { this.online = online; }
+    public boolean isuPartiji() { return uPartiji; }
+    public void setuPartiji(boolean uPartiji) { this.uPartiji = uPartiji; }
     public long getZadnjiLoginDatum() { return zadnjiLoginDatum; }
     public void setZadnjiLoginDatum(long zadnjiLoginDatum) { this.zadnjiLoginDatum = zadnjiLoginDatum; }
     public int getNedeljneZvezde() { return nedeljneZvezde; }
@@ -79,4 +88,13 @@ public class User {
     public void setLastNagradaNedeljaId(String id) { this.lastNagradaNedeljaId = id; }
     public String getLastNagradaMesecId() { return lastNagradaMesecId != null ? lastNagradaMesecId : ""; }
     public void setLastNagradaMesecId(String id) { this.lastNagradaMesecId = id; }
+
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public long getLastTokenBonusTimestamp() { return lastTokenBonusTimestamp; }
+    public void setLastTokenBonusTimestamp(long lastTokenBonusTimestamp) { this.lastTokenBonusTimestamp = lastTokenBonusTimestamp; }
+    public int getPreviousCycleRegionRank() { return previousCycleRegionRank; }
+    public void setPreviousCycleRegionRank(int previousCycleRegionRank) { this.previousCycleRegionRank = previousCycleRegionRank; }
 }
