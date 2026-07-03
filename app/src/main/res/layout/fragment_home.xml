@@ -89,6 +89,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_dnevne_misije"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnTurnir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Turnir"
                 android:layout_marginBottom="16dp"/>
 
             <Button

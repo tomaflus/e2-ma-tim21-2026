@@ -8,6 +8,8 @@ public class Notifikacija {
     public String sadrzaj;
     public String datumVrijeme;
     public boolean procitana;
+    public String turnirId; // za tip "turnir" — navigacija na konkretan turnir
+
     // Strukturna polja za tip "nagrade" (ostala polja su 0 / -1)
     public int tokeniNedelja;
     public int pozicijaNedelja = -1;

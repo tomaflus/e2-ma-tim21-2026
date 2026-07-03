@@ -28,6 +28,8 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
+    private static boolean toastPrikazan = false;
+
     private FragmentHomeBinding binding;
     private AuthRepository authRepository;
     private UserRepository userRepository;
@@ -135,6 +137,11 @@ public class HomeFragment extends Fragment {
                     .navigate(R.id.action_homeFragment_to_dnevneMisijeFragment);
         });
 
+        binding.btnTurnir.setOnClickListener(v -> {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_homeFragment_to_turnirFragment);
+        });
+
     }
 
     @Override
@@ -180,6 +187,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void prikaziNeprocitaneToast() {
+        if (toastPrikazan) return;
+        toastPrikazan = true;
         if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore.getInstance()

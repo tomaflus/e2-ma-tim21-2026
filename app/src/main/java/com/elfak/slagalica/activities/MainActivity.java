@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private ListenerRegistration acceptedListener;
     private ListenerRegistration rejectedListener;
     private ListenerRegistration nagradeListener;
+    private ListenerRegistration turnirListener;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private AlertDialog currentInviteDialog;
     private boolean isInForeground = false;
@@ -93,14 +94,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleNavigationIntent(Intent intent) {
-        if (intent == null || !"dnevneMisije".equals(intent.getStringExtra("navigateTo"))) return;
+        if (intent == null) return;
+        String navigateTo = intent.getStringExtra("navigateTo");
+        if (navigateTo == null) return;
         intent.removeExtra("navigateTo");
         if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         NavHostFragment navHost = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHost == null) return;
         try {
-            navHost.getNavController().navigate(R.id.dnevneMisijeFragment);
+            if ("dnevneMisije".equals(navigateTo)) {
+                navHost.getNavController().navigate(R.id.dnevneMisijeFragment);
+            } else if ("turnir".equals(navigateTo)) {
+                String turnirId = intent.getStringExtra("turnirId");
+                if (turnirId != null) {
+                    Bundle args = new Bundle();
+                    args.putString("turnirId", turnirId);
+                    navHost.getNavController().navigate(R.id.turnirBracketFragment, args);
+                } else {
+                    navHost.getNavController().navigate(R.id.turnirFragment);
+                }
+            }
         } catch (Exception ignored) {}
     }
 
@@ -127,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         if (inviteListener != null) return;
         String myId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         startNagradeListener(myId);
+        startTurnirListener(myId);
 
         inviteListener = FirebaseFirestore.getInstance().collection("invites")
                 .whereEqualTo("receiverId", myId)
@@ -209,11 +224,36 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void startTurnirListener(String uid) {
+        if (turnirListener != null) return;
+        boolean[] prvaVatara = {true};
+        turnirListener = FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .collection("notifikacije")
+                .whereEqualTo("tip", "turnir")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (snapshots == null) return;
+                    if (prvaVatara[0]) { prvaVatara[0] = false; return; }
+                    for (com.google.firebase.firestore.DocumentChange dc : snapshots.getDocumentChanges()) {
+                        if (dc.getType() == com.google.firebase.firestore.DocumentChange.Type.ADDED) {
+                            String naslov   = dc.getDocument().getString("naslov");
+                            String sadrzaj  = dc.getDocument().getString("sadrzaj");
+                            String turnirId = dc.getDocument().getString("turnirId");
+                            NotifikacijaHelper.prikaziNotifikacijuTurnir(this,
+                                    naslov  != null ? naslov  : "Turnir",
+                                    sadrzaj != null ? sadrzaj : "",
+                                    turnirId);
+                        }
+                    }
+                });
+    }
+
     private void stopInviteListeners() {
         if (inviteListener != null) { inviteListener.remove(); inviteListener = null; }
         if (acceptedListener != null) { acceptedListener.remove(); acceptedListener = null; }
         if (rejectedListener != null) { rejectedListener.remove(); rejectedListener = null; }
         if (nagradeListener != null) { nagradeListener.remove(); nagradeListener = null; }
+        if (turnirListener != null) { turnirListener.remove(); turnirListener = null; }
     }
 
     private void showInviteDialog(FriendInvite invite, String docId) {

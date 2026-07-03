@@ -55,6 +55,42 @@
         android:layout_height="1dp"
         android:background="@color/dividerBoja"/>
 
+    <!-- Traka za selekciju (vidljiva samo u selekcijskom rezimu) -->
+    <LinearLayout
+        android:id="@+id/llSelekcijaToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="#22FFFFFF"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnIzaberiSve"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Izaberi sve"
+            android:textSize="13sp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="#1565C0"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnObrisiSelektovane"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Obriši"
+            android:textSize="13sp"
+            android:drawableStart="@drawable/ic_trash"
+            android:drawablePadding="4dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="#C62828"/>
+
+    </LinearLayout>
+
     <!-- Lista notifikacija -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNotifikacije"
